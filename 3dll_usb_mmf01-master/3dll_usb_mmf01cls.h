@@ -1,0 +1,4 @@
+#ifndef DLL_USB_MMF01CLS_H
+#define DLL_USB_MMF01CLS_H
+
+#endif // DLL_USB_MMF01CLS_H
