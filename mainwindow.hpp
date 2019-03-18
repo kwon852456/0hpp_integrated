@@ -134,7 +134,6 @@ class Dll_usb_mmf01stl : public QObject{
     bool srl_i(const int _iDegree, const int _id);
     int i_srl(int _id);
     void cmd_id(unsigned char cmd_[11],const int& _iDegree,const int& _id );
-    void req_id(unsigned char req_[6],const int& _id );
     bool thsri_pai3(const int _ai3[3],const unsigned short _row);
 
 

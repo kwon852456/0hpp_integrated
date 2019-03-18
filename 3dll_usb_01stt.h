@@ -629,6 +629,7 @@ i::t i_srl_mmf(qt::srl::p _srl ,i::t _id){
 }
 
 
+
 void mmf_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
 
 
@@ -647,6 +648,24 @@ void mmf_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
     mmf_pai3Val(encVal);
 
 }
+
+void lv_no(QListWidget*_lv, i::t startNo, i::t endNo){
+    for(z::t i(startNo) ; i < endNo ; ++i){
+        _lv->addItem(qt::s_i(i));
+    }
+
+}
+
+
+void sub_pai36(pai3::p pai_, pai3::p _pai3){
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 3 ; ++j){
+            pai_[i][j] -= _pai3[i][j];
+        }
+    }
+}
+
 
 
 

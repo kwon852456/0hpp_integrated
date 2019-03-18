@@ -13,29 +13,26 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    wThread = new QThread();
-    sendTimer = new QTimer(this);
-    srl_fileTimer = new QTimer(this);
+    qRegisterMetaType<QList<int>>("QList<int>");
 
 
-    stl = new Dll_usb_mmf01stl();
+
+    wThread       = new QThread();
+    sendTimer     = new QTimer (this);
+    srl_fileTimer = new QTimer (this);
+    stl           = new Dll_usb_mmf01stl();
 
     stl->moveToThread(wThread);
-
     wThread->start();
 
     makeConnection();
 
-    qRegisterMetaType<QList<int>>("QList<int>");
 
-    sendTimer->setInterval(1000);
-    srl_fileTimer->setInterval(1000);
+    sendTimer    -> setInterval (1000);
+    srl_fileTimer-> setInterval (1000);
 
-    init_tbrs();
-    init_lv();
-
-    emit log("1.input comport and press enter.");
+    init_tbrs ();
+    init_lv   ();
 
 }
 
@@ -50,16 +47,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::makeConnection(){
 
-    connect(this,          &MainWindow::thsrl_cds,    stl,   &Dll_usb_mmf01stl::srl_pai3);
-    connect(this,          &MainWindow::send_clicked, stl,   &Dll_usb_mmf01stl::thsri_qai3);
-    connect(srl_fileTimer, &QTimer::timeout,         this,   &MainWindow::fileTimerTimeOut);
-    connect(sendTimer,     &QTimer::timeout,         this,   &MainWindow::srl_ai3);
-    connect(this,          &MainWindow::readOffset,   stl,   &Dll_usb_mmf01stl::OnReadOffset);
-    connect(this,          &MainWindow::mmfClicked,   stl,   &Dll_usb_mmf01stl::mmfClicked);
-    connect(this,          &MainWindow::write_log,   ui->usb_log, &Usb_log::setlog);
-    connect(stl,           &Dll_usb_mmf01stl::log,   this,   &MainWindow::write_log);
-    connect(this,          &MainWindow::openFirstSerial, stl, & Dll_usb_mmf01stl::openFirstSerial);
-    connect(this,          &MainWindow::openSecondSerial, stl, & Dll_usb_mmf01stl::openSecondSerial);
+    connect(this,          &MainWindow::thsrl_cds,        stl,        &Dll_usb_mmf01stl::srl_pai3);
+    connect(this,          &MainWindow::send_clicked,     stl,        &Dll_usb_mmf01stl::thsri_qai3);
+    connect(srl_fileTimer, &QTimer::timeout,             this,        &MainWindow::fileTimerTimeOut);
+    connect(sendTimer,     &QTimer::timeout,             this,        &MainWindow::srl_ai3);
+    connect(this,          &MainWindow::readOffset,       stl,        &Dll_usb_mmf01stl::OnReadOffset);
+    connect(this,          &MainWindow::mmfClicked,       stl,        &Dll_usb_mmf01stl::mmfClicked);
+    connect(this,          &MainWindow::write_log,       ui->usb_log, &Usb_log::setlog);
+    connect(stl,           &Dll_usb_mmf01stl::log,       this,        &MainWindow::write_log);
+    connect(this,          &MainWindow::openFirstSerial,  stl,        &Dll_usb_mmf01stl::openFirstSerial);
+    connect(this,          &MainWindow::openSecondSerial, stl,        &Dll_usb_mmf01stl::openSecondSerial);
 
 }
 
@@ -72,27 +69,25 @@ b::t MainWindow::init_tbrs(){
     return b::T1;
 }
 
-b::t MainWindow::init_lv(){
+b::t MainWindow::init_lv(){  lv_no(ui->lv_legs, 1, 7);   return b::T1;   }
 
-    for(z::t i(1) ; i < 7 ; ++i){
+void add_pai36(pai3::p pai_, pai3::p _pai3){
 
-        ui->lv_legs->addItem(qt::s_i(i));
-
-    }
-
-
-
-    return b::T1;
-}
-
-b::t addOffset(pai3::p _command){
     for(z::t i(0) ; i < 6 ; ++i){
         for(z::t j(0) ; j < 3 ; ++j){
-            _command[i][j] -= OFFSET[i][j];
+            pai_[i][j] += _pai3[i][j];
         }
     }
 
+}
+
+b::t addOffset(pai3::p _command){
+
+
+    add_pai36(_command, OFFSET);
+
     return b::T1;
+
 }
 
 vo::t MainWindow::fileTimerTimeOut(){
@@ -263,18 +258,6 @@ vo::t Dll_usb_mmf01stl::cmd_id(cmd::t cmd_,i::R _iDegree,i::R _id ){
 
 }
 
-vo::t Dll_usb_mmf01stl::req_id(req::t req_,i::R _id ){
-
-    y::t checkSum = ~((y::t)((y::t)_id + 0xA1 + 2));
-
-    req_[0] = 0xFF;
-    req_[1] = 0xFE;
-    req_[2] = (y::t)_id;
-    req_[3] = 2;
-    req_[4] = checkSum;
-    req_[5] = 0xA1;
-
-}
 
 b::t Dll_usb_mmf01stl::thsri_qai3(QList<int> _qai3, i::t _legNo){
     qDebug() << __func__ << endl;
@@ -414,7 +397,9 @@ void SerialWorker::onWrite_cmd(c::p _cmd){
     y::p cmd = reinterpret_cast<y::p>(_cmd);
     qt::yar::t send_Data_Bytes = qt::yar::t::fromRawData(reinterpret_cast<c::p>(cmd), cmd::Z);
 
-    port->write(send_Data_Bytes);
+    if(port->isOpen()){
+        port->write(send_Data_Bytes);
+    }else emit log("serial not opned..");
 
 }
 
@@ -422,11 +407,18 @@ void SerialWorker::onWrite_cmd(c::p _cmd){
 int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
 
     //qDebug() <<__func__ << QThread::currentThread() << endl;
+
+    if(port->isOpen()){
+
+
+
+    }else emit log("serial not opned..");
     if(port->write(_req)){
 
         if(!port->waitForReadyRead(1000)){
-            qDebug() << " response time out from id : "+ qt::s_i(_id)  + "..! try again..!";
-            emit log(" response time out from id : "+ qt::s_i(_id)  + "..! try again..!");
+
+            qDebug() << " response time out from id : "   + qt::s_i(_id)  +    "..! try again..!"   ;
+            emit log   (" response time out from id : "   + qt::s_i(_id)  +    "..! try again..!"   );
 
         }else{
 
@@ -438,11 +430,14 @@ int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
 }
 
 void SerialWorker::setIds(){
+
     i::t id[18] = {11, 12, 13, 21, 22, 23, 31, 32, 33, 41, 42, 43, 51, 52, 53, 61, 62, 63 };
     for(i::t i : id){ ids.push_back(i); }
+
 }
 
 void SerialWorker::onMmfCheck_clicked(){
+
     qDebug() << __func__ << endl;
     emit log(__func__ );
 
@@ -453,47 +448,55 @@ void SerialWorker::onMmfCheck_clicked(){
         mmf_srl(port, ids, OFFSET);
 
     }else{
+
         qDebug() << "Serial not opened...!" << endl;
-        emit log("Serial not opened...!");
+        emit    log("Serial not opened...!");
     }
 
     isSrlFinished = !isSrlFinished;
+}
 
 
+qt::yar::t yar_id(i::t _id){
+
+    req::t request;
+
+    req_id(request, _id);
+
+    c::p pReq = reinterpret_cast<c::p>(request);
+
+    return QByteArray::fromRawData(pReq, req::Z);
 }
 
 QList<int> SerialWorker::onLv_clicked(int _legNo){
-    //qDebug() << __func__ << endl;
 
     QList<int> leg_Enc;
 
     for(z::t i(0) ; i < 3 ; ++i){
 
         i::t id = (_legNo * 10) + (i + 1);
+        if(port->isOpen()){
 
-        req::t request; req_id(request, id);
-        c::p pReq = reinterpret_cast<c::p>(request);
+            if(port->write(yar_id(id))){
 
-        int recvEncVal;
-        QByteArray arr = QByteArray::fromRawData(pReq,req::Z);
+                if(!port->waitForReadyRead(1000)){
 
-        if(port->write(arr)){
+                    qDebug() << " response time out from id : "  + qt::s_i(id)  + "..! try again..!";
+                    emit log(" response time out from id : "     + qt::s_i(id)  + "..! try again..!");
 
-            if(!port->waitForReadyRead(1000)){
+                }else{
 
-                qDebug() << " response time out from id : "+ qt::s_i(id)  + "..! try again..!";
-                emit log(" response time out from id : "+ qt::s_i(id)  + "..! try again..!");
-            }else{
+                    leg_Enc.push_back(encVal_srl(port));
+                }
 
-                leg_Enc.push_back(encVal_srl(port));
-            }
 
-        }else{ qDebug() << " write failed on" << __func__ << endl;   emit log("write failed");}
+            }else{ qDebug() << " write failed on" << __func__ << endl;   emit log("write failed");}
+
+        }else emit log("Serial not opened..!");
 
     }
 
     return leg_Enc;
-
 
 }
 
