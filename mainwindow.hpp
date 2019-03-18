@@ -21,6 +21,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void makeConnection();
+
 
     bool nativeEvent(const QByteArray &eventType, void *message, long *resultMSG);
     int (*pai_msg(void* _message))[3];
@@ -30,7 +32,7 @@ public:
     bool offset_fn(QString _path);
     void tbrs_legNo(int _legNo);
     void load_offset(const QString& _fn);
-
+    void MainWindow::log(QString _text);
 
     QThread* wThread;
     QTimer* sendTimer;
@@ -45,6 +47,14 @@ public:
 signals:
     void thsrl_cds(int** _cmd);
     void send_clicked(QList<int> _qai3, int _legNo);
+    void readOffset();
+    void saveOffset();
+    void mmfClicked();
+    void write_log(QString _text);
+    void openFirstSerial(QString _text);
+    void openSecondSerial(QString _text);
+
+
 
 private slots:
 
@@ -94,12 +104,23 @@ private slots:
 
     void on_btnClear_clicked();
 
+    void on_offset_readOffset();
+
+    void on_offset_saveOffset();
+
+    void on_usb_mmf_mmfClicked();
+
+    void on_edit_firstSerial_returnPressed();
+
+    void on_edit_secondSerial_returnPressed();
+
 private:
     Ui::MainWindow *ui;
 };
 
 
 class SerialWorker;
+class OffsetWorker;
 
 class Dll_usb_mmf01stl : public QObject{
 
@@ -119,18 +140,27 @@ class Dll_usb_mmf01stl : public QObject{
 
 
     SerialWorker* sWorker;
-    SerialWorker* mWorker;
+    OffsetWorker* oWorker;
     QThread* sThread;
     QThread* mThread;
 
 signals:
     void write_cmd(char* _cmd);
     void write_req(char* _req);
+    void readOffset();
+    void mmfClicked();
+    void log(const QString _text);
+    void openFirstSerial(QString _text);
+    void openSecondSerial(QString _text);
+
 
 
 public slots:
     bool srl_pai3(int** _cmd);
     bool thsri_qai3(QList<int> _qai3, int _legNo);
+    void OnReadOffset();
+
+
 };
 
 
@@ -151,11 +181,17 @@ class SerialWorker : public QObject{
         explicit SerialWorker(QObject *parent = nullptr);
         ~SerialWorker();
 
-    QSerialPort* port;
+    void setIds();
+    bool isSrlFinished = true;
 
+
+
+    QSerialPort* port;
+    QList<int> ids;
 
 
 signals:
+    void log(const QString _text);
 
 
 
@@ -164,7 +200,31 @@ public slots:
     int  onWrite_req(QByteArray _req, int _id);
     QList<int> onLv_clicked(int legNo);
 
+    void onMmfCheck_clicked();
+    void setSerialPort(QString _port);
 
+};
+
+
+class OffsetWorker : public QObject{
+
+
+        Q_OBJECT
+
+    public:
+        explicit OffsetWorker(QObject *parent = nullptr);
+        ~OffsetWorker();
+
+
+    QSerialPort* srl;
+
+signals:
+    void log(QString _text);
+
+
+public slots:
+    void onReadOffset();
+    void setSerialPort(QString _port);
 
 };
 

@@ -179,8 +179,26 @@ void con_pai3(pai3::p _pai3){
             temp.sprintf("%d ", _pai3[i][j]);
             msg += temp;
         }
+
         qDebug() << msg;
     }
+}
+
+
+QString qs_pai3(pai3::p _pai3){
+    qt::s::t temp = qt::s::T0;
+    qt::s::t msg = qt::s::T0;
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        temp.clear();
+        for(z::t j(0) ; j < 3 ; ++j){
+            temp.sprintf("%d ", _pai3[i][j]);
+            msg += temp;
+        }
+
+        msg += "\n";
+    }
+    return msg;
 }
 
 s::v del_basket(s::t _String){
@@ -219,7 +237,11 @@ void mmf_pai3Val(pai3::p _pai3Val){
 
     hnd::t handle = create_mmf("mmftest_pchr", 1024);
     mmf_pai3(handle,_pai3Val,6);
+
+    qDebug() << "mmf write result :" << endl;
+    con_pai3(_pai3Val);
 }
+
 
 void OFFSET_pai3Val(pai3::p OFFSET_, pai3::p _pai3){
     for(z::t i(0) ; i < 6 ; ++i){
@@ -301,7 +323,8 @@ qt::s::t s_pai3(pai3::p _pai3, h::T _h){
      return text;
 }
 
-bool save_pai3(pai3::p _pai3, h::T _h){
+qt::s::t save_pai3(pai3::p _pai3, h::T _h){
+
     QFile file("OFFSET.txt");
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
         qDebug() << "File read failed"; return false;
@@ -311,6 +334,9 @@ bool save_pai3(pai3::p _pai3, h::T _h){
     QTextStream out(&file);
     qDebug() << s_pai3(_pai3,_h) << endl;
     out << s_pai3(_pai3,_h);
+
+    return s_pai3(_pai3,_h);
+
 }
 
 bool load_pai3(pai3::p _offset_,h::t _h ,QWidget*parent = nullptr){
@@ -551,5 +577,77 @@ b::t srl_pai3(qt::srl::p _srl ,pai3::p _pai3, h::R _h){
     synchronizer.waitForFinished();
     return b::T1;
 }
+
+int encVal_srl(qt::srl::p _srl){
+
+    qt::yar::t dataFromSri = _srl -> read(12);
+    y::p yDataFromSri = reinterpret_cast<y::p>(dataFromSri.data());
+
+
+    y2::u y2;
+
+    y2.t2[0] = yDataFromSri[8];
+    y2.t2[1] = yDataFromSri[7];
+
+    int degree = (i::t)y2.h1;
+
+    if(yDataFromSri[6] == 0x01) { degree = -degree; }
+
+
+
+    return degree;
+}
+
+i::t onWrite_req(qt::srl::p _srl ,qt::yar::t _req, i::t _id){
+
+    //qDebug() <<__func__ << QThread::currentThread() << endl;
+    if(_srl->write(_req)){
+
+        if(!_srl->waitForReadyRead(1000)){
+            qDebug() << " response time out from id : "+ qt::s_i(_id)  + "..! try again..!";
+
+        }else{
+
+            return encVal_srl(_srl);
+        }
+
+    }else{ qDebug() << " write failed on" << __func__ << endl;  return 0; }
+
+}
+
+i::t i_srl_mmf(qt::srl::p _srl ,i::t _id){
+
+    //qDebug() << __func__ << endl;
+
+    req::t request; req_id(request, _id);
+    c::p pReq = reinterpret_cast<c::p>(request);
+
+    QByteArray arr = QByteArray::fromRawData(pReq,req::Z);
+
+
+    return onWrite_req(_srl, arr, _id);;
+}
+
+
+void mmf_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
+
+
+    i::t tempArr[6][3] = { {0,},{0,},{0,},{0,},{0,},{0,} };
+    pai3::p encVal = tempArr;
+
+    for(i::t id : _ids){
+
+        int row = (id / 10) -1;
+        int colm = (id % 10) -1;
+
+        encVal[row][colm] = i_srl_mmf(_srl,id) + _offset[row][colm];
+
+    }
+
+    mmf_pai3Val(encVal);
+
+}
+
+
 
 #endif // DLL_USB_OFFSET01STT_H

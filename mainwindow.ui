@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>829</width>
-    <height>421</height>
+    <width>972</width>
+    <height>589</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <rect>
       <x>10</x>
       <y>250</y>
-      <width>871</width>
+      <width>331</width>
       <height>51</height>
      </rect>
     </property>
@@ -89,8 +89,8 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>481</x>
-      <y>1</y>
+      <x>640</x>
+      <y>10</y>
       <width>306</width>
       <height>285</height>
      </rect>
@@ -236,7 +236,7 @@
     <property name="geometry">
      <rect>
       <x>200</x>
-      <y>165</y>
+      <y>130</y>
       <width>121</width>
       <height>21</height>
      </rect>
@@ -248,8 +248,8 @@
    <widget class="QPushButton" name="btn_send">
     <property name="geometry">
      <rect>
-      <x>400</x>
-      <y>180</y>
+      <x>200</x>
+      <y>160</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -271,7 +271,7 @@
    <widget class="QCheckBox" name="cb_sign">
     <property name="geometry">
      <rect>
-      <x>310</x>
+      <x>460</x>
       <y>130</y>
       <width>151</width>
       <height>16</height>
@@ -284,7 +284,7 @@
    <widget class="QCheckBox" name="cb_offset">
     <property name="geometry">
      <rect>
-      <x>310</x>
+      <x>460</x>
       <y>150</y>
       <width>141</width>
       <height>21</height>
@@ -333,14 +333,109 @@
      <string>80</string>
     </property>
    </widget>
+   <widget class="Usb_log" name="usb_log">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>310</y>
+      <width>631</width>
+      <height>211</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cb_firstLeg">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>10</y>
+      <width>141</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>[&amp;1] FirstLeg</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cb_secondLeg">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>60</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>[&amp;2] SecondLeg</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cb_thirdLeg">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>100</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>[&amp;3]ThirdLeg</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edit_firstSerial">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>220</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edit_secondSerial">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>260</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>230</y>
+      <width>56</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Serial 1</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>260</y>
+      <width>56</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Serial 2</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>829</width>
-     <height>26</height>
+     <width>972</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -360,6 +455,11 @@
    <class>Offset</class>
    <extends>QWidget</extends>
    <header>offset.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>Usb_log</class>
+   <extends>QWidget</extends>
+   <header>usb_log.h</header>
   </customwidget>
   <customwidget>
    <class>Usb_mmf</class>

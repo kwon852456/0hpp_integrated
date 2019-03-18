@@ -5,7 +5,7 @@
 pai3::p OFFSET = new i::t[6][3]{  {0, },{0, },{0, },{0, },{0, },{0, }  };
 pai3::p OFFSETTEMP = new i::t[6][3]{  {0, },{0, },{0, },{0, },{0, },{0, }  };
 
-QMutex mutForSrl;
+QMutex mutForOffset;
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -25,10 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     wThread->start();
 
-    connect(this,          &MainWindow::thsrl_cds,    stl,   &Dll_usb_mmf01stl::srl_pai3);
-    connect(this,          &MainWindow::send_clicked, stl,   &Dll_usb_mmf01stl::thsri_qai3);
-    connect(srl_fileTimer, &QTimer::timeout,         this,   &MainWindow::fileTimerTimeOut);
-    connect(sendTimer,     &QTimer::timeout,         this,   &MainWindow::srl_ai3);
+    makeConnection();
 
     qRegisterMetaType<QList<int>>("QList<int>");
 
@@ -37,6 +34,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     init_tbrs();
     init_lv();
+
+    emit log("1.input comport and press enter.");
+
 }
 
 
@@ -48,7 +48,24 @@ MainWindow::~MainWindow()
     wThread->wait();
 }
 
+void MainWindow::makeConnection(){
 
+    connect(this,          &MainWindow::thsrl_cds,    stl,   &Dll_usb_mmf01stl::srl_pai3);
+    connect(this,          &MainWindow::send_clicked, stl,   &Dll_usb_mmf01stl::thsri_qai3);
+    connect(srl_fileTimer, &QTimer::timeout,         this,   &MainWindow::fileTimerTimeOut);
+    connect(sendTimer,     &QTimer::timeout,         this,   &MainWindow::srl_ai3);
+    connect(this,          &MainWindow::readOffset,   stl,   &Dll_usb_mmf01stl::OnReadOffset);
+    connect(this,          &MainWindow::mmfClicked,   stl,   &Dll_usb_mmf01stl::mmfClicked);
+    connect(this,          &MainWindow::write_log,   ui->usb_log, &Usb_log::setlog);
+    connect(stl,           &Dll_usb_mmf01stl::log,   this,   &MainWindow::write_log);
+    connect(this,          &MainWindow::openFirstSerial, stl, & Dll_usb_mmf01stl::openFirstSerial);
+    connect(this,          &MainWindow::openSecondSerial, stl, & Dll_usb_mmf01stl::openSecondSerial);
+
+}
+
+void MainWindow::log(qt::s::T _text){
+    emit write_log(_text);
+}
 
 b::t MainWindow::init_tbrs(){
     set_tbrs();
@@ -81,6 +98,9 @@ b::t addOffset(pai3::p _command){
 vo::t MainWindow::fileTimerTimeOut(){
 
     qDebug() <<" row idx " << ui->lv_commands->currentRow() << endl;
+    log(" row idx " + ui->lv_commands->currentRow());
+
+
 
     if(ui->lv_commands->currentRow() != -1){
 
@@ -116,11 +136,10 @@ pai3::p MainWindow::pai_msg(void* _message){
 
         return pai3;
     }
+
     return nil;
 
 }
-
-
 
 b::t MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *resultMSG) {
 
@@ -152,6 +171,9 @@ b::t MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
 
 
 
+
+
+
 Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
 
 
@@ -159,24 +181,28 @@ Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
         mThread = new QThread();
 
         sWorker = new SerialWorker();
-        mWorker = new SerialWorker();
+        oWorker = new OffsetWorker();
 
         sWorker->moveToThread(sThread);
-        mWorker->moveToThread(mThread);
+        oWorker->moveToThread(mThread);
 
 
-        connect(this, &Dll_usb_mmf01stl::write_cmd, sWorker , &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
-
+        connect(this,    &Dll_usb_mmf01stl::write_cmd , sWorker , &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
+        connect(this,    &Dll_usb_mmf01stl::mmfClicked, sWorker , &SerialWorker::onMmfCheck_clicked);
+        connect(this,    &Dll_usb_mmf01stl::readOffset, oWorker , &OffsetWorker::onReadOffset);
+        connect(sWorker, &SerialWorker::log,                this, &Dll_usb_mmf01stl::log);
+        connect(oWorker, &OffsetWorker::log,                this, &Dll_usb_mmf01stl::log);
+        connect(this,    &Dll_usb_mmf01stl::openFirstSerial,  sWorker, &SerialWorker::setSerialPort);
+        connect(this,    &Dll_usb_mmf01stl::openSecondSerial, oWorker, &OffsetWorker::setSerialPort);
 
         sThread->start();
+        mThread->start();
 }
 
 Dll_usb_mmf01stl::~Dll_usb_mmf01stl(){
     sThread->quit();
     sThread->wait();
 };
-
-
 
 b::t Dll_usb_mmf01stl::srl_i(i::t _iDegree, i::t _id){
 
@@ -192,7 +218,6 @@ b::t Dll_usb_mmf01stl::srl_i(i::t _iDegree, i::t _id){
     return true;
 
 }
-
 
 i::t Dll_usb_mmf01stl::i_srl(i::t _id){
 
@@ -213,7 +238,6 @@ i::t Dll_usb_mmf01stl::i_srl(i::t _id){
 
     return recvEncVal;
 }
-
 
 vo::t Dll_usb_mmf01stl::cmd_id(cmd::t cmd_,i::R _iDegree,i::R _id ){
 
@@ -254,33 +278,38 @@ vo::t Dll_usb_mmf01stl::req_id(req::t req_,i::R _id ){
 
 b::t Dll_usb_mmf01stl::thsri_qai3(QList<int> _qai3, i::t _legNo){
     qDebug() << __func__ << endl;
+    emit log(__func__);
 
     QFutureSynchronizer<b::t> synchronizer;
     for(z::t i(0) ; i < 3 ; ++i ){
 
         int id = (_legNo * 10) + (i + 1);
 
-        synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
+        if(_qai3[i] != -1){
 
-            while(1){
+            synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
 
-                if(  !((_qai3[i] - 100) < i_srl(id) && (_qai3[i] + 100) >  i_srl(id))  ){ qDebug("_ai3[i] != i_srl(id)"); srl_i(_qai3[i], id);}
-                else { break; }
+                while(1){
 
-            }
-            qDebug() << "id" << id << "_qai3[i]" << _qai3[i] << "i_srl(id)" << i_srl(id) << endl;
+                    if(  !((_qai3[i] - 100) < i_srl(id) && (_qai3[i] + 100) >  i_srl(id))  ){ qDebug("_ai3[i] != i_srl(id)"); srl_i(_qai3[i], id);}
+                    else { break; }
 
-        return b::T1;
+                }
+                qDebug() << "id" << id << "_qai3[i]" << _qai3[i] << "i_srl(id)" << i_srl(id) << endl;
 
-        }));
+                emit log("id  " + qt::s_i(id) + "  _qai3[i]  " + qt::s_i(_qai3[i]) + "  i_srl(id)  " + qt::s_i(i_srl(id)));
+
+            return b::T1;
+
+            }));
+
+        }
     }
 
     synchronizer.waitForFinished();
 
     return b::T0;
 }
-
-
 
 b::t Dll_usb_mmf01stl::thsri_pai3(i::A3 _ai3, h::T _row){
     //qDebug() << __func__ << endl;
@@ -299,7 +328,7 @@ b::t Dll_usb_mmf01stl::thsri_pai3(i::A3 _ai3, h::T _row){
 
             }
             qDebug() << "id" << id << "_ai3[i]" << _ai3[i] << "i_srl(id)" << i_srl(id) << endl;
-
+            emit log("id  " + qt::s_i(id) + "  _ai3[i]  " + qt::s_i(_ai3[i]) + "  i_srl(id)  " + qt::s_i(i_srl(id)));
         return b::T1;
 
         }));
@@ -319,8 +348,6 @@ bool ia3_pai3(i::a3 ia3_ ,pai3::p _pai3, i::T _iRow){
     return b::T1;
 }
 
-
-
 b::t Dll_usb_mmf01stl::srl_pai3(int** _pai3){
 
     //qDebug() << __func__ << endl;
@@ -328,6 +355,7 @@ b::t Dll_usb_mmf01stl::srl_pai3(int** _pai3){
     pai3::p cmd = pai3_pp(_pai3);
 
     QFutureSynchronizer<b::t> synchronizer;
+
 
 
     for(z::t i(0) ; i < 6 ; ++i){ synchronizer.addFuture(QtConcurrent::run([=](){
@@ -348,15 +376,38 @@ b::t Dll_usb_mmf01stl::srl_pai3(int** _pai3){
 
 }
 
+void Dll_usb_mmf01stl::OnReadOffset(){
+
+    qDebug() << __func__ << endl;
+    emit log(__func__);
+
+    emit readOffset();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 SerialWorker::SerialWorker(QObject *parent ){
 
-    port = CreateSrl(this,8);
+    port = CreateSrl(this,0);
 
 }
 
+SerialWorker::~SerialWorker(){
+    port->close();
 
+}
 
 void SerialWorker::onWrite_cmd(c::p _cmd){
 
@@ -368,27 +419,6 @@ void SerialWorker::onWrite_cmd(c::p _cmd){
 }
 
 
-
-int encVal_srl(qt::srl::p _srl){
-
-    qt::yar::t dataFromSri = _srl -> read(12);
-    y::p yDataFromSri = reinterpret_cast<y::p>(dataFromSri.data());
-
-
-    y2::u y2;
-
-    y2.t2[0] = yDataFromSri[8];
-    y2.t2[1] = yDataFromSri[7];
-
-    int degree = (i::t)y2.h1;
-
-    if(yDataFromSri[6] == 0x01) { degree = -degree; }
-
-
-
-    return degree;
-}
-
 int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
 
     //qDebug() <<__func__ << QThread::currentThread() << endl;
@@ -396,13 +426,39 @@ int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
 
         if(!port->waitForReadyRead(1000)){
             qDebug() << " response time out from id : "+ qt::s_i(_id)  + "..! try again..!";
+            emit log(" response time out from id : "+ qt::s_i(_id)  + "..! try again..!");
 
         }else{
 
             return encVal_srl(port);
         }
 
-    }else{ qDebug() << " write failed on" << __func__ << endl;  return 0; }
+    }else{ qDebug() << " write failed on" << __func__ << endl;  return 0; emit log( qt::qs_s(" write failed on") + qt::qs_s("onWrite_req") );}
+
+}
+
+void SerialWorker::setIds(){
+    i::t id[18] = {11, 12, 13, 21, 22, 23, 31, 32, 33, 41, 42, 43, 51, 52, 53, 61, 62, 63 };
+    for(i::t i : id){ ids.push_back(i); }
+}
+
+void SerialWorker::onMmfCheck_clicked(){
+    qDebug() << __func__ << endl;
+    emit log(__func__ );
+
+    isSrlFinished = !isSrlFinished;
+
+    if(port->isOpen()){
+
+        mmf_srl(port, ids, OFFSET);
+
+    }else{
+        qDebug() << "Serial not opened...!" << endl;
+        emit log("Serial not opened...!");
+    }
+
+    isSrlFinished = !isSrlFinished;
+
 
 }
 
@@ -415,8 +471,6 @@ QList<int> SerialWorker::onLv_clicked(int _legNo){
 
         i::t id = (_legNo * 10) + (i + 1);
 
-
-
         req::t request; req_id(request, id);
         c::p pReq = reinterpret_cast<c::p>(request);
 
@@ -428,13 +482,13 @@ QList<int> SerialWorker::onLv_clicked(int _legNo){
             if(!port->waitForReadyRead(1000)){
 
                 qDebug() << " response time out from id : "+ qt::s_i(id)  + "..! try again..!";
-
+                emit log(" response time out from id : "+ qt::s_i(id)  + "..! try again..!");
             }else{
 
                 leg_Enc.push_back(encVal_srl(port));
             }
 
-        }else{ qDebug() << " write failed on" << __func__ << endl;  }
+        }else{ qDebug() << " write failed on" << __func__ << endl;   emit log("write failed");}
 
     }
 
@@ -443,12 +497,90 @@ QList<int> SerialWorker::onLv_clicked(int _legNo){
 
 }
 
-
-
-SerialWorker::~SerialWorker(){
+void SerialWorker::setSerialPort(QString _comPort){
+    emit log("comport" + _comPort);
     port->close();
+    port->setPortName(_comPort);
 
+    if(!port->open(QIODevice::ReadWrite)){
+
+        qDebug() << "Serial connect failed" << endl;
+        emit log("Serial connect failed");
+
+    }else{
+
+        qDebug() << "Serial opened" << endl;
+        emit log("Serial opened");
+    }
 }
+
+
+
+
+
+
+
+
+
+
+OffsetWorker::OffsetWorker(QObject *parent){
+    srl = CreateSrl(this,0);
+}
+OffsetWorker::~OffsetWorker(){
+    srl->close();
+}
+
+
+
+
+
+void OffsetWorker::onReadOffset(){
+
+    qDebug() << __func__ << endl;
+    emit log(__func__);
+
+
+    pai3::p offset =  pai3_srl(srl);
+
+    mutForOffset.lock();
+    memcpy(OFFSET, offset, 18*4);
+    mutForOffset.unlock();
+
+    if(offset != nullptr){
+
+        qDebug() << "offset Read result :" << endl;
+        emit log("offset Read result :" );
+
+
+
+        con_pai3(OFFSET);
+        emit log(qs_pai3(OFFSET));
+
+    }else{
+
+        qDebug() << "Serial read failed" << endl;
+
+    }
+}
+
+
+void OffsetWorker::setSerialPort(QString _comPort){
+    emit log("comport" + _comPort);
+    srl->close();
+    srl->setPortName(_comPort);
+
+    if(!srl->open(QIODevice::ReadWrite)){
+
+        qDebug() << "Serial connect falled" << endl;
+        emit log("Serial connect falled");
+
+    }else{
+
+        qDebug() << "Serial opened" << endl;
+        emit log("Serial opened");
+    }
+}
+
 
 
 
@@ -551,15 +683,22 @@ void MainWindow::srl_ai3(){
 
         int row   = legNo - 1;
 
-        int iFirstLeg  = ui->tbr_firstLeg->value()  * 100 - OFFSET[row][0];
-        int iSecondLeg = ui->tbr_secondLeg->value() * 100 - OFFSET[row][1];
-        int iThirdLeg  = ui->tbr_thirdLeg->value()  * 100 - OFFSET[row][2];
+        int iFirstLeg = -1;
+        int iSecondLeg = -1;
+        int iThirdLeg = -1;
+
+
+        if(ui->cb_firstLeg->isChecked()) iFirstLeg  = ui->tbr_firstLeg->value()  * 100 - OFFSET[row][0];
+
+        if(ui->cb_secondLeg->isChecked()) iSecondLeg  = ui->tbr_secondLeg->value()  * 100 - OFFSET[row][1];
+
+        if(ui->cb_thirdLeg->isChecked()) iThirdLeg  = ui->tbr_thirdLeg->value()  * 100 - OFFSET[row][2];
 
         QList<int> qai3 = { iFirstLeg, iSecondLeg, iThirdLeg };
 
         emit send_clicked(qai3,legNo);
 
-    }else { qDebug() << "click item on list view " << endl;}
+    }else { qDebug() << "click item on list view " << endl; emit log("click item on list view "); }
 
 
 }
@@ -594,8 +733,8 @@ void MainWindow::on_btn_load_clicked()
 
     QString path = QFileDialog::getOpenFileName(this,"Find Files",QDir::currentPath());
 
-    if(offset_fn(path)){qDebug() << "offset loaded..!"; con_pai3(OFFSET);}
-    else{ qDebug() << " offset load Failed..! "; }
+    if(offset_fn(path)){qDebug() << "offset loaded..!"; emit log("offset loaded..!"); emit log(qs_pai3(OFFSET)); con_pai3(OFFSET);}
+    else{ qDebug() << " offset load Failed..! "; emit log(" offset load Failed..! "); }
 
     if(ui->lv_legs->isItemSelected(ui->lv_legs->currentItem()))
         tbrs_legNo(qt::i_s(ui->lv_legs->currentItem()->text()) );
@@ -629,9 +768,6 @@ void MainWindow::on_lv_legs_itemClicked(QListWidgetItem *item)
 
 }
 
-
-
-
 void MainWindow::on_cb_sign_toggled(bool checked)
 {
 
@@ -645,7 +781,6 @@ void MainWindow::on_cb_sign_toggled(bool checked)
             tbrs_legNo(qt::i_s(ui->lv_legs->currentItem()->text()) );
 
 }
-
 
 void MainWindow::on_cb_offset_toggled(bool checked)
 {
@@ -681,6 +816,8 @@ void MainWindow::load_offset(const QString& _fn)
 
 
     qDebug() << "vs size() : " << vs.size() << endl;
+    emit log("vs size() : " + vs.size());
+
     idxSizeCommands = vs.size() - 1;
 
     pai3::p temp;
@@ -699,6 +836,7 @@ void MainWindow::load_offset(const QString& _fn)
     }
 
     qDebug() << "size of map : " << mCommands.size() << endl;
+    emit log("size of map : " + mCommands.size());
 
 }
 
@@ -712,6 +850,7 @@ void MainWindow::on_btn_commands_clicked()
 void MainWindow::on_lv_commands_doubleClicked(const QModelIndex &index){
 
     qDebug() << "index " << index.row() << endl;
+    emit log("index " + index.row());
 
     pai3::p command = mCommands.find(index.row()).value();
 
@@ -734,6 +873,7 @@ void MainWindow::on_Edit_timerDelay_returnPressed()
 {
 
     qDebug() <<" retrun pressed " << endl;
+    emit log(" retrun pressed ");
     srl_fileTimer->setInterval(qt::i_s(ui->Edit_timerDelay->text()));
     ui->tbr_delay->setValue(qt::i_s(ui->Edit_timerDelay->text()));
 
@@ -743,21 +883,57 @@ void MainWindow::on_tbr_delay_sliderMoved(int position)
 {
 
     qDebug() << "position" << position << endl;
+    emit log("position" + position);
+
     ui->Edit_timerDelay->setPlaceholderText(qt::s_i(position));
     srl_fileTimer->setInterval(position);
 
 }
 
-
 void MainWindow::on_edPath_returnPressed()
 {
+
     qDebug() << __func__ << endl;
+    emit log(__func__);
+
     load_offset(ui->edPath->text());
+
 }
 
 void MainWindow::on_btnClear_clicked()
 {
+
     ui->lv_commands->clear();
+
 }
 
 
+
+void MainWindow::on_offset_readOffset()
+{
+
+    emit readOffset();
+
+}
+
+void MainWindow::on_offset_saveOffset()
+{
+
+    emit log(save_pai3(OFFSET, 6));
+
+}
+
+void MainWindow::on_usb_mmf_mmfClicked()
+{
+    emit mmfClicked();
+}
+
+void MainWindow::on_edit_firstSerial_returnPressed()
+{
+    emit openFirstSerial(ui->edit_firstSerial->text());
+}
+
+void MainWindow::on_edit_secondSerial_returnPressed()
+{
+    emit openSecondSerial(ui->edit_secondSerial->text());
+}
