@@ -114,6 +114,8 @@ private slots:
 
     void on_edit_secondSerial_returnPressed();
 
+    void onShowOffset();
+
 private:
     Ui::MainWindow *ui;
 };
@@ -151,6 +153,7 @@ signals:
     void log(const QString _text);
     void openFirstSerial(QString _text);
     void openSecondSerial(QString _text);
+    void showOffset();
 
 
 
@@ -158,6 +161,7 @@ public slots:
     bool srl_pai3(int** _cmd);
     bool thsri_qai3(QList<int> _qai3, int _legNo);
     void OnReadOffset();
+    void onMmfClicked();
 
 
 };
@@ -191,7 +195,7 @@ class SerialWorker : public QObject{
 
 signals:
     void log(const QString _text);
-
+    void showOffset();
 
 
 public slots:

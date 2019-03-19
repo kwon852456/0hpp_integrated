@@ -52,11 +52,12 @@ void MainWindow::makeConnection(){
     connect(srl_fileTimer, &QTimer::timeout,             this,        &MainWindow::fileTimerTimeOut);
     connect(sendTimer,     &QTimer::timeout,             this,        &MainWindow::srl_ai3);
     connect(this,          &MainWindow::readOffset,       stl,        &Dll_usb_mmf01stl::OnReadOffset);
-    connect(this,          &MainWindow::mmfClicked,       stl,        &Dll_usb_mmf01stl::mmfClicked);
+    connect(this,          &MainWindow::mmfClicked,       stl,        &Dll_usb_mmf01stl::onMmfClicked);
     connect(this,          &MainWindow::write_log,       ui->usb_log, &Usb_log::setlog);
     connect(stl,           &Dll_usb_mmf01stl::log,       this,        &MainWindow::write_log);
     connect(this,          &MainWindow::openFirstSerial,  stl,        &Dll_usb_mmf01stl::openFirstSerial);
     connect(this,          &MainWindow::openSecondSerial, stl,        &Dll_usb_mmf01stl::openSecondSerial);
+    connect(stl,           &Dll_usb_mmf01stl::showOffset, this,       &MainWindow::onShowOffset);
 
 }
 
@@ -136,7 +137,7 @@ pai3::p MainWindow::pai_msg(void* _message){
 
 }
 
-b::t MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *resultMSG) {
+b::t MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *resultMSG){
 
     pai3::p command = pai_msg(message);
 
@@ -156,6 +157,19 @@ b::t MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
     return b::T0;
 
 }
+
+void MainWindow::onShowOffset(){
+    log("offset read result : ");
+
+    qDebug() << __func__;
+    hnd::t handle = open_mmf("mmftest_pchr");
+
+    pai3::p pai;
+    pai3_mmf(pai, handle);
+
+    log(qs_pai3(pai));
+
+};
 
 
 
@@ -189,6 +203,7 @@ Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
         connect(oWorker, &OffsetWorker::log,                this, &Dll_usb_mmf01stl::log);
         connect(this,    &Dll_usb_mmf01stl::openFirstSerial,  sWorker, &SerialWorker::setSerialPort);
         connect(this,    &Dll_usb_mmf01stl::openSecondSerial, oWorker, &OffsetWorker::setSerialPort);
+        connect(sWorker, &SerialWorker::showOffset,          this,&Dll_usb_mmf01stl::showOffset);
 
         sThread->start();
         mThread->start();
@@ -367,7 +382,12 @@ void Dll_usb_mmf01stl::OnReadOffset(){
     emit readOffset();
 }
 
+void Dll_usb_mmf01stl::onMmfClicked(){
 
+    if(sWorker->isSrlFinished){
+        emit mmfClicked();
+    }
+}
 
 
 
@@ -384,6 +404,7 @@ void Dll_usb_mmf01stl::OnReadOffset(){
 SerialWorker::SerialWorker(QObject *parent ){
 
     port = CreateSrl(this,0);
+    setIds();
 
 }
 
@@ -408,11 +429,7 @@ int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
 
     //qDebug() <<__func__ << QThread::currentThread() << endl;
 
-    if(port->isOpen()){
 
-
-
-    }else emit log("serial not opned..");
     if(port->write(_req)){
 
         if(!port->waitForReadyRead(1000)){
@@ -438,8 +455,9 @@ void SerialWorker::setIds(){
 
 void SerialWorker::onMmfCheck_clicked(){
 
-    qDebug() << __func__ << endl;
-    emit log(__func__ );
+
+    //qDebug() << __func__ << endl;
+    //emit log(__func__ );
 
     isSrlFinished = !isSrlFinished;
 
@@ -454,6 +472,8 @@ void SerialWorker::onMmfCheck_clicked(){
     }
 
     isSrlFinished = !isSrlFinished;
+
+    emit showOffset();
 }
 
 
@@ -928,6 +948,7 @@ void MainWindow::on_offset_saveOffset()
 
 void MainWindow::on_usb_mmf_mmfClicked()
 {
+
     emit mmfClicked();
 }
 

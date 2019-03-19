@@ -75,7 +75,7 @@ namespace rep {///
 
 }
 qt::qmutx::t mutForSerial;
-i::t debugMode = 0;
+i::t debugMode = 1;
 
 qt::srl::p CreateSrl(QObject *parent = nullptr, i::T _portNo = 0){
 
@@ -135,8 +135,11 @@ qt::yar::li yarl_yar(qt::yar::t _yar){
 vo::t debugMsg(QString _msg){ if(debugMode == 1) qDebug() << _msg << endl; }
 
 void con_yar(qt::yar::t _yar){
+
     debugMsg("data from Serial..");
+
     debugMsg(QString::fromStdString(_yar.toStdString()));
+
     debugMsg("end data from Serial..");
 }
 
@@ -232,6 +235,7 @@ b::T pai3_srl(pai3::p pai3_,qt::srl::p _srl){
     return b::T1;
 }
 
+
 void mmf_pai3Val(pai3::p _pai3Val){
     debugMsg(__func__);
 
@@ -281,6 +285,7 @@ int (*pai3_srl(qt::srl::p _srl))[3]{
 }
 
 void mmf_encVal(qt::srl::p _srl){
+
     debugMsg(__func__);
 
     i::t encVal[6][3] = { {0,},{0,},{0,},{0,},{0,},{0,} };
@@ -289,7 +294,7 @@ void mmf_encVal(qt::srl::p _srl){
 
     if(_srl->waitForReadyRead(3000)){
 
-        if(pai3_srl(pai3Val, _srl)){mmf_pai3Val(pai3Val);}
+        if(pai3_srl(pai3Val, _srl)){   mmf_pai3Val(pai3Val);}
 
     }else{ debugMsg("read failed..!"); }
 
@@ -594,7 +599,6 @@ int encVal_srl(qt::srl::p _srl){
     if(yDataFromSri[6] == 0x01) { degree = -degree; }
 
 
-
     return degree;
 }
 
@@ -632,6 +636,7 @@ i::t i_srl_mmf(qt::srl::p _srl ,i::t _id){
 
 void mmf_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
 
+    qDebug() << __func__ << endl;
 
     i::t tempArr[6][3] = { {0,},{0,},{0,},{0,},{0,},{0,} };
     pai3::p encVal = tempArr;
@@ -642,7 +647,6 @@ void mmf_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
         int colm = (id % 10) -1;
 
         encVal[row][colm] = i_srl_mmf(_srl,id) + _offset[row][colm];
-
     }
 
     mmf_pai3Val(encVal);
