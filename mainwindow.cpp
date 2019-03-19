@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     init_tbrs ();
     init_lv   ();
 
+
 }
 
 
@@ -61,7 +62,7 @@ void MainWindow::makeConnection(){
 
 }
 
-void MainWindow::log(qt::s::T _text){
+void MainWindow::log(qt::s::t _text){
     emit write_log(_text);
 }
 
@@ -93,8 +94,8 @@ b::t addOffset(pai3::p _command){
 
 vo::t MainWindow::fileTimerTimeOut(){
 
-    qDebug() <<" row idx " << ui->lv_commands->currentRow() << endl;
-    log(" row idx " + ui->lv_commands->currentRow());
+    //qDebug() <<" row idx " << ui->lv_commands->currentRow() << endl;
+
 
 
     if(stl->isFinished){
@@ -106,6 +107,7 @@ vo::t MainWindow::fileTimerTimeOut(){
 
                 addOffset(command);
 
+                log("thsrl_cds");
                 emit thsrl_cds(pp_pai3(command));
 
                 ui->lv_commands->setCurrentRow(ui->lv_commands->currentRow() + 1);
@@ -161,7 +163,7 @@ b::t MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
 }
 
 void MainWindow::onShowOffset(){
-    log("offset read result : ");
+    write_log("offset read result : ");
 
     qDebug() << __func__;
     hnd::t handle = open_mmf("mmftest_pchr");
@@ -169,7 +171,7 @@ void MainWindow::onShowOffset(){
     pai3::p pai;
     pai3_mmf(pai, handle);
 
-    log(qs_pai3(pai));
+    write_log(qs_pai3(pai));
 
 };
 
@@ -352,7 +354,6 @@ b::t Dll_usb_mmf01stl::srl_pai3(int** _pai3){
 
 
     isFinished = !isFinished;
-    //qDebug() << __func__ << endl;
 
     pai3::p cmd = pai3_pp(_pai3);
 
@@ -375,8 +376,9 @@ b::t Dll_usb_mmf01stl::srl_pai3(int** _pai3){
 
     synchronizer.waitForFinished();
     isFinished = !isFinished;
-    return b::T1;
 
+
+    return b::T1;
 
 }
 
@@ -879,7 +881,7 @@ void MainWindow::on_btn_commands_clicked()
 void MainWindow::on_lv_commands_doubleClicked(const QModelIndex &index){
 
     qDebug() << "index " << index.row() << endl;
-    emit log("index " + index.row());
+    log("index " + qt::s_i(index.row()));
 
     pai3::p command = mCommands.find(index.row()).value();
 
