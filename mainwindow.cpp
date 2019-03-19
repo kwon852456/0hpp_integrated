@@ -97,21 +97,23 @@ vo::t MainWindow::fileTimerTimeOut(){
     log(" row idx " + ui->lv_commands->currentRow());
 
 
+    if(stl->isFinished){
+        if(ui->lv_commands->currentRow() != -1){
 
-    if(ui->lv_commands->currentRow() != -1){
+            if(ui->lv_commands->currentRow() <= idxSizeCommands ){
 
-        if(ui->lv_commands->currentRow() <= idxSizeCommands ){
+                pai3::p command = mCommands.find(ui->lv_commands->currentRow()).value();
 
-            pai3::p command = mCommands.find(ui->lv_commands->currentRow()).value();
+                addOffset(command);
 
-            addOffset(command);
+                emit thsrl_cds(pp_pai3(command));
 
-            emit thsrl_cds(pp_pai3(command));
+                ui->lv_commands->setCurrentRow(ui->lv_commands->currentRow() + 1);
+            }
 
-            ui->lv_commands->setCurrentRow(ui->lv_commands->currentRow() + 1);
         }
+    }else{ qDebug() << "Serial is busy..! wait for unlock "; }
 
-    }
 
 }
 
@@ -348,6 +350,8 @@ bool ia3_pai3(i::a3 ia3_ ,pai3::p _pai3, i::T _iRow){
 
 b::t Dll_usb_mmf01stl::srl_pai3(int** _pai3){
 
+
+    isFinished = !isFinished;
     //qDebug() << __func__ << endl;
 
     pai3::p cmd = pai3_pp(_pai3);
@@ -370,7 +374,9 @@ b::t Dll_usb_mmf01stl::srl_pai3(int** _pai3){
     }
 
     synchronizer.waitForFinished();
+    isFinished = !isFinished;
     return b::T1;
+
 
 }
 

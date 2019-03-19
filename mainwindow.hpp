@@ -145,6 +145,9 @@ class Dll_usb_mmf01stl : public QObject{
     QThread* sThread;
     QThread* mThread;
 
+    bool isFinished = true;
+
+
 signals:
     void write_cmd(char* _cmd);
     void write_req(char* _req);
