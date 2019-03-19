@@ -160,7 +160,8 @@ class Dll_usb_mmf01stl : public QObject{
     int  i_srl(int _id);
     void cmd_id(unsigned char cmd_[11],const int& _iDegree,const int& _id );
     bool thsri_pai3(const int _ai3[3],const unsigned short _row);
-
+    void thread_qai3(QFutureSynchronizer<bool>& _synchronizer, QList<int> _qai3, int _id ,int _row);
+    void thread_pai3(QFutureSynchronizer<bool>& _synchronizer,const int _qai3[3], int _id ,int _row);
 
 
     SerialWorker* sWorker;
@@ -190,7 +191,7 @@ signals:
 
 public slots:
     bool srl_pai3(int** _cmd);
-    bool thsri_qai3(QList<int> _qai3, int _legNo);
+    void thsri_qai3(QList<int> _qai3, int _legNo);
     void OnReadOffset();
     void onMmfClicked();
     void setIds(QList<int> _rows, QList<int> _cols);

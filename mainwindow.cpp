@@ -223,14 +223,19 @@ void Dll_usb_mmf01stl::srl_i(i::t _iDegree, i::t _id){
 
 }
 
-i::t Dll_usb_mmf01stl::i_srl(i::t _id){
+qt::yar::t yar_req(i::t _id){
 
     req::t request; req_id(request, _id);
     c::p pReq = reinterpret_cast<c::p>(request);
 
-    int recvEncVal;
-    QByteArray arr = QByteArray::fromRawData(pReq,req::Z);
+    return qt::yar::t::fromRawData(pReq,req::Z);
 
+}
+
+i::t Dll_usb_mmf01stl::i_srl(i::t _id){
+
+    int recvEncVal;
+    qt::yar::t arr = yar_req(_id);
 
     QMetaObject::invokeMethod(sWorker, "onWrite_req", Qt::BlockingQueuedConnection,
                               Q_RETURN_ARG(int, recvEncVal),
@@ -243,9 +248,6 @@ i::t Dll_usb_mmf01stl::i_srl(i::t _id){
 
 vo::t Dll_usb_mmf01stl::cmd_id(cmd::t cmd_,i::R _iDegree,i::R _id ){
 
-    //qDebug() << __func__ << endl;
-
-    //h::t vel    = (h::t)abs(preset[i][j] - current[i][j]);
     h::t vel    = 32;  //속도 3 rpm 고정
     y::t ccw = ( _iDegree < 0 ? 1 : 0);
     h::t posoff = (h::t) abs(_iDegree);
@@ -258,47 +260,63 @@ vo::t Dll_usb_mmf01stl::cmd_id(cmd::t cmd_,i::R _iDegree,i::R _id ){
     y::t checkSum = ~((y::t)(_id + 0x07 + 0x01 + ccw + degree2y.t2[1] + degree2y.t2[0] + vel2y.t2[1] + vel2y.t2[0]));
     cmd::t command = {0xFF, 0xFE, (y::t)_id, 0x07, checkSum, 0x01, ccw, degree2y.t2[1], degree2y.t2[0], vel2y.t2[1], vel2y.t2[0] };
 
-//    con_11bytes(command);
     for(z::t i(0) ; i < cmd::Z ; ++i){
         cmd_[i] = command[i] ;
     }
 
 }
 
+void Dll_usb_mmf01stl::thread_qai3(QFutureSynchronizer<b::t>& _synchronizer, QList<int> _qai3, i::t _id, i::t _row){
 
-b::t Dll_usb_mmf01stl::thsri_qai3(QList<int> _qai3, i::t _legNo){
-    qDebug() << __func__ << endl;
-    emit log(__func__);
+    _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
+
+        while(1){
+
+            if( !((_qai3[_row] - 100) < i_srl(_id) && (_qai3[_row] + 100) >  i_srl(_id))  ){ qDebug("_ai3[i] != i_srl(id)"); srl_i(_qai3[_row], _id);}
+            else { break; }
+
+        }
+
+        emit log("id  " + qt::s_i(_id) + "  _qai3[i]  " + qt::s_i(_qai3[_row]) + "  i_srl(id)  " + qt::s_i(i_srl(_id)));
+
+    return b::T1;
+
+    }));
+
+}
+
+vo::t Dll_usb_mmf01stl::thsri_qai3(QList<int> _qai3, i::t _legNo){
 
     QFutureSynchronizer<b::t> synchronizer;
     for(z::t i(0) ; i < 3 ; ++i ){
-
         int id = (_legNo * 10) + (i + 1);
 
         if(_qai3[i] != -1){
-
-            synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
-
-                while(1){
-
-                    if(  !((_qai3[i] - 100) < i_srl(id) && (_qai3[i] + 100) >  i_srl(id))  ){ qDebug("_ai3[i] != i_srl(id)"); srl_i(_qai3[i], id);}
-                    else { break; }
-
-                }
-                qDebug() << "id" << id << "_qai3[i]" << _qai3[i] << "i_srl(id)" << i_srl(id) << endl;
-
-                emit log("id  " + qt::s_i(id) + "  _qai3[i]  " + qt::s_i(_qai3[i]) + "  i_srl(id)  " + qt::s_i(i_srl(id)));
-
-            return b::T1;
-
-            }));
-
+            thread_qai3(synchronizer, _qai3, id, i);
         }
     }
 
     synchronizer.waitForFinished();
+}
 
-    return b::T0;
+
+void Dll_usb_mmf01stl::thread_pai3(QFutureSynchronizer<b::t>& _synchronizer, i::A3 _ai3, i::t _id, i::t _row){
+
+    _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
+
+        while(1){
+
+            if( !((_ai3[_row] - 100) < i_srl(_id) && (_ai3[_row] + 100) >  i_srl(_id))  ){ qDebug("_ai3[i] != i_srl(id)"); srl_i(_ai3[_row], _id);}
+            else { break; }
+
+        }
+
+        emit log("id  " + qt::s_i(_id) + "  _ai3[i]  " + qt::s_i(_ai3[_row]) + "  i_srl(id)  " + qt::s_i(i_srl(_id)));
+
+    return b::T1;
+
+    }));
+
 }
 
 b::t Dll_usb_mmf01stl::thsri_pai3(i::A3 _ai3, h::T _row){
@@ -309,20 +327,7 @@ b::t Dll_usb_mmf01stl::thsri_pai3(i::A3 _ai3, h::T _row){
     for(i::t col : cols){
         int id = (_row + 1) * 10 + (col + 1);
 
-        synchronizer.addFuture(QtConcurrent::run([=](){  // 18번 도는 쓰레드
-            while(1){
-
-                if(  !((_ai3[col] - 100) < i_srl(id) && (_ai3[col] + 100) >  i_srl(id))  ){ /*qDebug("Waiting for correct response.. _ai3[i] != i_srl(id)"); */ srl_i(_ai3[col], id);}
-                else { break; }
-
-            }
-
-            emit log("id  " + qt::s_i(id) + "  _ai3[i]  " + qt::s_i(_ai3[col]) + "  i_srl(id)  " + qt::s_i(i_srl(id)));
-
-            return b::T1;
-
-        }));
-
+        thread_pai3(synchronizer, _ai3, id, col);
     }
     //}
 
@@ -555,6 +560,7 @@ void SerialWorker::setSerialPort(QString _comPort){
 void SerialWorker::tempSave(){
 
     save_srl(port, ids, OFFSET);
+    log("saved..!");
 
 }
 
