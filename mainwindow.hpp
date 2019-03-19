@@ -8,6 +8,9 @@
 #include <QThread>
 #include <QFileDialog>
 #include <QListWidgetItem>
+#include <QDesktopServices>
+
+
 
 class Dll_usb_mmf01stl;
 namespace Ui {
@@ -31,12 +34,18 @@ public:
     bool init_lv();
     bool offset_fn(QString _path);
     void tbrs_legNo(int _legNo);
-    void load_offset(const QString& _fn);
-    void MainWindow::log(QString _text);
+    void load_commands(const QString& _fn);
+    void log(QString _text);
+    void init_lw();
+    void i_cb( QList<int>& ids_ ,QListWidget* _lw,int _startNo, int _endNo);
+    void ids_lili(QList<int>& _ids ,QList<int> _li, QList<int> mi);
+
 
     QThread* wThread;
     QTimer* sendTimer;
     QTimer* srl_fileTimer;
+
+
 
     Dll_usb_mmf01stl* stl;
     bool isSended = false;
@@ -53,6 +62,8 @@ signals:
     void write_log(QString _text);
     void openFirstSerial(QString _text);
     void openSecondSerial(QString _text);
+    void setIds(QList<int> _rows, QList<int> _cols);
+    void tempSave();
 
 
 
@@ -116,9 +127,21 @@ private slots:
 
     void onShowOffset();
 
+    void on_pushButton_clicked();
+
+    void on_btn_reset_clicked();
+
+    void on_actionE_xit_triggered();
+
+    void on_actionOpen_App_Folder_triggered();
+
+    void on_btn_tempSave_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
+
+
 
 
 class SerialWorker;
@@ -133,8 +156,8 @@ class Dll_usb_mmf01stl : public QObject{
         explicit Dll_usb_mmf01stl(QObject *parent = nullptr);
         ~Dll_usb_mmf01stl();
 
-    bool srl_i(const int _iDegree, const int _id);
-    int i_srl(int _id);
+    void srl_i(const int _iDegree, const int _id);
+    int  i_srl(int _id);
     void cmd_id(unsigned char cmd_[11],const int& _iDegree,const int& _id );
     bool thsri_pai3(const int _ai3[3],const unsigned short _row);
 
@@ -142,8 +165,12 @@ class Dll_usb_mmf01stl : public QObject{
 
     SerialWorker* sWorker;
     OffsetWorker* oWorker;
+
     QThread* sThread;
     QThread* mThread;
+
+    QList<int> rows;
+    QList<int> cols;
 
     bool isFinished = true;
 
@@ -157,6 +184,7 @@ signals:
     void openFirstSerial(QString _text);
     void openSecondSerial(QString _text);
     void showOffset();
+    void tempSave();
 
 
 
@@ -165,6 +193,7 @@ public slots:
     bool thsri_qai3(QList<int> _qai3, int _legNo);
     void OnReadOffset();
     void onMmfClicked();
+    void setIds(QList<int> _rows, QList<int> _cols);
 
 
 };
@@ -208,6 +237,7 @@ public slots:
 
     void onMmfCheck_clicked();
     void setSerialPort(QString _port);
+    void tempSave();
 
 };
 

@@ -328,9 +328,10 @@ qt::s::t s_pai3(pai3::p _pai3, h::T _h){
      return text;
 }
 
-qt::s::t save_pai3(pai3::p _pai3, h::T _h){
 
-    QFile file("OFFSET.txt");
+qt::s::t save_pai3(pai3::p _pai3, h::T _h, qt::s::T _fn = "OFFSET.txt"){
+
+    QFile file(_fn);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
         qDebug() << "File read failed"; return false;
     }
@@ -653,11 +654,56 @@ void mmf_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
 
 }
 
+void save_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
+
+    qDebug() << __func__ << endl;
+
+    i::t tempArr[6][3] = { {0,},{0,},{0,},{0,},{0,},{0,} };
+    pai3::p encVal = tempArr;
+
+    for(i::t id : _ids){
+
+        int row = (id / 10) -1;
+        int colm = (id % 10) -1;
+
+        encVal[row][colm] = i_srl_mmf(_srl,id) + _offset[row][colm];
+    }
+
+    save_pai3(encVal,6, "temp.txt");
+}
+
 void lv_no(QListWidget*_lv, i::t startNo, i::t endNo){
     for(z::t i(startNo) ; i < endNo ; ++i){
         _lv->addItem(qt::s_i(i));
     }
 
+}
+
+
+void add_pai36(pai3::p pai_, pai3::p _pai3){
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 3 ; ++j){
+            pai_[i][j] += _pai3[i][j];
+        }
+    }
+
+}
+
+
+void lw_cb(QListWidget* lv_, i::t startNo, i::t endNo){
+
+
+        QListWidgetItem* item = new QListWidgetItem;
+        item->setData(Qt::DisplayRole, qt::s_i(startNo));
+        item->setData(Qt::CheckStateRole, Qt::Unchecked);
+
+        lv_->addItem(item);
+
+        if(startNo == endNo){return;}
+
+
+        return lw_cb(lv_, ++startNo, endNo);
 }
 
 
@@ -669,6 +715,24 @@ void sub_pai36(pai3::p pai_, pai3::p _pai3){
         }
     }
 }
+
+
+qt::s::t qs_li(QList<int> _li){
+
+    QString msg;
+    QString temp;
+
+    for(i::t i : _li){
+        temp.sprintf("%d ", i);
+        msg += temp;
+    }
+
+    qDebug() << msg;
+
+    return msg;
+
+}
+
 
 
 
