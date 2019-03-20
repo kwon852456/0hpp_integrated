@@ -221,7 +221,7 @@ class SerialWorker : public QObject{
 
     void setIds();
     bool isSrlFinished = true;
-    void onLegClick_encVal(QList<int> leg_Enc, QSerialPort* _port, int _id);
+    void onLegClick_pushEncVal(QList<int> leg_Enc, QSerialPort* _port, int _id);
 
 
     QSerialPort* port;

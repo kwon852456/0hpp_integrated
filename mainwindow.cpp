@@ -48,14 +48,14 @@ MainWindow::~MainWindow()
     wThread->wait();
 }
 
-void MainWindow::init_lw(){
+vo::t MainWindow::init_lw(){
 
     lw_cb(ui->lw_legs,   1, 6);
     lw_cb(ui->lw_motors, 1, 3);
 
 }
 
-void MainWindow::makeConnection(){
+vo::t MainWindow::makeConnection(){
 
     connect(this,          &MainWindow::thsrl_cds,        stl,        &Dll_usb_mmf01stl::srl_pai3);
     connect(this,          &MainWindow::send_clicked,     stl,        &Dll_usb_mmf01stl::thsri_qai3);
@@ -75,7 +75,7 @@ void MainWindow::makeConnection(){
 
 }
 
-void MainWindow::log(qt::s::t _text){
+vo::t MainWindow::log(qt::s::t _text){
     emit write_log(_text);
 }
 
@@ -113,7 +113,7 @@ vo::t MainWindow::fileTimerTimeOut(){
 
 }
 
-pai3::p MainWindow::pai_msg(void* _message){
+pai3::p MainWindow::pai_msg(vo::p _message){
 
     MSG* msg = reinterpret_cast<MSG*>(_message);
 
@@ -135,7 +135,7 @@ pai3::p MainWindow::pai_msg(void* _message){
 
 }
 
-b::t MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *resultMSG){
+b::t MainWindow::nativeEvent(const qt::yar::t &eventType, vo::p message, long *resultMSG){
 
     pai3::p command = pai_msg(message);
 
@@ -156,10 +156,10 @@ b::t MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
 
 }
 
-void MainWindow::onShowOffset(){
+vo::t MainWindow::onShowOffset(){
+
     write_log("offset read result : ");
 
-    qDebug() << __func__;
     hnd::t handle = open_mmf("mmftest_pchr");
 
     pai3::p pai;
@@ -213,7 +213,7 @@ Dll_usb_mmf01stl::~Dll_usb_mmf01stl(){
     sThread->wait();
 };
 
-void Dll_usb_mmf01stl::srl_i(i::t _iDegree, i::t _id){
+vo::t Dll_usb_mmf01stl::srl_i(i::t _iDegree, i::t _id){
 
     cmd::t command;
     cmd_id(command, _iDegree,  _id);
@@ -266,7 +266,7 @@ vo::t Dll_usb_mmf01stl::cmd_id(cmd::t cmd_,i::R _iDegree,i::R _id ){
 
 }
 
-void Dll_usb_mmf01stl::thread_qai3(QFutureSynchronizer<b::t>& _synchronizer, QList<int> _qai3, i::t _id, i::t _row){
+vo::t Dll_usb_mmf01stl::thread_qai3(QFutureSynchronizer<b::t>& _synchronizer, QList<int> _qai3, i::t _id, i::t _row){
 
     _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
 
@@ -300,7 +300,7 @@ vo::t Dll_usb_mmf01stl::thsri_qai3(QList<int> _qai3, i::t _legNo){
 }
 
 
-void Dll_usb_mmf01stl::thread_pai3(QFutureSynchronizer<b::t>& _synchronizer, i::A3 _ai3, i::t _id, i::t _row){
+vo::t Dll_usb_mmf01stl::thread_pai3(QFutureSynchronizer<b::t>& _synchronizer, i::A3 _ai3, i::t _id, i::t _row){
 
     _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
 
@@ -320,17 +320,14 @@ void Dll_usb_mmf01stl::thread_pai3(QFutureSynchronizer<b::t>& _synchronizer, i::
 }
 
 b::t Dll_usb_mmf01stl::thsri_pai3(i::A3 _ai3, h::T _row){
-    //qDebug() << __func__ << endl;
 
     QFutureSynchronizer<b::t> synchronizer;
-    //for(z::t i(0) ; i < 3 ; ++i ){
+
     for(i::t col : cols){
         int id = (_row + 1) * 10 + (col + 1);
 
         thread_pai3(synchronizer, _ai3, id, col);
     }
-    //}
-
 
     synchronizer.waitForFinished();
     return b::T0;
@@ -345,6 +342,7 @@ bool ia3_pai3(i::a3 ia3_ ,pai3::p _pai3, i::T _iRow){
     return b::T1;
 }
 
+
 b::t Dll_usb_mmf01stl::srl_pai3(int** _pai3){
 
 
@@ -354,51 +352,43 @@ b::t Dll_usb_mmf01stl::srl_pai3(int** _pai3){
 
     QFutureSynchronizer<b::t> synchronizer;
 
-
-
-    //for(z::t i(0) ; i < 6 ; ++i){
-
     for(i::t row : rows){
         synchronizer.addFuture(QtConcurrent::run([=](){
 
                 i::a3 ia3 = {0, };
 
                 ia3_pai3(ia3, cmd, row);
-
                 thsri_pai3(ia3, row);
 
                 return b::T1;
-
         }));
     }
 
-
-    //}
+    emit log("");
+    emit log("end loop...");
+    emit log("");
 
     synchronizer.waitForFinished();
+
     isFinished = !isFinished;
-
-
     return b::T1;
 
 }
 
-void Dll_usb_mmf01stl::OnReadOffset(){
+vo::t Dll_usb_mmf01stl::OnReadOffset(){
 
-    qDebug() << __func__ << endl;
     emit log(__func__);
-
     emit readOffset();
 }
 
-void Dll_usb_mmf01stl::onMmfClicked(){
+vo::t Dll_usb_mmf01stl::onMmfClicked(){
 
     if(sWorker->isSrlFinished){
         emit mmfClicked();
     }
 }
 
-void Dll_usb_mmf01stl::setIds(QList<int> _rows, QList<int> _cols){
+vo::t Dll_usb_mmf01stl::setIds(QList<int> _rows, QList<int> _cols){
 
     rows.swap(_rows);
     cols.swap(_cols);
@@ -433,22 +423,21 @@ SerialWorker::~SerialWorker(){
 
 }
 
-void SerialWorker::onWrite_cmd(c::p _cmd){
+vo::t SerialWorker::onWrite_cmd(c::p _cmd){
 
     y::p cmd = reinterpret_cast<y::p>(_cmd);
     qt::yar::t send_Data_Bytes = qt::yar::t::fromRawData(reinterpret_cast<c::p>(cmd), cmd::Z);
 
     if(port->isOpen()){
+
         port->write(send_Data_Bytes);
+
     }else emit log("serial not opned..");
 
 }
 
 
 int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
-
-    //qDebug() <<__func__ << QThread::currentThread() << endl;
-
 
     if(port->write(_req)){
 
@@ -462,18 +451,18 @@ int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
             return encVal_srl(port);
         }
 
-    }else{ qDebug() << " write failed on" << __func__ << endl;  return 0; emit log( qt::qs_s(" write failed on") + qt::qs_s("onWrite_req") );}
+    }else{ return 0; emit log( qt::qs_s(" write failed on") + qt::qs_s("onWrite_req") );}
 
 }
 
-void SerialWorker::setIds(){
+vo::t SerialWorker::setIds(){
 
     i::t id[18] = {11, 12, 13, 21, 22, 23, 31, 32, 33, 41, 42, 43, 51, 52, 53, 61, 62, 63 };
     for(i::t i : id){ ids.push_back(i); }
 
 }
 
-void SerialWorker::onMmfCheck_clicked(){
+vo::t SerialWorker::onMmfCheck_clicked(){
 
     isSrlFinished = !isSrlFinished;
 
@@ -485,6 +474,7 @@ void SerialWorker::onMmfCheck_clicked(){
 
         qDebug() << "Serial not opened...!" << endl;
         emit    log("Serial not opened...!");
+
     }
 
     isSrlFinished = !isSrlFinished;
@@ -502,9 +492,28 @@ qt::yar::t yar_id(i::t _id){
 
     c::p pReq = reinterpret_cast<c::p>(request);
 
-    return QByteArray::fromRawData(pReq, req::Z);
+    return qt::yar::t::fromRawData(pReq, req::Z);
 
 }
+void SerialWorker::onLegClick_pushEncVal(QList<int> leg_Enc_,qt::srl::p _port, i::t _id){
+
+    if(port->write(yar_id(_id))){
+
+        if(!port->waitForReadyRead(1000)){
+
+            qDebug() << " response time out from id : "  + qt::s_i(_id)  + "..! try again..!";
+            emit    log(" response time out from id : "  + qt::s_i(_id)  + "..! try again..!");
+
+        }else{
+
+            leg_Enc_.push_back(encVal_srl(port));
+        }
+
+
+    }else{ emit log("write failed"); }
+
+}
+
 
 QList<int> SerialWorker::onLv_clicked(int _legNo){
 
@@ -515,22 +524,9 @@ QList<int> SerialWorker::onLv_clicked(int _legNo){
         i::t id = (_legNo * 10) + (i + 1);
         if(port->isOpen()){
 
-            if(port->write(yar_id(id))){
+            onLegClick_pushEncVal(leg_Enc, port, id);
 
-                if(!port->waitForReadyRead(1000)){
-
-                    qDebug() << " response time out from id : "  + qt::s_i(id)  + "..! try again..!";
-                    emit log(" response time out from id : "     + qt::s_i(id)  + "..! try again..!");
-
-                }else{
-
-                    leg_Enc.push_back(encVal_srl(port));
-                }
-
-
-            }else{ qDebug() << " write failed on" << __func__ << endl;   emit log("write failed");}
-
-        }else emit log("Serial not opened..!");
+        }else emit log( "Serial not opened..!" );
 
     }
 
@@ -538,7 +534,7 @@ QList<int> SerialWorker::onLv_clicked(int _legNo){
 
 }
 
-void SerialWorker::setSerialPort(QString _comPort){
+vo::t SerialWorker::setSerialPort(QString _comPort){
 
     emit log("comport" + _comPort);
     port->close();
@@ -555,9 +551,10 @@ void SerialWorker::setSerialPort(QString _comPort){
         emit log("Serial opened");
 
     }
+
 }
 
-void SerialWorker::tempSave(){
+vo::t SerialWorker::tempSave(){
 
     save_srl(port, ids, OFFSET);
     log("saved..!");
@@ -589,11 +586,9 @@ OffsetWorker::~OffsetWorker(){
 
 
 
-void OffsetWorker::onReadOffset(){
+vo::t OffsetWorker::onReadOffset(){
 
-    qDebug() << __func__ << endl;
     emit log(__func__);
-
 
     pai3::p offset =  pai3_srl(srl);
 
@@ -603,23 +598,17 @@ void OffsetWorker::onReadOffset(){
 
     if(offset != nullptr){
 
-        qDebug() << "offset Read result :" << endl;
         emit log("offset Read result :" );
-
-
-
-        con_pai3(OFFSET);
         emit log(qs_pai3(OFFSET));
 
     }else{
 
-        qDebug() << "Serial read failed" << endl;
-
+        emit log("Serial read failed");
     }
 }
 
 
-void OffsetWorker::setSerialPort(QString _comPort){
+vo::t OffsetWorker::setSerialPort(QString _comPort){
 
     emit log("comport" + _comPort);
 
@@ -628,12 +617,10 @@ void OffsetWorker::setSerialPort(QString _comPort){
 
     if(!srl->open(QIODevice::ReadWrite)){
 
-        qDebug() << "Serial connect falled" << endl;
         emit log("Serial connect falled");
 
     }else{
 
-        qDebug() << "Serial opened" << endl;
         emit log("Serial opened");
     }
 }
@@ -667,7 +654,7 @@ void OffsetWorker::setSerialPort(QString _comPort){
 
 //ui 세팅 관련 메소드 //
 
-void MainWindow::set_tbrs(){
+vo::t MainWindow::set_tbrs(){
 
     ui->tbr_firstLeg->setMinimum(qt::i_s(ui->edit_min_firstleg->text()) );
     ui->tbr_secondLeg->setMinimum(qt::i_s(ui->edit_min_secondleg->text()));
@@ -679,51 +666,51 @@ void MainWindow::set_tbrs(){
 
 }
 
-void MainWindow::on_edit_min_firstleg_returnPressed()
+vo::t MainWindow::on_edit_min_firstleg_returnPressed()
 {
     set_tbrs();
 }
 
-void MainWindow::on_edit_min_secondleg_returnPressed()
+vo::t MainWindow::on_edit_min_secondleg_returnPressed()
 {
     set_tbrs();
 }
 
-void MainWindow::on_edit_min_thirdLeg_returnPressed()
+vo::t MainWindow::on_edit_min_thirdLeg_returnPressed()
 {
     set_tbrs();
 }
 
-void MainWindow::on_edit_max_firstLeg_returnPressed()
+vo::t MainWindow::on_edit_max_firstLeg_returnPressed()
 {
     set_tbrs();
 }
 
-void MainWindow::on_edit_max_secondLeg_returnPressed()
+vo::t MainWindow::on_edit_max_secondLeg_returnPressed()
 {
     set_tbrs();
 }
 
-void MainWindow::on_edit_max_thirdLeg_returnPressed()
+vo::t MainWindow::on_edit_max_thirdLeg_returnPressed()
 {
     set_tbrs();
 }
 
-void MainWindow::on_tbr_firstLeg_valueChanged(int value)
+vo::t MainWindow::on_tbr_firstLeg_valueChanged(int value)
 {
     ui->edit_firstLeg->setText(qt::s_i(value));
     if(ui->cb_send->checkState())
         srl_ai3();
 }
 
-void MainWindow::on_tbr_secondLeg_valueChanged(int value)
+vo::t MainWindow::on_tbr_secondLeg_valueChanged(int value)
 {
     ui->edit_secondLeg->setText(qt::s_i(value));
     if(ui->cb_send->checkState())
         srl_ai3();
 }
 
-void MainWindow::on_tbr_thirdLeg_valueChanged(int value)
+vo::t MainWindow::on_tbr_thirdLeg_valueChanged(int value)
 {
     ui->edit_thirdLeg->setText(qt::s_i(value));
     if(ui->cb_send->checkState())
@@ -732,35 +719,30 @@ void MainWindow::on_tbr_thirdLeg_valueChanged(int value)
 
 
 
-void MainWindow::srl_ai3(){
+vo::t MainWindow::srl_ai3(){
 
     if(ui->lv_legs->currentItem() != nullptr){
 
         int legNo = qt::i_s(ui->lv_legs->currentItem()->text());
 
-        int row   = legNo - 1;
+        int row   =  legNo - 1;
 
-        int iFirstLeg = -1;
-        int iSecondLeg = -1;
-        int iThirdLeg = -1;
+        int iFirstLeg = -1,        iSecondLeg = -1,         iThirdLeg = -1;
 
-
-        if(ui->cb_firstLeg->isChecked()) iFirstLeg  = ui->tbr_firstLeg->value()  * 100 - OFFSET[row][0];
-
+        if(ui->cb_firstLeg->isChecked())  iFirstLeg  = ui->tbr_firstLeg->value()     * 100 - OFFSET[row][0];
         if(ui->cb_secondLeg->isChecked()) iSecondLeg  = ui->tbr_secondLeg->value()  * 100 - OFFSET[row][1];
-
-        if(ui->cb_thirdLeg->isChecked()) iThirdLeg  = ui->tbr_thirdLeg->value()  * 100 - OFFSET[row][2];
+        if(ui->cb_thirdLeg->isChecked())  iThirdLeg  = ui->tbr_thirdLeg->value()     * 100 - OFFSET[row][2];
 
         QList<int> qai3 = { iFirstLeg, iSecondLeg, iThirdLeg };
 
         emit send_clicked(qai3,legNo);
 
-    }else { qDebug() << "click item on list view " << endl; emit log("click item on list view "); }
+    }else { emit log("click item on list view "); }
 
 
 }
 
-void MainWindow::on_btn_send_clicked()
+vo::t MainWindow::on_btn_send_clicked()
 {
     srl_ai3();
 
@@ -787,7 +769,7 @@ b::t MainWindow::offset_fn(qt::s::t _path){
     return true;
 }
 
-void MainWindow::on_btn_load_clicked()
+vo::t MainWindow::on_btn_load_clicked()
 {
 
     QString path = QFileDialog::getOpenFileName(this,"Find Files",QDir::currentPath());
@@ -795,39 +777,37 @@ void MainWindow::on_btn_load_clicked()
     if(offset_fn(path)){qDebug() << "offset loaded..!"; emit log("offset loaded..!"); emit log(qs_pai3(OFFSET)); con_pai3(OFFSET);}
     else{ qDebug() << " offset load Failed..! "; emit log(" offset load Failed..! "); }
 
-    if(ui->lv_legs->isItemSelected(ui->lv_legs->currentItem()))
+    if(ui->lv_legs->isItemSelected(ui->lv_legs->currentItem()) )
         tbrs_legNo(qt::i_s(ui->lv_legs->currentItem()->text()) );
 
 }
 
-void MainWindow::tbrs_legNo(i::T _legNo){
+vo::t MainWindow::tbrs_legNo(i::T _legNo){
 
     QList<int> recvEncVal;
 
     QMetaObject::invokeMethod(stl->sWorker, "onLv_clicked", Qt::BlockingQueuedConnection,
-                              Q_RETURN_ARG(QList<int>, recvEncVal),
-                              Q_ARG(int, _legNo));
+                                                        Q_RETURN_ARG(QList<int>, recvEncVal),
+                                                                          Q_ARG(int, _legNo));
 
     i::t row = _legNo - 1;
-
-
     if(!(recvEncVal.size() < 3)){
 
-        ui->tbr_firstLeg->setValue (recvEncVal.at(0)  / 100 + OFFSET[row][0] / 100);
-        ui->tbr_secondLeg->setValue(recvEncVal.at(1) / 100 + OFFSET[row][1] / 100);
-        ui->tbr_thirdLeg->setValue (recvEncVal.at(2)  / 100 + OFFSET[row][2] / 100);
+        ui->tbr_firstLeg ->setValue (recvEncVal.at(0)  / 100 + OFFSET[row][0] / 100);
+        ui->tbr_secondLeg->setValue (recvEncVal.at(1)  / 100 + OFFSET[row][1] / 100);
+        ui->tbr_thirdLeg ->setValue (recvEncVal.at(2)  / 100 + OFFSET[row][2] / 100);
 
     }
 }
 
-void MainWindow::on_lv_legs_itemClicked(QListWidgetItem *item)
+vo::t MainWindow::on_lv_legs_itemClicked(QListWidgetItem *item)
 {
 
     tbrs_legNo(qt::i_s(item->text()));
 
 }
 
-void MainWindow::on_cb_sign_toggled(bool checked)
+vo::t MainWindow::on_cb_sign_toggled(bool checked)
 {
 
         for(z::t i(0) ; i < 6 ; ++i){
@@ -841,7 +821,7 @@ void MainWindow::on_cb_sign_toggled(bool checked)
 
 }
 
-void MainWindow::on_cb_offset_toggled(bool checked)
+vo::t MainWindow::on_cb_offset_toggled(bool checked)
 {
 
     if(checked){
@@ -862,49 +842,44 @@ void MainWindow::on_cb_offset_toggled(bool checked)
 
 }
 
-void MainWindow::load_commands(const QString& _fn)  //
+vo::t MainWindow::mCommands_vs(QMap<int, int (*)[3]>& _mCommands_, s::v _vs){
+    pai3::p temp;
+
+    for(z::t i(0) ; i < _vs.size() ; ++i){
+        temp = new i::t[6][3]{};
+        s::v vsTemp = vs_s(_vs.at(i), ' ');
+
+        for(z::t j(0) ; j < vsTemp.size() ; ++j){
+            *((*temp) + j) = i_s(vsTemp.at(j));
+        }
+
+        mCommands.insert(i, temp);
+    }
+}
+
+vo::t MainWindow::load_commands(const QString& _fn)  //
 {
     if(_fn == qt::s::T0){ return; }
 
     QFile file(_fn, this);
     file.open(QIODevice::ReadWrite);
 
-    qt::yar::t sOffset = file.readAll();
+    qt::yar::t sOffset =  file.readAll();
     s::v vs = vs_s(sOffset.toStdString(), '\n');
 
     for(auto s : vs){
         ui->lv_commands->addItem(qt::qs_s(s));
     }
 
-
-    qDebug() << "vs size() : " << vs.size() << endl;
-    emit log("vs size() : " + vs.size());
-
     idxSizeCommands = vs.size() - 1;
+    mCommands_vs(mCommands, vs);
 
-    pai3::p temp;
 
-
-    for(z::t i(0) ; i < vs.size() ; ++i){
-        temp = new i::t[6][3]{};
-        s::v vsTemp = vs_s(vs.at(i), ' ');
-
-        for(z::t j(0) ; j < vsTemp.size() ; ++j){
-
-            *((*temp) + j) = i_s(vsTemp.at(j));
-
-        }
-
-        mCommands.insert(i, temp);
-
-    }
-
-    qDebug() << "size of map : " << mCommands.size() << endl;
     log("size of map : " + qt::s_i(mCommands.size()));
 
 }
 
-void MainWindow::on_btn_commands_clicked()
+vo::t MainWindow::on_btn_commands_clicked()
 {
 
     QString path = QFileDialog::getOpenFileName(this,"Find Files",QDir::currentPath());
@@ -913,9 +888,8 @@ void MainWindow::on_btn_commands_clicked()
 
 }
 
-void MainWindow::on_lv_commands_doubleClicked(const QModelIndex &index){
+vo::t MainWindow::on_lv_commands_doubleClicked(const QModelIndex &index){
 
-    qDebug() << "index " << index.row() << endl;
     log("index " + qt::s_i(index.row()));
 
     pai3::p command = mCommands.find(index.row()).value();
@@ -926,7 +900,7 @@ void MainWindow::on_lv_commands_doubleClicked(const QModelIndex &index){
 
 }
 
-void MainWindow::on_cb_timer_toggled(bool checked)
+vo::t MainWindow::on_cb_timer_toggled(bool checked)
 {
     if(checked){
         srl_fileTimer->start();
@@ -936,7 +910,7 @@ void MainWindow::on_cb_timer_toggled(bool checked)
 
 }
 
-void MainWindow::on_Edit_timerDelay_returnPressed()
+vo::t MainWindow::on_Edit_timerDelay_returnPressed()
 {
 
     qDebug() <<" retrun pressed " << endl;
@@ -947,7 +921,7 @@ void MainWindow::on_Edit_timerDelay_returnPressed()
 
 }
 
-void MainWindow::on_tbr_delay_sliderMoved(int position)
+vo::t MainWindow::on_tbr_delay_sliderMoved(int position)
 {
 
     qDebug() << "position" << position << endl;
@@ -958,17 +932,16 @@ void MainWindow::on_tbr_delay_sliderMoved(int position)
 
 }
 
-void MainWindow::on_edPath_returnPressed()
+vo::t MainWindow::on_edPath_returnPressed()
 {
 
-    qDebug() << __func__ << endl;
-    emit log(__func__);
+    log(__func__);
 
     load_commands(ui->edPath->text());
 
 }
 
-void MainWindow::on_btnClear_clicked()
+vo::t MainWindow::on_btnClear_clicked()
 {
 
     ui->lv_commands->clear();
@@ -977,37 +950,37 @@ void MainWindow::on_btnClear_clicked()
 
 
 
-void MainWindow::on_offset_readOffset()
+vo::t MainWindow::on_offset_readOffset()
 {
 
     emit readOffset();
 
 }
 
-void MainWindow::on_offset_saveOffset()
+vo::t MainWindow::on_offset_saveOffset()
 {
 
     emit log(save_pai3(OFFSET, 6));
 
 }
 
-void MainWindow::on_usb_mmf_mmfClicked()
+vo::t MainWindow::on_usb_mmf_mmfClicked()
 {
 
     emit mmfClicked();
 }
 
-void MainWindow::on_edit_firstSerial_returnPressed()
+vo::t MainWindow::on_edit_firstSerial_returnPressed()
 {
     emit openFirstSerial(ui->edit_firstSerial->text());
 }
 
-void MainWindow::on_edit_secondSerial_returnPressed()
+vo::t MainWindow::on_edit_secondSerial_returnPressed()
 {
     emit openSecondSerial(ui->edit_secondSerial->text());
 }
 
-void MainWindow::i_cb(QList<int>& ids_ ,QListWidget* _lw, i::t endNo, i::t startNo = 0){
+vo::t MainWindow::i_cb(QList<int>& ids_ ,QListWidget* _lw, i::t endNo, i::t startNo = 0){
 
     if(startNo == endNo) return;
 
@@ -1016,7 +989,7 @@ void MainWindow::i_cb(QList<int>& ids_ ,QListWidget* _lw, i::t endNo, i::t start
     return i_cb(ids_, _lw, endNo, ++startNo);
 }
 
-void MainWindow::ids_lili(QList<int>& ids_ ,QList<int> _ilLeg, QList<int> _ilMotor){
+vo::t MainWindow::ids_lili(QList<int>& ids_ ,QList<int> _ilLeg, QList<int> _ilMotor){
 
     for(i::t i : _ilLeg){
         for(i::t j : _ilMotor){
@@ -1026,7 +999,7 @@ void MainWindow::ids_lili(QList<int>& ids_ ,QList<int> _ilLeg, QList<int> _ilMot
 
 }
 
-void MainWindow::on_pushButton_clicked()
+vo::t MainWindow::on_pushButton_clicked()
 {
     QList<int> ilLeg;
     QList<int> ilMotor;
@@ -1038,45 +1011,38 @@ void MainWindow::on_pushButton_clicked()
 
 }
 
-void MainWindow::on_btn_reset_clicked()
+vo::t MainWindow::on_btn_reset_clicked()
 {
 
     for(z::t i(1) ; i < 7 ; ++i){
 
-        int legNo = i;
-
-        int row   = legNo - 1;
-
-        int iFirstLeg  = -1;
-        int iSecondLeg = -1;
-        int iThirdLeg  = -1;
+        int row   = i - 1;
+        int iFirstLeg  = -1,        iSecondLeg = -1,        iThirdLeg  = -1;
 
 
-        if(ui->cb_firstLeg->isChecked()) iFirstLeg  = ui->tbr_firstLeg->value()     * 100 -    OFFSET[row][0];
-
+        if(ui->cb_firstLeg->isChecked())  iFirstLeg  = ui->tbr_firstLeg->value()     * 100 -    OFFSET[row][0];
         if(ui->cb_secondLeg->isChecked()) iSecondLeg  = ui->tbr_secondLeg->value()  * 100 -    OFFSET[row][1];
-
-        if(ui->cb_thirdLeg->isChecked()) iThirdLeg  = ui->tbr_thirdLeg->value()     * 100 -    OFFSET[row][2];
+        if(ui->cb_thirdLeg->isChecked())  iThirdLeg  = ui->tbr_thirdLeg->value()     * 100 -    OFFSET[row][2];
 
         QList<int> qai3 = { OFFSET[row][0] , OFFSET[row][1] , OFFSET[row][2]};
 
-        emit send_clicked(qai3,legNo);
+        emit send_clicked(qai3,i);
 
    }
 }
 
-void MainWindow::on_actionE_xit_triggered()
+vo::t MainWindow::on_actionE_xit_triggered()
 {
     close();
 }
 
-void MainWindow::on_actionOpen_App_Folder_triggered()
+vo::t MainWindow::on_actionOpen_App_Folder_triggered()
 {
     qDebug() << "open app folder";
     QDesktopServices::openUrl( QUrl::fromLocalFile(QDir::currentPath()) );
 }
 
-void MainWindow::on_btn_tempSave_clicked()
+vo::t MainWindow::on_btn_tempSave_clicked()
 {
     emit tempSave();
 }
