@@ -41,7 +41,8 @@ public:
     void i_cb( QList<int>& ids_ ,QListWidget* _lw,int _startNo, int _endNo);
     void ids_lili(QList<int>& _ids ,QList<int> _li, QList<int> mi);
     void mCommands_vs(QMap<int, int (*)[3]>& _mCommands_, std::vector<std::string> _vs);
-
+    QList<int> li_legsVal();
+    void thsrl_pai36(int (*_commands)[3]);
 
     QThread* wThread;
     QTimer* sendTimer;
@@ -221,7 +222,7 @@ class SerialWorker : public QObject{
 
     void setIds();
     bool isSrlFinished = true;
-    void onLegClick_encVal(QList<int> leg_Enc, QSerialPort* _port, int _id);
+    void onLegClick_pushEncVal(QList<int> leg_Enc, QSerialPort* _port, int _id);
 
 
     QSerialPort* port;

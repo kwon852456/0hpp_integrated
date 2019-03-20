@@ -156,8 +156,6 @@ qt::yar::li yarl_proc(qt::srl::p _srl){
         debugMsg(i);
     }
 
-
-
     return yarl;
 }
 
@@ -219,8 +217,6 @@ void pai3_yarl(pai3::p pai3_,qt::yar::li _yarl){
             s::v vTemp = del_basket(qs_yar(_yarl[i]));
             pai3_vs(pai3_, vTemp, i - 1);
     }
-
-    //con_pai3(pai3_);
 
 }
 
@@ -400,7 +396,6 @@ void con_11bytes(y::p yData) {
 
 vo::t cmd_id(cmd::t& cmd_,i::R _iDegree,i::R _id ){
 
-    //h::t vel    = (h::t)abs(preset[i][j] - current[i][j]);
     h::t vel    = 32;  //속도 3 rpm 고정
 
     y::t ccw = ( _iDegree < 0 ? 1 : 0);
@@ -605,7 +600,6 @@ int encVal_srl(qt::srl::p _srl){
 
 i::t onWrite_req(qt::srl::p _srl ,qt::yar::t _req, i::t _id){
 
-    //qDebug() <<__func__ << QThread::currentThread() << endl;
     if(_srl->write(_req)){
 
         if(!_srl->waitForReadyRead(1000)){
@@ -621,8 +615,6 @@ i::t onWrite_req(qt::srl::p _srl ,qt::yar::t _req, i::t _id){
 }
 
 i::t i_srl_mmf(qt::srl::p _srl ,i::t _id){
-
-    //qDebug() << __func__ << endl;
 
     req::t request; req_id(request, _id);
     c::p pReq = reinterpret_cast<c::p>(request);
@@ -733,6 +725,47 @@ qt::s::t qs_li(QList<int> _li){
 
 }
 
+b::t check_commandValid(pai3::p _command, i::t _first_max , i::t _first_min, i::t _second_max, i::t _second_min, i::t _third_max, i::t _third_min ){
+
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 3 ; ++j){
+
+            if(j == 0){
+
+                if((_command[i][j] > _first_max)){
+                    _command[i][j] = _first_max;
+                }
+
+                if((_command[i][j] < _first_min)){
+                    _command[i][j] = _first_min;
+                }
+
+            }else if(j == 1){
+
+                if((_command[i][j] > _second_max)){
+                    _command[i][j] = _second_max ;
+                }
+
+                if((_command[i][j] < _second_min)){
+                    _command[i][j] = _second_min;
+                }
+
+            }else if(j == 2){
+
+                if((_command[i][j] > _third_max)){
+                    _command[i][j] = _third_max;
+                }
+
+                if((_command[i][j] < _third_min)){
+                    _command[i][j] = _third_min;
+                }
+            }
+        }
+    }
+
+    return true;
+}
 
 
 

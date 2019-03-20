@@ -92,6 +92,39 @@ b::t addOffset(pai3::p _command){
     return b::T1;
 }
 
+QList<int> MainWindow::li_legsVal(){
+
+    QList<int> li;
+
+    li.push_back(qt::i_s(ui->edit_max_firstLeg->text()) * 100);
+    li.push_back(qt::i_s(ui->edit_min_firstleg->text()) * 100);
+
+    li.push_back(qt::i_s(ui->edit_max_secondLeg->text()) * 100);
+    li.push_back(qt::i_s(ui->edit_min_secondleg->text()) * 100);
+
+    li.push_back(qt::i_s(ui->edit_max_thirdLeg->text()) * 100);
+    li.push_back(qt::i_s(ui->edit_min_thirdLeg->text()) * 100);
+
+    return li;
+}
+
+
+vo::t MainWindow::thsrl_pai36(pai3::p _commands){
+
+    addOffset(_commands);
+
+    QList<int> li_Val = li_legsVal();
+
+    pai3::p temp_pai3 = new i::t[6][3]{{0},{0},{0},{0},{0} };
+
+    memcpy(temp_pai3, _commands, 18 * 4); // 실제 멤버변수에 있는 pai3에는 변화가 가지 않도록 한다.
+
+    check_commandValid(temp_pai3, li_Val[0],  li_Val[1], li_Val[2], li_Val[3], li_Val[4], li_Val[5]);
+
+    emit thsrl_cds(pp_pai3(temp_pai3));
+
+}
+
 vo::t MainWindow::fileTimerTimeOut(){
 
     if(stl->isFinished){
@@ -100,9 +133,7 @@ vo::t MainWindow::fileTimerTimeOut(){
 
             pai3::p command = mCommands.find(ui->lv_commands->currentRow()).value();
 
-            addOffset(command);
-
-            emit thsrl_cds(pp_pai3(command));
+            thsrl_pai36(command);
 
             ui->lv_commands->setCurrentRow(ui->lv_commands->currentRow() + 1);
 
@@ -141,8 +172,7 @@ b::t MainWindow::nativeEvent(const qt::yar::t &eventType, vo::p message, long *r
 
     if(command != nil){
 
-        addOffset(command);
-        emit thsrl_cds(pp_pai3(command));
+        thsrl_pai36(command);
 
     }
     else
@@ -371,6 +401,9 @@ b::t Dll_usb_mmf01stl::srl_pai3(int** _pai3){
     synchronizer.waitForFinished();
 
     isFinished = !isFinished;
+
+    delete[] cmd;
+
     return b::T1;
 
 }
@@ -894,9 +927,7 @@ vo::t MainWindow::on_lv_commands_doubleClicked(const QModelIndex &index){
 
     pai3::p command = mCommands.find(index.row()).value();
 
-    addOffset(command);
-
-    emit thsrl_cds(pp_pai3(command));
+    thsrl_pai36(command);
 
 }
 
