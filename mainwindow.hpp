@@ -35,7 +35,7 @@ public:
     bool init_lv();
     bool offset_fn(QString _path);
     void tbrs_legNo(int _legNo);
-    void load_commands(const QString& _fn);
+    void load_commands(const QString& _sSec);
     void log(QString _text);
     void init_lw();
     void i_cb( QList<int>& ids_ ,QListWidget* _lw,int _startNo, int _endNo);
@@ -43,10 +43,13 @@ public:
     void mCommands_vs(QMap<int, int (*)[3]>& _mCommands_, std::vector<std::string> _vs);
     QList<int> li_legsVal();
     void thsrl_pai36(int (*_commands)[3]);
+    void cb_fn(QString _fn);
+
 
     QThread* wThread;
     QTimer* sendTimer;
     QTimer* srl_fileTimer;
+    std::map<std::string, std::map<std::string, std::string>> kmsmCommands;
 
 
 
@@ -66,7 +69,7 @@ signals:
     void openFirstSerial(QString _text);
     void openSecondSerial(QString _text);
     void setIds(QList<int> _rows, QList<int> _cols);
-    void tempSave();
+    void tempSave(QString _fn);
 
 
 
@@ -140,6 +143,8 @@ private slots:
 
     void on_btn_tempSave_clicked();
 
+    void on_cb_commands_activated(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
 };
@@ -188,7 +193,7 @@ signals:
     void openFirstSerial(QString _text);
     void openSecondSerial(QString _text);
     void showOffset();
-    void tempSave();
+    void tempSave(QString _fn);
 
 
 
@@ -222,7 +227,7 @@ class SerialWorker : public QObject{
 
     void setIds();
     bool isSrlFinished = true;
-    void onLegClick_pushEncVal(QList<int> leg_Enc, QSerialPort* _port, int _id);
+    void onLegClick_pushEncVal(QList<int>& leg_Enc, QSerialPort* _port, int _id);
 
 
     QSerialPort* port;
@@ -241,7 +246,7 @@ public slots:
 
     void onMmfCheck_clicked();
     void setSerialPort(QString _port);
-    void tempSave();
+    void tempSave(QString _fn);
 
 };
 

@@ -581,7 +581,9 @@ b::t srl_pai3(qt::srl::p _srl ,pai3::p _pai3, h::R _h){
 
 int encVal_srl(qt::srl::p _srl){
 
+
     qt::yar::t dataFromSri = _srl -> read(12);
+
     y::p yDataFromSri = reinterpret_cast<y::p>(dataFromSri.data());
 
 
@@ -595,8 +597,11 @@ int encVal_srl(qt::srl::p _srl){
     if(yDataFromSri[6] == 0x01) { degree = -degree; }
 
 
+
     return degree;
 }
+
+
 
 i::t onWrite_req(qt::srl::p _srl ,qt::yar::t _req, i::t _id){
 
@@ -646,7 +651,7 @@ void mmf_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
 
 }
 
-void save_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
+void save_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset, qt::s::t _fn = "temp"){
 
     qDebug() << __func__ << endl;
 
@@ -661,7 +666,7 @@ void save_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
         encVal[row][colm] = i_srl_mmf(_srl,id) + _offset[row][colm];
     }
 
-    save_pai3(encVal,6, "temp.txt");
+    save_pai3(encVal,6, _fn + ".txt");
 }
 
 void lv_no(QListWidget*_lv, i::t startNo, i::t endNo){
@@ -768,6 +773,71 @@ b::t check_commandValid(pai3::p _command, i::t _first_max , i::t _first_min, i::
 }
 
 
+namespace m_to {
+            void vs(ks::M& _mks, s::w vs_) { ; vs_ = ks::vs_m(_mks); }
+            void fn(ks::M& _mks, s::R fn_) { ; rv2::vs_to::fn(ks::vs_m(_mks), fn_); }
+}///
+
+
+
+ks::m mNo_vs(s::W _vs) {///
+    ks::m mks_;
+    i::t i(0);
+    for (
+#if __cplusplus < 199711L
+        z::t i(0); i < _vs.size(); ++i) {
+        s::T s(_vs[i]);
+#else
+        const auto& s:_vs) {
+#endif
+        mks_.insert(make_pair(s_i(i), s));
+        i += 1;
+    }
+    return mks_;
+}///
+
+kms::m kmNo_vs(s::W _vs) {///
+            kms::m mkms_;
+            s::t sSec(s::T0);
+            s::v vs;
+            for (
+#if __cplusplus < 199711L
+                z::t i(0); i < _vs.size(); ++i) {
+                s::T s(_vs[i]);
+#else
+                const auto& s:_vs) {
+#endif
+                if (s == "" || s == "\n" || s == "=")continue;
+                if (s[0] == '[') {
+                    if (sSec != s::T0) {
+
+                        ks::m  mks(mNo_vs(vs));
+                        kms::t     tkms(sSec, mks);
+                        mkms_.insert(tkms);
+
+                    }
+                    sSec = s; vs.clear();
+                }
+                else {
+
+                    vs.push_back(s);
+
+                }
+            }
+
+            if (sSec != s::T0) {
+                ks::m  mks(mNo_vs(vs));
+                kms::t     tkms(sSec, mks);
+                mkms_.insert(tkms);
+            }
+
+            return mkms_;
+}///
+
+
+b::T mNo_fn(s::R _fn, kms::m& mkms_){ ; s::v vs; b::T b_(rv2::fn_to::vs(_fn, vs)); if (b_) mkms_ = kmNo_vs(vs); else mkms_.clear(); return b_; }
+
+kms::m kmNo_fn(s::R _fn) { ; kms::m mkms_; mNo_fn(_fn, mkms_); return mkms_; }
 
 
 #endif // DLL_USB_OFFSET01STT_H

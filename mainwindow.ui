@@ -86,84 +86,6 @@
      <string>0</string>
     </property>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>10</y>
-      <width>306</width>
-      <height>285</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_3">
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <widget class="QCheckBox" name="cb_timer">
-         <property name="text">
-          <string>&amp;Timer</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSlider" name="tbr_delay">
-         <property name="minimum">
-          <number>500</number>
-         </property>
-         <property name="maximum">
-          <number>5000</number>
-         </property>
-         <property name="value">
-          <number>1000</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="Edit_timerDelay">
-         <property name="placeholderText">
-          <string>1000</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QListWidget" name="lv_commands"/>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QLineEdit" name="edPath"/>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <widget class="QPushButton" name="btn_commands">
-             <property name="text">
-              <string>&amp;Load commands</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="btnClear">
-             <property name="text">
-              <string>&amp;Clear</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </item>
-    </layout>
-   </widget>
    <widget class="QLineEdit" name="edit_min_firstleg">
     <property name="geometry">
      <rect>
@@ -255,7 +177,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Send</string>
+     <string>S&amp;end</string>
     </property>
    </widget>
    <widget class="QListWidget" name="lv_legs">
@@ -470,7 +392,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>reset</string>
+     <string>&amp;Reset</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btn_tempSave">
@@ -483,8 +405,115 @@
      </rect>
     </property>
     <property name="text">
-     <string>save</string>
+     <string>&amp;Save</string>
     </property>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>190</y>
+      <width>231</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Save fn_ :</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="edit_saveName">
+       <property name="text">
+        <string>TempOffset</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>642</x>
+      <y>12</y>
+      <width>306</width>
+      <height>271</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QCheckBox" name="cb_timer">
+         <property name="text">
+          <string>&amp;Timer</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="tbr_delay">
+         <property name="minimum">
+          <number>500</number>
+         </property>
+         <property name="maximum">
+          <number>5000</number>
+         </property>
+         <property name="value">
+          <number>1000</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="Edit_timerDelay">
+         <property name="placeholderText">
+          <string>1000</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cb_commands"/>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QListWidget" name="lv_commands"/>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="edPath"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="btn_commands">
+           <property name="text">
+            <string>&amp;Load commands</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnClear">
+           <property name="text">
+            <string>&amp;Clear</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
