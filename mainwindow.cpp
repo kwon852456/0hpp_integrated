@@ -70,11 +70,12 @@ vo::t MainWindow::makeConnection(){
 
     connect(this,          &MainWindow::write_log,       ui->usb_log, &Usb_log::setlog);
 
-    connect(stl,           &Dll_usb_mmf01stl::showOffset, this,        &MainWindow::onShowOffset);
-    connect(stl,           &Dll_usb_mmf01stl::log,        this,        &MainWindow::write_log);
+    connect(stl,           &Dll_usb_mmf01stl::showOffset,     this,    &MainWindow::onShowOffset);
+    connect(stl,           &Dll_usb_mmf01stl::log,            this,    &MainWindow::write_log);
     connect(stl,           &Dll_usb_mmf01stl::thsri_qai36End, this,    &MainWindow::thsri_qai36End);
-    connect(srl_fileTimer, &QTimer::timeout,              this,        &MainWindow::fileTimerTimeOut);
-    connect(sendTimer,     &QTimer::timeout,              this,        &MainWindow::srl_ai3);
+    connect(stl,           &Dll_usb_mmf01stl::timeTaken,      this,    &MainWindow::timeTaken);
+    connect(srl_fileTimer, &QTimer::timeout,                  this,    &MainWindow::fileTimerTimeOut);
+    connect(sendTimer,     &QTimer::timeout,                  this,    &MainWindow::srl_ai3);
 
 }
 
@@ -108,12 +109,6 @@ QList<int> MainWindow::li_legsVal(){
 
 }
 
-
-
-
-
-
-
 vo::t MainWindow::thsrl_pai6(pai6::p _commands){
 
 
@@ -131,8 +126,6 @@ vo::t MainWindow::thsrl_pai6(pai6::p _commands){
 
 }
 
-
-
 vo::t MainWindow::fileTimerTimeOut(){
 
     if(stl->isFinished){
@@ -148,28 +141,6 @@ vo::t MainWindow::fileTimerTimeOut(){
         }
 
     }else{ qDebug() << "Serial is busy..! wait for unlock "; }
-
-}
-
-pai3::p pai3_msg(vo::p _message){
-
-    MSG* msg = reinterpret_cast<MSG*>(_message);
-
-    if((msg)->message == WM_COPYDATA){
-
-        pai3::p pai3 = new i::a3[6]{{0,},{0,},{0,}};
-
-        HWND reciverhwnd = (HWND)msg->wParam;
-        PCOPYDATASTRUCT pcds = (PCOPYDATASTRUCT)msg->lParam;
-        UNUSED(reciverhwnd);
-
-        y::p yHdr = (y::p) pcds ->lpData;
-        pai3_yHdr(pai3, yHdr);
-
-        return pai3;
-    }
-
-    return nil;
 
 }
 
@@ -194,9 +165,6 @@ pai6::p pai6_msg(vo::p _message){
     return nil;
 
 }
-
-
-
 
 b::t MainWindow::nativeEvent(const qt::yar::t &eventType, vo::p message, long *resultMSG){
 
@@ -234,6 +202,18 @@ vo::t MainWindow::onShowOffset(){
 vo::t MainWindow::thsri_qai36End(){
     tbrEnded = true;
 }
+
+vo::t MainWindow::timeTaken(i::t _time){
+
+
+    ui->edit_time->append(qt::s_i(_time) );
+
+}
+
+
+
+
+
 
 
 
@@ -312,23 +292,24 @@ i::t Dll_usb_mmf01stl::i_srl(i::t _id){
     return recvEncVal;
 }
 
-
-
-
 vo::t Dll_usb_mmf01stl::thread_pai6(QFutureSynchronizer<b::t>& _synchronizer, i::A6 _ai6, i::t _id, i::t _col){
 
     _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
 
+        int i = 0;
         while(1){
 
             i::t current = i_srl(_id);
 
-            if( !((_ai6[_col] - 100) < current && (_ai6[_col] + 100) >  current) ){ qDebug("_ai3[i] != i_srl(id)"); srl_i(_ai6[_col], _id, _ai6[_col + 3]);}
-            else { break; }
+            if( !( (_ai6[_col] - 100) < current && (_ai6[_col] + 100) >  current) ){  srl_i(_ai6[_col], _id, _ai6[_col + 3]);}
+            else {  break; }
 
+            if(i > 0)
+                qDebug() << " waiting for motor to be placed where it should be... ";
+            i++;
         }
 
-        emit log("id  " + qt::s_i(_id) + "  _ai3[i]  " + qt::s_i(_ai6[_col]) + "  i_srl(id)  " + qt::s_i(i_srl(_id)));
+        emit log("id  " + qt::s_i(_id) + "  send val : " + qt::s_i(_ai6[_col]) + "  motor Encoder value : " + qt::s_i(i_srl(_id)));
 
     return b::T1;
 
@@ -351,49 +332,11 @@ b::t Dll_usb_mmf01stl::thsri_pai6(i::A6 _ai6, h::T _row){
 
 }
 
-
-vo::t Dll_usb_mmf01stl::thread_pai3(QFutureSynchronizer<b::t>& _synchronizer, i::A3 _ai3, i::t _id, i::t _row){
-
-    _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
-
-        while(1){
-
-            if( !((_ai3[_row] - 100) < i_srl(_id) && (_ai3[_row] + 100) >  i_srl(_id))  ){ qDebug("_ai3[i] != i_srl(id)"); srl_i(_ai3[_row], _id);}
-            else { break; }
-
-        }
-
-        emit log("id  " + qt::s_i(_id) + "  _ai3[i]  " + qt::s_i(_ai3[_row]) + "  i_srl(id)  " + qt::s_i(i_srl(_id)));
-    return b::T1;
-
-    }));
-
-}
-
-
-b::t Dll_usb_mmf01stl::thsri_pai3(i::A3 _ai3, h::T _row){
-
-    QFutureSynchronizer<b::t> synchronizer;
-
-    for(i::t col : cols){
-
-        int id = (_row + 1) * 10 + (col + 1);
-
-        thread_pai3(synchronizer, _ai3, id, col);
-
-    }
-
-    synchronizer.waitForFinished();
-    return b::T0;
-
-}
-
-
-
 b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
 
     qDebug() << __func__ ;
 
+    timer.start();
     isFinished = !isFinished;
 
     pai6::p cmd = pai6_pp(_pai6);
@@ -412,54 +355,20 @@ b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
         }));
     }
 
-    emit log("");
-    emit log("end loop..");
-    emit log("");
-
     synchronizer.waitForFinished();
 
     isFinished = !isFinished;
+
+
+    emit timeTaken(timer.elapsed());
+
+    emit log("");
 
     delete[] cmd;
 
     return b::T1;
 
 }
-
-
-b::t Dll_usb_mmf01stl::srl_pai3(int** _pai3){
-
-    isFinished = !isFinished;
-
-    pai3::p cmd = pai3_pp(_pai3);
-    QFutureSynchronizer<b::t> synchronizer;
-
-    for(i::t row : rows){
-        synchronizer.addFuture(QtConcurrent::run([=](){
-
-                i::a3 ia3 = {0, };
-
-                ia3_pai3(ia3, cmd, row);
-                thsri_pai3(ia3, row);
-
-                return b::T1;
-        }));
-    }
-
-    emit log("");
-    emit log("end loop...");
-    emit log("");
-
-    synchronizer.waitForFinished();
-    isFinished = !isFinished;
-
-    delete[] cmd;
-
-    return b::T1;
-
-}
-
-
 
 vo::t Dll_usb_mmf01stl::thread_qai36(QFutureSynchronizer<b::t>& _synchronizer, QList<int> _qai3, i::t _id, i::t _row){
 
@@ -499,7 +408,6 @@ vo::t Dll_usb_mmf01stl::thsri_qai36(QList<int> _qai3, i::t _legNo){
     emit thsri_qai36End();
 }
 
-
 vo::t Dll_usb_mmf01stl::OnReadOffset(){
 
     emit log(__func__);
@@ -528,14 +436,6 @@ vo::t Dll_usb_mmf01stl::setIds(QList<int> _rows, QList<int> _cols){
 
 
 
-
-
-
-
-
-
-
-
 SerialWorker::SerialWorker(QObject *parent ){
 
     port = CreateSrl(this,0);
@@ -544,14 +444,16 @@ SerialWorker::SerialWorker(QObject *parent ){
 }
 
 SerialWorker::~SerialWorker(){
+
     port->close();
 
 }
 
 vo::t SerialWorker::onWrite_cmd(c::p _cmd){
 
-    y::p cmd = reinterpret_cast<y::p>(_cmd);
-    qt::yar::t send_Data_Bytes = qt::yar::t::fromRawData(reinterpret_cast<c::p>(cmd), cmd::Z);
+    qt::yar::t send_Data_Bytes = qt::yar::t::fromRawData(reinterpret_cast<c::p>(_cmd), cmd::Z);
+
+    port->write(send_Data_Bytes);
 
     if(port->isOpen()){
 
@@ -560,7 +462,6 @@ vo::t SerialWorker::onWrite_cmd(c::p _cmd){
     }else emit log("serial not opned..");
 
 }
-
 
 int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
 
@@ -608,7 +509,6 @@ vo::t SerialWorker::onMmfCheck_clicked(){
 
 }
 
-
 qt::yar::t yar_id(i::t _id){
 
     req::t request;
@@ -620,6 +520,7 @@ qt::yar::t yar_id(i::t _id){
     return qt::yar::t::fromRawData(pReq, req::Z);
 
 }
+
 void SerialWorker::onLegClick_pushEncVal(QList<int>& leg_Enc_,qt::srl::p _port, i::t _id){
 
 
@@ -643,7 +544,6 @@ void SerialWorker::onLegClick_pushEncVal(QList<int>& leg_Enc_,qt::srl::p _port, 
     }else{ emit log("write failed"); }
 
 }
-
 
 QList<int> SerialWorker::onLv_clicked(int _legNo){
 
@@ -692,10 +592,22 @@ vo::t SerialWorker::tempSave(qt::s::t _fn){
 
     save_srl(port, ids, OFFSET, _fn);
 
-
     log("saved..!");
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -718,10 +630,6 @@ OffsetWorker::~OffsetWorker(){
 
 }
 
-
-
-
-
 vo::t OffsetWorker::onReadOffset(){
 
     emit log(__func__);
@@ -742,7 +650,6 @@ vo::t OffsetWorker::onReadOffset(){
         emit log("Serial read failed");
     }
 }
-
 
 vo::t OffsetWorker::setSerialPort(QString _comPort){
 
@@ -853,8 +760,6 @@ vo::t MainWindow::on_tbr_thirdLeg_valueChanged(int value)
         srl_ai3();
 }
 
-
-
 vo::t MainWindow::srl_ai3(){
 
     tbrEnded = false;
@@ -889,9 +794,6 @@ vo::t MainWindow::on_btn_send_clicked()
     srl_ai3();
 
 }
-
-
-
 
 b::t MainWindow::offset_fn(qt::s::t _path){
 
@@ -994,16 +896,13 @@ vo::t MainWindow::mCommands_vs(QMap<int, int (*)[6]>& _mCommands_, s::v _vs){
 
         temp = new i::t[6][6]{};
 
-        s::v vsTemp = vs_s(_vs.at(i), ' ');
+        s::v vsTemp = vs_s( _vs.at(i), ' ' );
 
         qDebug() << "size of vsTemp : " << vsTemp.size();
 
-
         for(z::t j(0) ; j < vsTemp.size() / 6 ; ++j){
             for(z::t x(0) ; x < 6 ; ++x){
-
                 *((*temp) + ((j * 6) + x)) = x < 3 ? i_s(vsTemp.at((j * 3) + x)) : i_s(vsTemp.at((j * 3) + (x - 3) + 18));
-
             }
         }
 
@@ -1130,8 +1029,6 @@ vo::t MainWindow::on_btnClear_clicked()
 
 }
 
-
-
 vo::t MainWindow::on_offset_readOffset()
 {
 
@@ -1227,8 +1124,6 @@ vo::t MainWindow::on_btn_tempSave_clicked()
 
 }
 
-
-
 void MainWindow::on_cb_commands_activated(const QString &arg1)
 {
 
@@ -1236,6 +1131,41 @@ void MainWindow::on_cb_commands_activated(const QString &arg1)
     load_commands(arg1);
 
 }
+
+void MainWindow::on_cb_release_clicked(bool checked)
+{
+    qDebug() << checked;
+
+    if(checked){
+        for(z::t i(0) ; i < ui->lw_legs->count() ; ++i){
+
+            ui->lw_legs->item(i)->setCheckState(Qt::CheckState::Checked);
+            qDebug() << "checked..!" << endl;
+
+        }
+        for(z::t i(0) ; i < ui->lw_motors->count() ; ++i){
+
+            ui->lw_motors->item(i)->setCheckState(Qt::CheckState::Checked);
+            qDebug() << "checked..!" << endl;
+        }
+
+    }else{
+        for(z::t i(0) ; i < ui->lw_legs->count() ; ++i){
+
+            ui->lw_legs->item(i)->setCheckState(Qt::CheckState::Unchecked);
+            qDebug() << "unchecked..!" << endl;
+        }
+        for(z::t i(0) ;  i < ui->lw_motors->count() ; ++i){
+
+            ui->lw_motors->item(i)->setCheckState(Qt::CheckState::Unchecked);
+            qDebug() << "unchecked..!" << endl;
+        }
+    }
+
+    qDebug() << __func__ << "end" ;
+
+}
+
 
 
 
@@ -1333,38 +1263,75 @@ vo::t MainWindow::thsrl_pai36(pai3::p _commands){
 
 }
 
-*/
 
-void MainWindow::on_cb_release_clicked(bool checked)
-{
-    qDebug() << checked;
+vo::t Dll_usb_mmf01stl::thread_pai3(QFutureSynchronizer<b::t>& _synchronizer, i::A3 _ai3, i::t _id, i::t _row){
 
-    if(checked){
-        for(z::t i(0) ; i < ui->lw_legs->count() ; ++i){
+    _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
 
-            ui->lw_legs->item(i)->setCheckState(Qt::CheckState::Checked);
-            qDebug() << "checked..!" << endl;
+        while(1){
+
+            if( !((_ai3[_row] - 100) < i_srl(_id) && (_ai3[_row] + 100) >  i_srl(_id))  ){ qDebug("_ai3[i] != i_srl(id)"); srl_i(_ai3[_row], _id);}
+            else { break; }
 
         }
-        for(z::t i(0) ; i < ui->lw_motors->count() ; ++i){
 
-            ui->lw_motors->item(i)->setCheckState(Qt::CheckState::Checked);
-            qDebug() << "checked..!" << endl;
-        }
+        emit log("id  " + qt::s_i(_id) + "  _ai3[i]  " + qt::s_i(_ai3[_row]) + "  i_srl(id)  " + qt::s_i(i_srl(_id)));
+    return b::T1;
 
-    }else{
-        for(z::t i(0) ; i < ui->lw_legs->count() ; ++i){
-
-            ui->lw_legs->item(i)->setCheckState(Qt::CheckState::Unchecked);
-            qDebug() << "unchecked..!" << endl;
-        }
-        for(z::t i(0) ;  i < ui->lw_motors->count() ; ++i){
-
-            ui->lw_motors->item(i)->setCheckState(Qt::CheckState::Unchecked);
-            qDebug() << "unchecked..!" << endl;
-        }
-    }
-
-    qDebug() << __func__ << "end" ;
+    }));
 
 }
+
+
+b::t Dll_usb_mmf01stl::thsri_pai3(i::A3 _ai3, h::T _row){
+
+    QFutureSynchronizer<b::t> synchronizer;
+
+    for(i::t col : cols){
+
+        int id = (_row + 1) * 10 + (col + 1);
+
+        thread_pai3(synchronizer, _ai3, id, col);
+
+    }
+
+    synchronizer.waitForFinished();
+    return b::T0;
+
+}
+
+b::t Dll_usb_mmf01stl::srl_pai3(int** _pai3){
+
+    isFinished = !isFinished;
+
+    pai3::p cmd = pai3_pp(_pai3);
+    QFutureSynchronizer<b::t> synchronizer;
+
+    for(i::t row : rows){
+        synchronizer.addFuture(QtConcurrent::run([=](){
+
+                i::a3 ia3 = {0, };
+
+                ia3_pai3(ia3, cmd, row);
+                thsri_pai3(ia3, row);
+
+                return b::T1;
+        }));
+    }
+
+    emit log("");
+    emit log("end loop...");
+    emit log("");
+
+    synchronizer.waitForFinished();
+    isFinished = !isFinished;
+
+    delete[] cmd;
+
+    return b::T1;
+
+}
+
+
+
+*/

@@ -1070,7 +1070,27 @@ vo::t cmd_id(cmd::t cmd_,i::R _iDegree, i::R _id, i::R _iVelocity = 30){
 
 }
 
+pai3::p pai3_msg(vo::p _message){
 
+    MSG* msg = reinterpret_cast<MSG*>(_message);
+
+    if((msg)->message == WM_COPYDATA){
+
+        pai3::p pai3 = new i::a3[6]{{0,},{0,},{0,}};
+
+        HWND reciverhwnd = (HWND)msg->wParam;
+        PCOPYDATASTRUCT pcds = (PCOPYDATASTRUCT)msg->lParam;
+        UNUSED(reciverhwnd);
+
+        y::p yHdr = (y::p) pcds ->lpData;
+        pai3_yHdr(pai3, yHdr);
+
+        return pai3;
+    }
+
+    return nil;
+
+}
 
 
 

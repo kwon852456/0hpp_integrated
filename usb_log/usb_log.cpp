@@ -19,8 +19,6 @@ Usb_log::~Usb_log()
 
 void Usb_log::setlog(QString text){
 
-    qDebug() << __func__;
-
     ui->edit_log->append(text);
 }
 

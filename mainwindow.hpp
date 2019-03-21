@@ -155,6 +155,9 @@ private slots:
 
     void on_cb_release_clicked(bool checked);
 
+    void timeTaken(int _time);
+
+
 private:
     Ui::MainWindow *ui;
 };
@@ -196,6 +199,8 @@ class Dll_usb_mmf01stl : public QObject{
     QList<int> rows;
     QList<int> cols;
 
+    QElapsedTimer timer;
+
     bool isFinished = true;
 
 
@@ -211,11 +216,11 @@ signals:
     void showOffset();
     void tempSave(QString _fn);
     void thsri_qai36End();
+    void timeTaken(int _time);
 
 
 public slots:
     bool srl_pai6(int** _cmd);
-    bool srl_pai3(int** _pai3);
 
     void OnReadOffset();
     void onMmfClicked();
