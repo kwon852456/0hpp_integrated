@@ -7,6 +7,7 @@
 #include <QMutex>
 #include <QThread>
 #include <6qtu9.hpp>
+#include "ui_mainwindow.h"
 
 using namespace rv2;
 
@@ -184,6 +185,22 @@ void con_pai3(pai3::p _pai3){
         qDebug() << msg;
     }
 }
+
+void con_pai6(pai6::p _pai6){
+    qt::s::t temp = qt::s::T0;
+    qt::s::t msg = qt::s::T0;
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        temp.clear(); msg.clear();
+        for(z::t j(0) ; j < 6 ; ++j){
+            temp.sprintf("%d ", _pai6[i][j]);
+            msg += temp;
+        }
+
+        qDebug() << msg;
+    }
+}
+
 
 
 QString qs_pai3(pai3::p _pai3){
@@ -450,6 +467,29 @@ void co_pai3(pai3::p pai3) {
 
 }
 
+
+void co_pai6(pai6::p pai6 , h::R _h = 6) {
+
+    qt::s::t msg(qt::s::T0);
+    qt::s::t temp(qt::s::T0);
+
+    for(z::t i(0) ; i < _h ; ++i){
+        for(z::t j(0) ; j < 6 ; ++j){
+
+            temp.sprintf("%d ", pai6[i][j]);
+            msg += temp;
+
+        }
+        msg += "\n";
+    }
+
+    QMessageBox box;
+    box.setText(msg);
+    box.exec();
+
+}
+
+
 b::t srl_i(qt::srl::p srl_ ,i::R _iDegree, i::R _id){
 
     cmd::t command;  cmd_id(command, _iDegree,  _id);
@@ -645,6 +685,7 @@ void mmf_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
         int colm = (id % 10) -1;
 
         encVal[row][colm] = i_srl_mmf(_srl,id) + _offset[row][colm];
+
     }
 
     mmf_pai3Val(encVal);
@@ -669,6 +710,7 @@ void save_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset, qt::s::t _fn = "
     save_pai3(encVal,6, _fn + ".txt");
 }
 
+
 void lv_no(QListWidget*_lv, i::t startNo, i::t endNo){
     for(z::t i(startNo) ; i < endNo ; ++i){
         _lv->addItem(qt::s_i(i));
@@ -677,7 +719,50 @@ void lv_no(QListWidget*_lv, i::t startNo, i::t endNo){
 }
 
 
-void add_pai36(pai3::p pai_, pai3::p _pai3){
+void add_pai33(pai3::p pai_, pai3::p _pai3){
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 3 ; ++j){
+            pai_[i][j] += _pai3[i][j];
+        }
+    }
+
+}
+
+
+
+void sub_pai33(pai3::p pai_, pai3::p _pai3){
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 3 ; ++j){
+            pai_[i][j] -= _pai3[i][j];
+        }
+    }
+
+}
+
+void sub_pai36(pai6::p pai_, pai3::p _pai3){
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 3 ; ++j){
+            pai_[i][j] -= _pai3[i][j];
+        }
+    }
+
+}
+
+void add_pai66(pai6::p pai_, pai6::p _pai3){
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 3 ; ++j){
+            pai_[i][j] += _pai3[i][j];
+        }
+    }
+
+}
+
+
+void add_pai63(pai6::p pai_, pai3::p _pai3){
 
     for(z::t i(0) ; i < 6 ; ++i){
         for(z::t j(0) ; j < 3 ; ++j){
@@ -731,6 +816,48 @@ qt::s::t qs_li(QList<int> _li){
 }
 
 b::t check_commandValid(pai3::p _command, i::t _first_max , i::t _first_min, i::t _second_max, i::t _second_min, i::t _third_max, i::t _third_min ){
+
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 3 ; ++j){
+
+            if(j == 0){
+
+                if((_command[i][j] > _first_max)){
+                    _command[i][j] = _first_max;
+                }
+
+                if((_command[i][j] < _first_min)){
+                    _command[i][j] = _first_min;
+                }
+
+            }else if(j == 1){
+
+                if((_command[i][j] > _second_max)){
+                    _command[i][j] = _second_max ;
+                }
+
+                if((_command[i][j] < _second_min)){
+                    _command[i][j] = _second_min;
+                }
+
+            }else if(j == 2){
+
+                if((_command[i][j] > _third_max)){
+                    _command[i][j] = _third_max;
+                }
+
+                if((_command[i][j] < _third_min)){
+                    _command[i][j] = _third_min;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+b::t check_commandValid(pai6::p _command, i::t _first_max , i::t _first_min, i::t _second_max, i::t _second_min, i::t _third_max, i::t _third_min ){
 
 
     for(z::t i(0) ; i < 6 ; ++i){
@@ -833,6 +960,123 @@ kms::m kmNo_vs(s::W _vs) {///
 
             return mkms_;
 }///
+
+
+
+QList<int> li_legsValStt(Ui::MainWindow* _ui){
+
+    QList<int> li;
+
+    li.push_back(qt::i_s(_ui ->edit_max_firstLeg->text())  * 100);
+    li.push_back(qt::i_s(_ui ->edit_min_firstleg->text())  * 100);
+
+    li.push_back(qt::i_s(_ui ->edit_max_secondLeg->text()) * 100);
+    li.push_back(qt::i_s(_ui ->edit_min_secondleg->text()) * 100);
+
+    li.push_back(qt::i_s(_ui ->edit_max_thirdLeg->text())  * 100);
+    li.push_back(qt::i_s(_ui ->edit_min_thirdLeg->text())  * 100);
+
+    return li;
+
+}
+
+b::t addOffset(pai3::p _command_, pai3::p _offset){
+
+    add_pai33(_command_, _offset);
+    return b::T1;
+
+}
+
+b::t addOffset(pai6::p _command_, pai3::p _offset){
+
+    add_pai63(_command_, _offset);
+    return b::T1;
+
+}
+
+b::t subOffset(pai3::p _command_, pai3::p _offset){
+
+    sub_pai33(_command_, _offset);
+    return b::T1;
+
+}
+
+
+b::t subOffset(pai6::p _command_, pai3::p _offset){
+
+    sub_pai36(_command_, _offset);
+    return b::T1;
+
+}
+
+
+
+
+
+
+i::p* ipp_pai66(pai6::p _commands, pai3::p _offset , Ui::MainWindow* _ui){
+
+    addOffset( _commands, _offset );
+
+    QList<int> li_Val = li_legsValStt(_ui);
+
+    pai6::p temp_pai3 = new i::t[6][6]{  {0},{0},{0},{0},{0} };
+
+    memcpy(  temp_pai3,  _commands,  36 * 4); // 실제 멤버변수에 있는 pai3에는 변화가 가지 않도록 한다.
+
+    check_commandValid( temp_pai3, li_Val[0],  li_Val[1], li_Val[2], li_Val[3], li_Val[4], li_Val[5] );
+
+    return pp_pai6(temp_pai3);
+
+}
+
+bool ia3_pai3(i::a3 ia3_ ,pai3::p _pai3, i::T _iRow){
+
+    for(z::t i(0) ; i < 3 ; ++i){
+        ia3_[i] = _pai3[_iRow][i];
+    }
+
+    return b::T1;
+}
+
+
+void ia6_pai6(i::a6 ia6_ ,pai6::p _pai6, i::T _iRow){
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        ia6_[i] = _pai6[_iRow][i];
+    }
+
+}
+
+vo::t cmd_id(cmd::t cmd_,i::R _iDegree, i::R _id, i::R _iVelocity = 30){
+
+    h::t vel    = _iVelocity;
+    y::t ccw = ( _iDegree < 0 ? 1 : 0);
+    h::t posoff = (h::t) abs(_iDegree);
+    y2::u degree2y ,vel2y;
+
+    degree2y.h1    = posoff;
+    vel2y.h1       = vel;
+
+    y::t checkSum = ~((y::t)(_id + 0x07 + 0x01 + ccw + degree2y.t2[1] + degree2y.t2[0] + vel2y.t2[1] + vel2y.t2[0]));
+    cmd::t command = {  0xFF, 0xFE, (y::t)_id, 0x07, checkSum, 0x01, ccw, degree2y.t2[1], degree2y.t2[0], vel2y.t2[1], vel2y.t2[0] };
+
+    for(z::t i(0) ; i < cmd::Z ; ++i){
+        cmd_[i] = command[i] ;
+    }
+
+    con_11bytes(command);
+    qDebug() << "vel : " << vel << "posoff" << posoff << endl;
+
+}
+
+
+
+
+
+
+
+
 
 
 b::T mNo_fn(s::R _fn, kms::m& mkms_){ ; s::v vs; b::T b_(rv2::fn_to::vs(_fn, vs)); if (b_) mkms_ = kmNo_vs(vs); else mkms_.clear(); return b_; }

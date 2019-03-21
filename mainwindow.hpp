@@ -15,7 +15,9 @@
 
 class Dll_usb_mmf01stl;
 namespace Ui {
+
 class MainWindow;
+
 }
 
 class MainWindow : public QMainWindow
@@ -29,7 +31,6 @@ public:
 
 
     bool nativeEvent(const QByteArray &eventType, void *message, long *resultMSG);
-    int (*pai_msg(void* _message))[3];
     void set_tbrs();
     bool init_tbrs();
     bool init_lv();
@@ -40,10 +41,12 @@ public:
     void init_lw();
     void i_cb( QList<int>& ids_ ,QListWidget* _lw,int _startNo, int _endNo);
     void ids_lili(QList<int>& _ids ,QList<int> _li, QList<int> mi);
-    void mCommands_vs(QMap<int, int (*)[3]>& _mCommands_, std::vector<std::string> _vs);
-    QList<int> li_legsVal();
+    void mCommands_vs(QMap<int, int (*)[6]>& _mCommands_, std::vector<std::string> _vs);
     void thsrl_pai36(int (*_commands)[3]);
     void cb_fn(QString _fn);
+    QList<int> li_legsVal();
+    void thsrl_pai6(int (*_commands)[6]);
+
 
 
     QThread* wThread;
@@ -55,12 +58,15 @@ public:
 
     Dll_usb_mmf01stl* stl;
     bool isSended = false;
-    QMap<int, int (*)[3]> mCommands;
+    bool tbrEnded = true;
+    QMap<int, int (*)[6]> mCommands;
     int idxSizeCommands;
 
 
 signals:
     void thsrl_cds(int** _cmd);
+    void thsrl_file(int** _cmd);
+
     void send_clicked(QList<int> _qai3, int _legNo);
     void readOffset();
     void saveOffset();
@@ -78,6 +84,8 @@ private slots:
     void srl_ai3();
 
     void fileTimerTimeOut();
+
+    void thsri_qai36End();
 
     void on_edit_min_firstleg_returnPressed();
 
@@ -145,6 +153,8 @@ private slots:
 
     void on_cb_commands_activated(const QString &arg1);
 
+    void on_cb_release_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
 };
@@ -164,13 +174,18 @@ class Dll_usb_mmf01stl : public QObject{
         explicit Dll_usb_mmf01stl(QObject *parent = nullptr);
         ~Dll_usb_mmf01stl();
 
-    void srl_i(const int _iDegree, const int _id);
+    void srl_i(const int _iDegree, const int _id,const int _velocity);
     int  i_srl(int _id);
-    void cmd_id(unsigned char cmd_[11],const int& _iDegree,const int& _id );
-    bool thsri_pai3(const int _ai3[3],const unsigned short _row);
-    void thread_qai3(QFutureSynchronizer<bool>& _synchronizer, QList<int> _qai3, int _id ,int _row);
-    void thread_pai3(QFutureSynchronizer<bool>& _synchronizer,const int _qai3[3], int _id ,int _row);
 
+    void thread_pai6(QFutureSynchronizer<bool> & _synchronizer ,  const int _qai6[6], int _id , int _row);
+    bool thsri_pai6(const int _ai6[6],const unsigned short _row);
+
+    void thread_qai3(QFutureSynchronizer<bool> & _synchronizer ,  QList<int> _qai3,   int _id , int _row);
+    void thread_qai36(QFutureSynchronizer<bool>& _synchronizer ,  QList<int> _qai3,   int _id , int _row);
+
+    void thread_pai3(QFutureSynchronizer<bool>& _synchronizer, const int _ai3[3], int _id, int _row);
+
+    bool Dll_usb_mmf01stl::thsri_pai3(const int _ai3[3], unsigned short _row);
 
     SerialWorker* sWorker;
     OffsetWorker* oWorker;
@@ -184,6 +199,7 @@ class Dll_usb_mmf01stl : public QObject{
     bool isFinished = true;
 
 
+
 signals:
     void write_cmd(char* _cmd);
     void write_req(char* _req);
@@ -194,16 +210,17 @@ signals:
     void openSecondSerial(QString _text);
     void showOffset();
     void tempSave(QString _fn);
-
+    void thsri_qai36End();
 
 
 public slots:
-    bool srl_pai3(int** _cmd);
-    void thsri_qai3(QList<int> _qai3, int _legNo);
+    bool srl_pai6(int** _cmd);
+    bool srl_pai3(int** _pai3);
+
     void OnReadOffset();
     void onMmfClicked();
     void setIds(QList<int> _rows, QList<int> _cols);
-
+    void thsri_qai36(QList<int> _qai3, int _legNo);
 
 };
 
@@ -272,5 +289,7 @@ public slots:
     void setSerialPort(QString _port);
 
 };
+
+
 
 #endif // MAINWINDOW_HPP
