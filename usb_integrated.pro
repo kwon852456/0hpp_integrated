@@ -40,7 +40,8 @@ INCLUDEPATH += \
                 C:/Users/Admin/Documents/include
 
 INCLUDEPATH += R:\dev\release\0hpp \
-               D:\dev\gdrv\dev\code\rv\qt\0.0.5\proj\0hpp_integrated-master\include
+               D:\dev\gdrv\dev\code\rv\qt\0.0.5\proj\0hpp_integrated-master\include \
+               D:\dev\gdrv\dev\code\rv\qt\0.0.5\proj\0hpp_integrated-master
 
 
 LIBS += -lws2_32 -luser32

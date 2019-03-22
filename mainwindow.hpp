@@ -158,6 +158,8 @@ private slots:
     void timeTaken(int _time);
 
 
+    void on_btn_timeClear_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

@@ -296,7 +296,7 @@ vo::t Dll_usb_mmf01stl::thread_pai6(QFutureSynchronizer<b::t>& _synchronizer, i:
 
     _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
 
-        int i = 0;
+        i::t i = 0;
         while(1){
 
             i::t current = i_srl(_id);
@@ -304,8 +304,9 @@ vo::t Dll_usb_mmf01stl::thread_pai6(QFutureSynchronizer<b::t>& _synchronizer, i:
             if( !( (_ai6[_col] - 100) < current && (_ai6[_col] + 100) >  current) ){  srl_i(_ai6[_col], _id, _ai6[_col + 3]);}
             else {  break; }
 
+
             if(i > 0)
-                qDebug() << " waiting for motor to be placed where it should be... ";
+                qDebug() << " waiting for motor to be placed where it should be... try : " + i;
             i++;
         }
 
@@ -320,14 +321,17 @@ b::t Dll_usb_mmf01stl::thsri_pai6(i::A6 _ai6, h::T _row){
 
     QFutureSynchronizer<b::t> synchronizer;
 
+
     for(i::t col : cols){
 
         int id = (_row + 1) * 10 + (col + 1);
+
         thread_pai6(synchronizer, _ai6, id, col);
 
     }
 
     synchronizer.waitForFinished();
+
     return b::T0;
 
 }
@@ -336,12 +340,13 @@ b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
 
     qDebug() << __func__ ;
 
-    timer.start();
     isFinished = !isFinished;
+
 
     pai6::p cmd = pai6_pp(_pai6);
 
     QFutureSynchronizer<b::t> synchronizer;
+    timer.restart();
 
     for(i::t row : rows){
         synchronizer.addFuture(QtConcurrent::run([=](){
@@ -356,11 +361,12 @@ b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
     }
 
     synchronizer.waitForFinished();
+    emit timeTaken(timer.elapsed());
 
     isFinished = !isFinished;
 
 
-    emit timeTaken(timer.elapsed());
+
 
     emit log("");
 
@@ -1051,12 +1057,12 @@ vo::t MainWindow::on_usb_mmf_mmfClicked()
 
 vo::t MainWindow::on_edit_firstSerial_returnPressed()
 {
-    emit openFirstSerial(ui->edit_firstSerial->text());
+    emit openFirstSerial("COM" + ui->edit_firstSerial->text());
 }
 
 vo::t MainWindow::on_edit_secondSerial_returnPressed()
 {
-    emit openSecondSerial(ui->edit_secondSerial->text());
+    emit openSecondSerial("COM" + ui->edit_secondSerial->text());
 }
 
 vo::t MainWindow::i_cb(QList<int>& ids_ ,QListWidget* _lw, i::t endNo, i::t startNo = 0){
@@ -1165,6 +1171,48 @@ void MainWindow::on_cb_release_clicked(bool checked)
     qDebug() << __func__ << "end" ;
 
 }
+
+
+void MainWindow::on_btn_timeClear_clicked()
+{
+    ui->edit_time->clear();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
