@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1173</width>
-    <height>617</height>
+    <height>737</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -147,16 +147,6 @@
        <y>220</y>
        <width>361</width>
        <height>50</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="Offset" name="offset">
-     <property name="geometry">
-      <rect>
-       <x>-10</x>
-       <y>260</y>
-       <width>331</width>
-       <height>51</height>
       </rect>
      </property>
     </widget>
@@ -554,29 +544,6 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QGroupBox" name="groupBox_4">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>310</y>
-      <width>611</width>
-      <height>231</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Log</string>
-    </property>
-    <widget class="Usb_log" name="usb_log">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>10</y>
-       <width>601</width>
-       <height>221</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
    <widget class="QGroupBox" name="groupBox_5">
     <property name="geometry">
      <rect>
@@ -595,7 +562,7 @@
        <x>10</x>
        <y>20</y>
        <width>149</width>
-       <height>251</height>
+       <height>241</height>
       </rect>
      </property>
     </widget>
@@ -611,6 +578,173 @@
      <property name="text">
       <string>Clear</string>
      </property>
+    </widget>
+   </widget>
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>310</y>
+      <width>611</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>&amp;Motion</string>
+     </attribute>
+     <widget class="QPushButton" name="pushButton_3">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>110</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&amp;Reset</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_CalcDiff">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>60</y>
+        <width>91</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Calc Diff</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>56</width>
+        <height>12</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>DIFF:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="edit_diff">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>541</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_setLegsToZero">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>60</y>
+        <width>161</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Set Legs To Origin</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>&amp;Home</string>
+     </attribute>
+     <widget class="Offset" name="offset">
+      <property name="geometry">
+       <rect>
+        <x>-10</x>
+        <y>50</y>
+        <width>331</width>
+        <height>51</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="edit_homeSet">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>571</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>261</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>HOMESET</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QToolBox" name="toolBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>440</y>
+      <width>611</width>
+      <height>241</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="page">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>611</width>
+       <height>189</height>
+      </rect>
+     </property>
+     <attribute name="label">
+      <string>Log</string>
+     </attribute>
+     <widget class="Usb_log" name="usb_log">
+      <property name="geometry">
+       <rect>
+        <x>-10</x>
+        <y>-10</y>
+        <width>611</width>
+        <height>211</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page_2">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>611</width>
+       <height>189</height>
+      </rect>
+     </property>
+     <attribute name="label">
+      <string>Page 2</string>
+     </attribute>
     </widget>
    </widget>
   </widget>

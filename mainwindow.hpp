@@ -67,6 +67,7 @@ signals:
     void thsrl_cds(int** _cmd);
     void thsrl_file(int** _cmd);
 
+
     void send_clicked(QList<int> _qai3, int _legNo);
     void readOffset();
     void saveOffset();
@@ -76,6 +77,9 @@ signals:
     void openSecondSerial(QString _text);
     void setIds(QList<int> _rows, QList<int> _cols);
     void tempSave(QString _fn);
+    void saveHomeSet();
+    void loadHomeset(QString _path);
+    void legsToOrigin();
 
 
 
@@ -157,8 +161,13 @@ private slots:
 
     void timeTaken(int _time);
 
-
     void on_btn_timeClear_clicked();
+
+    void setHomeSet(QString _text);
+
+    void on_btn_CalcDiff_clicked();
+
+    void on_btn_setLegsToZero_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -219,6 +228,10 @@ signals:
     void tempSave(QString _fn);
     void thsri_qai36End();
     void timeTaken(int _time);
+    void setHomeSet(QString _text);
+    void saveHomeSet();
+    void loadHomeset(QString _path);
+
 
 
 public slots:
@@ -228,7 +241,7 @@ public slots:
     void onMmfClicked();
     void setIds(QList<int> _rows, QList<int> _cols);
     void thsri_qai36(QList<int> _qai3, int _legNo);
-
+    void legsToOrigin();
 };
 
 
@@ -286,14 +299,21 @@ class OffsetWorker : public QObject{
 
 
     QSerialPort* srl;
+    int (*homeSet)[3] = new int[6][3]{  {0, },{0, },{0, },{0, },{0, },{0, }  };
+    int (*diff)[3] = new int[6][3]{  {0, },{0, },{0, },{0, },{0, },{0, }  };
+
+    Q_INVOKABLE QString qs_diff();
 
 signals:
     void log(QString _text);
-
+    void setHomeSet(QString _text);
 
 public slots:
     void onReadOffset();
+    void saveHomeSet();
     void setSerialPort(QString _port);
+    void loadHomeset(QString _path);
+    QString calc_diff();
 
 };
 

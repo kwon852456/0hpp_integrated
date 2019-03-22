@@ -2,6 +2,7 @@
 #define DLL_USB_OFFSET01STT_H
 
 #include "QtSerialPort/QSerialPort"
+#include <QMainWindow>
 #include <QtConcurrent>
 #include <QFileDialog>
 #include <QMutex>
@@ -219,6 +220,62 @@ QString qs_pai3(pai3::p _pai3){
     return msg;
 }
 
+i::t (*pai3_qs(qt::s::t _sPai3))[3]{
+
+    pai3::p pai3_ = new i::t[6][3]{ {0,},{0,},{0,},{0,},{0,},{0,}  };
+
+    s::v vsTemp = vs_s( qt::s_qs(_sPai3), ' ' );
+
+    qDebug() << "size of vsTemp : " << vsTemp.size();
+
+    for (z::t i(0) ; i < 6 ; ++i){
+
+        for(z::t j(0) ; j < 3 ; ++j){
+            pai3_[i][j] = i_s(vsTemp.at( (i * 3) + j ));
+        }
+
+    }
+
+    return pai3_;
+}
+
+
+QString qs_pai3H(pai3::p _pai3){
+    qt::s::t temp = qt::s::T0;
+    qt::s::t msg = qt::s::T0;
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        temp.clear();
+        for(z::t j(0) ; j < 3 ; ++j){
+            temp.sprintf("%d ", _pai3[i][j]);
+            msg += temp;
+        }
+    }
+    return msg;
+}
+
+
+i::t (*pai3_fn(qt::s::t _path, QObject* _parent))[3] {
+
+    pai3::p pai3_ = new i::t[6][3]{ {0},{0},{0},{0},{0},{0} };
+
+    if(_path == qt::s::T0){ return false; }
+    QFile file(_path, _parent);
+
+    file.open(QIODevice::ReadWrite);
+
+    qt::yar::t sOffset = file.readAll();
+    s::v vs = vs_s(sOffset.toStdString(), ' ');
+
+    for (z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 3 ; ++j){
+            pai3_[i][j] = i_s(vs.at( (i * 3) + j ));
+        }
+    }
+
+    return pai3_;
+}
+
 s::v del_basket(s::t _String){
     replace_s(_String,"["," ");
     replace_s(_String,"]"," ");
@@ -412,6 +469,8 @@ void con_11bytes(y::p yData) {
 }
 
 vo::t cmd_id(cmd::t& cmd_,i::R _iDegree,i::R _id ){
+
+    qDebug() << "cmd_id without vel" ;
 
     h::t vel    = 32;  //속도 3 rpm 고정
 
@@ -1066,7 +1125,7 @@ vo::t cmd_id(cmd::t cmd_,i::R _iDegree, i::R _id, i::R _iVelocity = 30){
     }
 
     con_11bytes(command);
-    qDebug() << "vel : " << vel << "posoff" << posoff << endl;
+    qDebug() << "id : " << _id << "vel : " << vel << "posoff" << posoff << endl;
 
 }
 
@@ -1105,3 +1164,20 @@ kms::m kmNo_fn(s::R _fn) { ; kms::m mkms_; mNo_fn(_fn, mkms_); return mkms_; }
 
 
 #endif // DLL_USB_OFFSET01STT_H
+/*
+
+ 각도 함수 옮길것..!
+
+function rng360_ang(const _f: single): single;
+begin
+  result := _f;
+  while result < 0.0 do result := result + 360.0;
+  while result >= 360.0 do result := result - 360.0;
+  result := (trunc(result) mod 360) + frac(_f);
+end;
+
+function rng180_ang(const _f: single): single;
+begin
+  result := rng360_ang(_f + 180.0) - 180.0
+end;
+*/
