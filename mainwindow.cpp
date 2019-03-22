@@ -753,9 +753,8 @@ vo::t OffsetWorker::setSerialPort(QString _comPort){
 
 
 qt::s::t OffsetWorker::calc_diff(){
-    //pai3::p tempHomeSet =  pai3_srl(srl);
+    pai3::p tempHomeSet =  pai3_srl(srl);
 
-    pai3::p tempHomeSet = new i::t[6][3]{ {8000,8000,8000 },{8000,8000,8000 },{8000,8000,8000 },{8000,8000,8000 },{8000,8000,8000 },{8000,8000,8000 } };
 
 
 
@@ -775,9 +774,7 @@ qt::s::t OffsetWorker::calc_diff(){
                 else                  {   dif = (current -  target  - 36000);       }
 
             }
-
             diff[i][j] = dif;
-
         }
 
     }
@@ -793,7 +790,9 @@ qt::s::t OffsetWorker::calc_diff(){
 
 }
 qt::s::t OffsetWorker::qs_diff(){
+
     return qs_pai3H(diff);
+
 }
 
 
