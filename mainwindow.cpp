@@ -307,10 +307,12 @@ i::t Dll_usb_mmf01stl::i_srl(i::t _id){
 
     if(recvEncVal == 99999){ qDebug() << "checkSum has been broken...!"; };
     return recvEncVal;
+
 }
 
 vo::t Dll_usb_mmf01stl::thread_pai6(QFutureSynchronizer<b::t>& _synchronizer, i::A6 _ai6, i::t _id, i::t _col){
 
+    if(_ai6[_col + 3] == 0){ qDebug() << " Motor speed zero on id : " << _id;  return; }
 
     _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
 
@@ -365,12 +367,13 @@ b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
     QFutureSynchronizer<b::t> synchronizer;
     timer.restart();
 
+
     for(i::t row : rows){
         synchronizer.addFuture(QtConcurrent::run([=](){
 
                 i::a6 ia6 = {0, };
-
                 ia6_pai6(ia6, cmd, row);
+                if(ia6[3] + ia6[4] + ia6[5] == 0){ qDebug() << "speed for three legs are all zero"; return b::T0; }
                 thsri_pai6(ia6, row);
 
                 return b::T1;

@@ -696,7 +696,7 @@ int encVal_srl(qt::srl::p _srl){
 
     if(yDataFromSri[6] == 0x01) { degree_ = -degree_; }
 
-    if( !(yDataFromSri[0] == 0xFF && yDataFromSri[1] == 0xFE && yDataFromSri[3] == 0x08 && yDataFromSri[4] == checkSum) ){ return 99999; }
+    if( !(yDataFromSri[0] == 0xFF && yDataFromSri[1] == 0xFE && yDataFromSri[3] == 0x08 && yDataFromSri[4] == checkSum) ){ _srl->readAll(); return 99999; }
 
 
     return degree_;
