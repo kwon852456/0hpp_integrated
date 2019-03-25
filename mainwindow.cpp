@@ -305,7 +305,7 @@ i::t Dll_usb_mmf01stl::i_srl(i::t _id){
                               Q_ARG(QByteArray, arr),
                               Q_ARG(int, _id));
 
-
+    if(recvEncVal == 99999){ qDebug() << "checkSum has been broken...!"; };
     return recvEncVal;
 }
 
@@ -319,7 +319,7 @@ vo::t Dll_usb_mmf01stl::thread_pai6(QFutureSynchronizer<b::t>& _synchronizer, i:
 
             i::t current = i_srl(_id);
 
-            if( !( (_ai6[_col] - 100) < current && (_ai6[_col] + 100) >  current) ){  srl_i(_ai6[_col], _id, _ai6[_col + 3]);}
+            if( !( (_ai6[_col] - 100) < current && (_ai6[_col] + 100) >  current) ){  srl_i(_ai6[_col], _id, _ai6[_col + 3]);  }
             else {  break; }
 
 

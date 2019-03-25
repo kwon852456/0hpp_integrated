@@ -164,6 +164,7 @@ qt::yar::li yarl_proc(qt::srl::p _srl){
 std::string qs_yar(qt::yar::t _yar){
 
     return _yar.toStdString();
+
 }
 
 void pai3_vs(pai3::p _pai, std::vector<std::string>& _vs, i::T _row){
@@ -214,7 +215,6 @@ QString qs_pai3(pai3::p _pai3){
             temp.sprintf("%d ", _pai3[i][j]);
             msg += temp;
         }
-
         msg += "\n";
     }
     return msg;
@@ -451,10 +451,6 @@ void con_12bytes(y::p yData) {
     qDebug() << msg;
 }
 
-
-
-
-
 void con_11bytes(y::p yData) {
 
     qt::s::t msg(qt::s::T0);
@@ -466,9 +462,10 @@ void con_11bytes(y::p yData) {
         msg += temp;
     }
     qDebug() << msg;
+
 }
 
-vo::t cmd_id(cmd::t& cmd_,i::R _iDegree,i::R _id ){
+vo::t cmd_id(cmd::t& cmd_ ,i::R _iDegree,i::R _id ){
 
     qDebug() << "cmd_id without vel" ;
 
@@ -482,13 +479,15 @@ vo::t cmd_id(cmd::t& cmd_,i::R _iDegree,i::R _id ){
     degree2y.h1    = posoff;
     vel2y.h1       = vel;
 
-    y::t checkSum = ~((y::t)(_id + 0x07 + 0x01 + ccw + degree2y.t2[1] + degree2y.t2[0] + vel2y.t2[1] + vel2y.t2[0]));
-    cmd::t command = {0xFF, 0xFE, (y::t)_id, 0x07, checkSum, 0x01, ccw, degree2y.t2[1], degree2y.t2[0], vel2y.t2[1], vel2y.t2[0] };
+    y::t checkSum = ~( (y::t)(_id + 0x07 + 0x01 + ccw + degree2y.t2[1] + degree2y.t2[0] + vel2y.t2[1] + vel2y.t2[0]) );
+    cmd::t command = { 0xFF, 0xFE, (y::t)_id, 0x07, checkSum, 0x01, ccw, degree2y.t2[1], degree2y.t2[0], vel2y.t2[1], vel2y.t2[0] };
 
 
     for(z::t i(0) ; i < cmd::Z ; ++i){
         cmd_[i] = command[i] ;
+
     }
+
 }
 
 vo::t req_id(req::t& req_,i::R _id ){
@@ -691,13 +690,16 @@ int encVal_srl(qt::srl::p _srl){
     y2.t2[0] = yDataFromSri[8];
     y2.t2[1] = yDataFromSri[7];
 
-    int degree = (i::t)y2.h1;
+    i::t degree_ = (i::t)y2.h1;
 
-    if(yDataFromSri[6] == 0x01) { degree = -degree; }
+    y::t checkSum = ~(yDataFromSri[2] + yDataFromSri[3] + yDataFromSri[5] + yDataFromSri[6] + yDataFromSri[7] + yDataFromSri[8] + yDataFromSri[9] + yDataFromSri[10] + yDataFromSri[11]);
+
+    if(yDataFromSri[6] == 0x01) { degree_ = -degree_; }
+
+    if( !(yDataFromSri[0] == 0xFF && yDataFromSri[1] == 0xFE && yDataFromSri[3] == 0x08 && yDataFromSri[4] == checkSum) ){ return 99999; }
 
 
-
-    return degree;
+    return degree_;
 }
 
 
@@ -712,6 +714,7 @@ i::t onWrite_req(qt::srl::p _srl ,qt::yar::t _req, i::t _id){
         }else{
 
             return encVal_srl(_srl);
+
         }
 
     }else{ qDebug() << " write failed on" << __func__ << endl;  return 0; }
