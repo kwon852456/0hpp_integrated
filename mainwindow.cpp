@@ -473,12 +473,17 @@ i::t (*pai6_pai3( pai3::p _pai3, i::t _velocity = 10 ))[6]{
 }
 
 vo::t Dll_usb_mmf01stl::legsToOrigin(){
+
     qt::s::t sDiff = qt::s::T0;
     QMetaObject::invokeMethod(oWorker,"qs_diff",Qt::BlockingQueuedConnection,
                               Q_RETURN_ARG(QString, sDiff));
 
     if(vs_s(qt::s_qs(sDiff),' ').size() < 18){ qDebug() << ("size of diff < 18");  return;}
+
     pai6::p diff = pai6_pai3(pai3_qs(sDiff), 10);
+
+    pai3_pai6(OFFSET, diff);  // pai3_pai6 diff 를 OFFSET으로 저장.
+
     srl_pai6(pp_pai6(diff));
 }
 

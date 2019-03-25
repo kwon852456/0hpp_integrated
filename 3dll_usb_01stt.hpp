@@ -1163,6 +1163,19 @@ b::T mNo_fn(s::R _fn, kms::m& mkms_){ ; s::v vs; b::T b_(rv2::fn_to::vs(_fn, vs)
 kms::m kmNo_fn(s::R _fn) { ; kms::m mkms_; mNo_fn(_fn, mkms_); return mkms_; }
 
 
+void pai3_pai6(pai3::p pai3_, pai6::p _pai6){
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 3 ; ++j){
+
+            pai3_[i][j] = _pai6[i][j];
+
+        }
+    }
+
+}
+
+
 #endif // DLL_USB_OFFSET01STT_H
 /*
 
