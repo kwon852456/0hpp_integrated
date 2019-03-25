@@ -39,9 +39,7 @@ FORMS += \
 INCLUDEPATH += \
                 C:/Users/Admin/Documents/include
 
-INCLUDEPATH += R:\dev\release\0hpp \
-               D:\dev\gdrv\dev\code\rv\qt\0.0.5\proj\0hpp_integrated-master\include \
-               D:\dev\gdrv\dev\code\rv\qt\0.0.5\proj\0hpp_integrated-master
+INCLUDEPATH += C:\0hpp_usb\0hpp
 
 
 LIBS += -lws2_32 -luser32
@@ -69,6 +67,27 @@ DEPENDPATH += $$PWD/include
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/include/ -lusb_logplugin
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/include/ -lusb_logplugind
 else:unix: LIBS += -L$$PWD/include/ -lusb_logplugin
+
+INCLUDEPATH += $$PWD/include
+DEPENDPATH += $$PWD/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/include/ -loffsetplugin
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/include/ -loffsetplugind
+else:unix: LIBS += -L$$PWD/include/ -loffsetplugin
+
+INCLUDEPATH += $$PWD/include
+DEPENDPATH += $$PWD/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/include/ -lusb_logplugin
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/include/ -lusb_logplugind
+else:unix: LIBS += -L$$PWD/include/ -lusb_logplugin
+
+INCLUDEPATH += $$PWD/include
+DEPENDPATH += $$PWD/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/include/ -lusb_mmfplugin
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/include/ -lusb_mmfplugind
+else:unix: LIBS += -L$$PWD/include/ -lusb_mmfplugin
 
 INCLUDEPATH += $$PWD/include
 DEPENDPATH += $$PWD/include

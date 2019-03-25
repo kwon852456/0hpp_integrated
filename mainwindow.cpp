@@ -297,6 +297,8 @@ qt::yar::t yar_req(i::t _id){
 
 i::t Dll_usb_mmf01stl::i_srl(i::t _id){
 
+    qDebug() << "i_srl" << endl;
+
     int recvEncVal;
     qt::yar::t arr = yar_req(_id);
 
@@ -304,6 +306,8 @@ i::t Dll_usb_mmf01stl::i_srl(i::t _id){
                               Q_RETURN_ARG(int, recvEncVal),
                               Q_ARG(QByteArray, arr),
                               Q_ARG(int, _id));
+
+    qDebug() << "recvEncVal : " << recvEncVal;
 
     if(recvEncVal == 99999){ qDebug() << "checkSum has been broken...!"; };
     return recvEncVal;
@@ -321,9 +325,11 @@ vo::t Dll_usb_mmf01stl::thread_pai6(QFutureSynchronizer<b::t>& _synchronizer, i:
 
             i::t current = i_srl(_id);
 
+
             if( !( (_ai6[_col] - 100) < current && (_ai6[_col] + 100) >  current) ){  srl_i(_ai6[_col], _id, _ai6[_col + 3]);  }
             else {  break; }
 
+            qDebug() << "_ai6[_col]" << _ai6[_col] << "current" << current;
 
             if(i > 0)
                 qDebug() << " waiting for motor to be placed where it should be... try : " + i;
@@ -537,6 +543,7 @@ vo::t SerialWorker::onWrite_cmd(c::p _cmd){
 
 int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
 
+    qDebug() << __func__ << "in MainWindow ";
     if(port->write(_req)){
 
         if(!port->waitForReadyRead(1000)){

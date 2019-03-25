@@ -151,7 +151,7 @@ qt::yar::li yarl_proc(qt::srl::p _srl){
     qt::yar::t temp;
 
 
-    while(_srl->waitForReadyRead(10000)){ temp.append(_srl->readAll());  }  con_yar(temp);
+    while(_srl->waitForReadyRead(1000)){ temp.append(_srl->readAll());  }  con_yar(temp);
     qt::yar::li yarl = yarl_yar(temp);
 
     for(auto i : yarl){
@@ -330,7 +330,7 @@ int (*pai3_encVal(qt::srl::p _srl))[3]{
 
     pai3::p pai3Val = new i::t[6][3]{  {0 ,},{0 ,},{0 ,},{0 ,},{0 ,},{0 ,}  };
 
-    if(_srl->waitForReadyRead(3000)){
+    if(_srl->waitForReadyRead(10000)){  // 2번 엔코더 읽는 대기시간
 
         if(pai3_srl(pai3Val, _srl)){ return pai3Val; }
 
