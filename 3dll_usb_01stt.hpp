@@ -151,7 +151,7 @@ qt::yar::li yarl_proc(qt::srl::p _srl){
     qt::yar::t temp;
 
 
-    while(_srl->waitForReadyRead(100)){ temp.append(_srl->readAll());  }  con_yar(temp);
+    while(_srl->waitForReadyRead(10000)){ temp.append(_srl->readAll());  }  con_yar(temp);
     qt::yar::li yarl = yarl_yar(temp);
 
     for(auto i : yarl){
