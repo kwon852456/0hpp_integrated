@@ -52,6 +52,8 @@ public:
     QThread* wThread;
     QTimer* sendTimer;
     QTimer* srl_fileTimer;
+    QMap<int, int (*)[6]> mCommands;
+    QList<int> liPorts;
     std::map<std::string, std::map<std::string, std::string>> kmsmCommands;
 
 
@@ -59,7 +61,6 @@ public:
     Dll_usb_mmf01stl* stl;
     bool isSended = false;
     bool tbrEnded = true;
-    QMap<int, int (*)[6]> mCommands;
     int idxSizeCommands;
 
 
@@ -81,6 +82,7 @@ signals:
     void loadHomeset(QString _path);
     void legsToOrigin();
 
+    void connectSixSrlNo(QList<int> _legsPortNo);
 
 
 private slots:
@@ -139,10 +141,6 @@ private slots:
 
     void on_usb_mmf_mmfClicked();
 
-    void on_edit_firstSerial_returnPressed();
-
-    void on_edit_secondSerial_returnPressed();
-
     void onShowOffset();
 
     void on_pushButton_clicked();
@@ -168,6 +166,16 @@ private slots:
     void on_btn_CalcDiff_clicked();
 
     void on_btn_setLegsToZero_clicked();
+
+    void on_btn_legCon_clicked();
+
+    void on_btn_portSave_clicked();
+
+    void on_btn_portLoad_clicked();
+
+    void on_btn_serialSearch_clicked();
+
+    void on_btn_logClear_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -199,13 +207,40 @@ class Dll_usb_mmf01stl : public QObject{
 
     void thread_pai3(QFutureSynchronizer<bool>& _synchronizer, const int _ai3[3], int _id, int _row);
 
-    bool Dll_usb_mmf01stl::thsri_pai3(const int _ai3[3], unsigned short _row);
+    bool thsri_pai3(const int _ai3[3], unsigned short _row);
+
+    bool srl_commands(int (*_commands)[6] );
+    void thread_cmd(QFutureSynchronizer<bool>& _synchronizer,const int _ai6[6], int _id, int _col);
+    bool thsri_cmd(const int _ai6[6], unsigned short _row);
+
+    bool check_motorArrived(int (*_commands)[6] );
+    bool thsri_motorArrived(int (*&_ai6)[6], unsigned short _row);
+    void thread_motorArrived(QFutureSynchronizer<bool>& _synchronizer,int (*&_ai6)[6], int _id, int _col);
+
+    bool isSpeedZero_cmd(int (*_pai6)[6]);
 
     SerialWorker* sWorker;
     OffsetWorker* oWorker;
 
+    SerialWorker* sWorkerLeg1;
+    SerialWorker* sWorkerLeg2;
+    SerialWorker* sWorkerLeg3;
+    SerialWorker* sWorkerLeg4;
+    SerialWorker* sWorkerLeg5;
+    SerialWorker* sWorkerLeg6;
+
+
+
     QThread* sThread;
     QThread* mThread;
+
+    QThread* sThreadLeg1;
+    QThread* sThreadLeg2;
+    QThread* sThreadLeg3;
+    QThread* sThreadLeg4;
+    QThread* sThreadLeg5;
+    QThread* sThreadLeg6;
+
 
     QList<int> rows;
     QList<int> cols;
@@ -213,6 +248,7 @@ class Dll_usb_mmf01stl : public QObject{
     QElapsedTimer timer;
 
     bool isFinished = true;
+    bool isIsrlFinished = true;
 
 
 
@@ -232,6 +268,32 @@ signals:
     void saveHomeSet();
     void loadHomeset(QString _path);
 
+    void write_cmdToFirstLeg(char* _cmd);
+    void write_reqToFirstLeg(char* _cmd);
+
+    void write_cmdToSecondLeg(char* _cmd);
+    void write_reqToSecondLeg(char* _cmd);
+
+    void write_cmdToThirdLeg(char* _cmd);
+    void write_reqToThirdLeg(char* _cmd);
+
+    void write_cmdToFourthLeg(char* _cmd);
+    void write_reqToFourthLeg(char* _cmd);
+
+    void write_cmdToFifthLeg(char* _cmd);
+    void write_reqToFifthLeg(char* _cmd);
+
+    void write_cmdToSixthLeg(char* _cmd);
+    void write_reqToSixthLeg(char* _cmd);
+
+
+    void openFirstLegPort  (QString _portName);
+    void openSecondLegPort (QString _portName);
+    void openThirdLegPort  (QString _portName);
+    void openFourthLegPort (QString _portName);
+    void openFifthLegPort  (QString _portName);
+    void openSixthLegPort  (QString _portName);
+
 
 
 public slots:
@@ -242,6 +304,8 @@ public slots:
     void setIds(QList<int> _rows, QList<int> _cols);
     void thsri_qai36(QList<int> _qai3, int _legNo);
     void legsToOrigin();
+    void connectSixSrlNo(QList<int> _legsPortNo);
+
 };
 
 

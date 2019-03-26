@@ -91,7 +91,7 @@ qt::srl::p CreateSrl(QObject *parent = nullptr, i::T _portNo = 0){
 
     if(!srl->open(QIODevice::ReadWrite)){
 
-        qDebug() << "Serial connect fialed" << endl;
+        qDebug() << "Serial Worker Created.." << endl;
 
     }else{
 
@@ -341,6 +341,7 @@ int (*pai3_encVal(qt::srl::p _srl))[3]{
 
 int (*pai3_srl(qt::srl::p _srl))[3]{
 
+    if(!_srl->isOpen()){ return nil; }
     if(_srl->write("e",1)){
 
         return pai3_encVal(_srl);
@@ -368,20 +369,6 @@ void mmf_encVal(qt::srl::p _srl){
 
     }else{ debugMsg("read failed..!"); }
 
-
-}
-
-void mmf_srl(qt::srl::p _srl){
-
-    if(_srl->write("e",1)){
-
-        mmf_encVal(_srl);
-
-    }else{
-
-        debugMsg("write failed....!");
-
-    }
 
 }
 
@@ -730,6 +717,7 @@ i::t i_srl_mmf(qt::srl::p _srl ,i::t _id){
 
 
     return onWrite_req(_srl, arr, _id);;
+
 }
 
 
@@ -1110,6 +1098,12 @@ void ia6_pai6(i::a6 ia6_ ,pai6::p _pai6, i::T _iRow){
 
 }
 
+void ip6_pai6(pai6::p& ip6_,pai6::p _pai6, i::T _iRow){
+
+    ip6_ = (_pai6 + _iRow);
+
+}
+
 vo::t cmd_id(cmd::t cmd_,i::R _iDegree, i::R _id, i::R _iVelocity = 30){
 
     h::t vel    = _iVelocity;
@@ -1177,6 +1171,9 @@ void pai3_pai6(pai3::p pai3_, pai6::p _pai6){
     }
 
 }
+
+
+
 
 
 #endif // DLL_USB_OFFSET01STT_H

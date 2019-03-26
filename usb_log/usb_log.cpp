@@ -31,8 +31,6 @@ void Usb_log::clearLog(){
 
 void Usb_log::changeInterval(int _msTime){
 
-    qDebug() << __func__ << _msTime;
-
     timer->setInterval(_msTime);
 
 }

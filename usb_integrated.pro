@@ -36,10 +36,10 @@ HEADERS += \
 
 FORMS += \
         mainwindow.ui
-INCLUDEPATH += \
-                C:/Users/Admin/Documents/include
 
-INCLUDEPATH += C:\0hpp_usb\0hpp
+INCLUDEPATH += C:\0hpp_usb\0hpp \
+                R:\dev\release\0hpp \
+                C:\Users/Admin/Documents/include
 
 
 LIBS += -lws2_32 -luser32

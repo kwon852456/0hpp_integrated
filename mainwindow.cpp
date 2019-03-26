@@ -58,33 +58,37 @@ vo::t MainWindow::init_lw(){
 
 vo::t MainWindow::makeConnection(){
 
-    connect(this,          &MainWindow::thsrl_cds,        stl,         &Dll_usb_mmf01stl::srl_pai6);
-    connect(this,          &MainWindow::thsrl_file,       stl,         &Dll_usb_mmf01stl::srl_pai6);
+    connect(this,          &MainWindow::thsrl_cds,        stl,         &Dll_usb_mmf01stl::srl_pai6           );
+    connect(this,          &MainWindow::thsrl_file,       stl,         &Dll_usb_mmf01stl::srl_pai6           );
 
-    connect(this,          &MainWindow::send_clicked,     stl,         &Dll_usb_mmf01stl::thsri_qai36);
-    connect(this,          &MainWindow::readOffset,       stl,         &Dll_usb_mmf01stl::OnReadOffset);
-    connect(this,          &MainWindow::mmfClicked,       stl,         &Dll_usb_mmf01stl::onMmfClicked);
-    connect(this,          &MainWindow::openFirstSerial,  stl,         &Dll_usb_mmf01stl::openFirstSerial);
-    connect(this,          &MainWindow::openSecondSerial, stl,         &Dll_usb_mmf01stl::openSecondSerial);
-    connect(this,          &MainWindow::setIds,           stl,         &Dll_usb_mmf01stl::setIds);
-    connect(this,          &MainWindow::tempSave,         stl,         &Dll_usb_mmf01stl::tempSave);
-    connect(this,          &MainWindow::saveHomeSet,      stl,         &Dll_usb_mmf01stl::saveHomeSet);
-    connect(this,          &MainWindow::loadHomeset,      stl,         &Dll_usb_mmf01stl::loadHomeset);
-    connect(this,          &MainWindow::legsToOrigin,     stl,         &Dll_usb_mmf01stl::legsToOrigin);
+    connect(this,          &MainWindow::send_clicked,     stl,         &Dll_usb_mmf01stl::thsri_qai36        );
+    connect(this,          &MainWindow::readOffset,       stl,         &Dll_usb_mmf01stl::OnReadOffset       );
+    connect(this,          &MainWindow::mmfClicked,       stl,         &Dll_usb_mmf01stl::onMmfClicked       );
+    connect(this,          &MainWindow::openFirstSerial,  stl,         &Dll_usb_mmf01stl::openFirstSerial    );
+    connect(this,          &MainWindow::openSecondSerial, stl,         &Dll_usb_mmf01stl::openSecondSerial   );
+    connect(this,          &MainWindow::setIds,           stl,         &Dll_usb_mmf01stl::setIds             );
+    connect(this,          &MainWindow::tempSave,         stl,         &Dll_usb_mmf01stl::tempSave           );
+    connect(this,          &MainWindow::saveHomeSet,      stl,         &Dll_usb_mmf01stl::saveHomeSet        );
+    connect(this,          &MainWindow::loadHomeset,      stl,         &Dll_usb_mmf01stl::loadHomeset        );
+    connect(this,          &MainWindow::legsToOrigin,     stl,         &Dll_usb_mmf01stl::legsToOrigin       );
+    connect(this,          &MainWindow::connectSixSrlNo,  stl,         &Dll_usb_mmf01stl::connectSixSrlNo    );
     connect(this,          &MainWindow::write_log,        ui->usb_log, &Usb_log::setlog);
 
-    connect(stl,           &Dll_usb_mmf01stl::showOffset,     this,    &MainWindow::onShowOffset);
-    connect(stl,           &Dll_usb_mmf01stl::log,            this,    &MainWindow::write_log);
-    connect(stl,           &Dll_usb_mmf01stl::thsri_qai36End, this,    &MainWindow::thsri_qai36End);
-    connect(stl,           &Dll_usb_mmf01stl::timeTaken,      this,    &MainWindow::timeTaken);
-    connect(stl,           &Dll_usb_mmf01stl::setHomeSet,     this,    &MainWindow::setHomeSet);
-    connect(srl_fileTimer, &QTimer::timeout,                  this,    &MainWindow::fileTimerTimeOut);
-    connect(sendTimer,     &QTimer::timeout,                  this,    &MainWindow::srl_ai3);
+
+    connect(stl,           &Dll_usb_mmf01stl::showOffset,     this,    &MainWindow::onShowOffset       );
+    connect(stl,           &Dll_usb_mmf01stl::log,            this,    &MainWindow::write_log          );
+    connect(stl,           &Dll_usb_mmf01stl::thsri_qai36End, this,    &MainWindow::thsri_qai36End     );
+    connect(stl,           &Dll_usb_mmf01stl::timeTaken,      this,    &MainWindow::timeTaken          );
+    connect(stl,           &Dll_usb_mmf01stl::setHomeSet,     this,    &MainWindow::setHomeSet         );
+    connect(srl_fileTimer, &QTimer::timeout,                  this,    &MainWindow::fileTimerTimeOut   );
+    connect(sendTimer,     &QTimer::timeout,                  this,    &MainWindow::srl_ai3            );
 
 }
 
 vo::t MainWindow::log(qt::s::t _text){
+
     emit write_log(_text);
+
 }
 
 b::t MainWindow::init_tbrs(){
@@ -179,8 +183,7 @@ b::t MainWindow::nativeEvent(const qt::yar::t &eventType, vo::p message, long *r
         emit thsrl_cds(ipp_pai66(command, OFFSET, ui));
 
     }
-    else
-        delete[] command;
+    else    delete[] command;
 
     *resultMSG = 0;
 
@@ -242,48 +245,143 @@ Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
         sThread = new QThread();
         mThread = new QThread();
 
+        sThreadLeg1 = new QThread();
+        sThreadLeg2 = new QThread();
+        sThreadLeg3 = new QThread();
+        sThreadLeg4 = new QThread();
+        sThreadLeg5 = new QThread();
+        sThreadLeg6 = new QThread();
+
+
         sWorker = new SerialWorker();
         oWorker = new OffsetWorker();
+
+        sWorkerLeg1 = new SerialWorker();
+        sWorkerLeg2 = new SerialWorker();
+        sWorkerLeg3 = new SerialWorker();
+        sWorkerLeg4 = new SerialWorker();
+        sWorkerLeg5 = new SerialWorker();
+        sWorkerLeg6 = new SerialWorker();
+
 
         sWorker->moveToThread(sThread);
         oWorker->moveToThread(mThread);
 
+        sWorkerLeg1->moveToThread(sThreadLeg1);
+        sWorkerLeg2->moveToThread(sThreadLeg2);
+        sWorkerLeg3->moveToThread(sThreadLeg3);
+        sWorkerLeg4->moveToThread(sThreadLeg4);
+        sWorkerLeg5->moveToThread(sThreadLeg5);
+        sWorkerLeg6->moveToThread(sThreadLeg6);
 
-        connect(this,    &Dll_usb_mmf01stl::write_cmd ,       sWorker, &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
+
+
+        connect(this,    &Dll_usb_mmf01stl::write_cmd ,              sWorker,     &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
+
+        connect(this,    &Dll_usb_mmf01stl::write_cmdToFirstLeg  ,   sWorkerLeg1, &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
+        connect(this,    &Dll_usb_mmf01stl::write_cmdToSecondLeg ,   sWorkerLeg2, &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
+        connect(this,    &Dll_usb_mmf01stl::write_cmdToThirdLeg  ,   sWorkerLeg3, &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
+        connect(this,    &Dll_usb_mmf01stl::write_cmdToFourthLeg ,   sWorkerLeg4, &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
+        connect(this,    &Dll_usb_mmf01stl::write_cmdToFifthLeg  ,   sWorkerLeg5, &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
+        connect(this,    &Dll_usb_mmf01stl::write_cmdToSixthLeg  ,   sWorkerLeg6, &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
+
+        connect(this,    &Dll_usb_mmf01stl::openFirstSerial  , sWorker    , &SerialWorker::setSerialPort);
+
+        connect(this,    &Dll_usb_mmf01stl::openFirstLegPort , sWorkerLeg1, &SerialWorker::setSerialPort);
+        connect(this,    &Dll_usb_mmf01stl::openSecondLegPort, sWorkerLeg2, &SerialWorker::setSerialPort);
+        connect(this,    &Dll_usb_mmf01stl::openThirdLegPort , sWorkerLeg3, &SerialWorker::setSerialPort);
+        connect(this,    &Dll_usb_mmf01stl::openFourthLegPort, sWorkerLeg4, &SerialWorker::setSerialPort);
+        connect(this,    &Dll_usb_mmf01stl::openFifthLegPort , sWorkerLeg5, &SerialWorker::setSerialPort);
+        connect(this,    &Dll_usb_mmf01stl::openSixthLegPort , sWorkerLeg6, &SerialWorker::setSerialPort);
+
+
+
         connect(this,    &Dll_usb_mmf01stl::mmfClicked,       sWorker, &SerialWorker::onMmfCheck_clicked);
-        connect(this,    &Dll_usb_mmf01stl::openFirstSerial,  sWorker, &SerialWorker::setSerialPort);
-        connect(this,    &Dll_usb_mmf01stl::tempSave,         sWorker, &SerialWorker::tempSave);
-        connect(this,    &Dll_usb_mmf01stl::readOffset,       oWorker, &OffsetWorker::onReadOffset);
-        connect(this,    &Dll_usb_mmf01stl::openSecondSerial, oWorker, &OffsetWorker::setSerialPort);
-        connect(this,    &Dll_usb_mmf01stl::saveHomeSet,      oWorker, &OffsetWorker::saveHomeSet);
-        connect(this,    &Dll_usb_mmf01stl::loadHomeset,      oWorker, &OffsetWorker::loadHomeset);
+        connect(this,    &Dll_usb_mmf01stl::tempSave,         sWorker, &SerialWorker::tempSave          );
 
 
-        connect(sWorker, &SerialWorker::log,                     this, &Dll_usb_mmf01stl::log);
-        connect(sWorker, &SerialWorker::showOffset,              this, &Dll_usb_mmf01stl::showOffset);
-        connect(oWorker, &OffsetWorker::log,                     this, &Dll_usb_mmf01stl::log);
-        connect(oWorker, &OffsetWorker::setHomeSet,              this, &Dll_usb_mmf01stl::setHomeSet);
+        connect(this,    &Dll_usb_mmf01stl::readOffset,       oWorker, &OffsetWorker::onReadOffset      );
+        connect(this,    &Dll_usb_mmf01stl::openSecondSerial, oWorker, &OffsetWorker::setSerialPort     );
+        connect(this,    &Dll_usb_mmf01stl::saveHomeSet,      oWorker, &OffsetWorker::saveHomeSet       );
+        connect(this,    &Dll_usb_mmf01stl::loadHomeset,      oWorker, &OffsetWorker::loadHomeset       );
+
+        connect(sWorkerLeg1, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log           );
+        connect(sWorkerLeg2, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log           );
+        connect(sWorkerLeg3, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log           );
+        connect(sWorkerLeg4, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log           );
+        connect(sWorkerLeg5, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log           );
+        connect(sWorkerLeg6, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log           );
+        connect(sWorker,     &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log           );
+        connect(oWorker,     &OffsetWorker::log,                 this, &Dll_usb_mmf01stl::log           );
+
+        connect(sWorker, &SerialWorker::showOffset,              this, &Dll_usb_mmf01stl::showOffset    );
+        connect(oWorker, &OffsetWorker::setHomeSet,              this, &Dll_usb_mmf01stl::setHomeSet    );
+
 
 
         sThread->start();
         mThread->start();
+
+        sThreadLeg1->start();
+        sThreadLeg2->start();
+        sThreadLeg3->start();
+        sThreadLeg4->start();
+        sThreadLeg5->start();
+        sThreadLeg6->start();
 }
 
 Dll_usb_mmf01stl::~Dll_usb_mmf01stl(){
+
     sThread->quit();
     sThread->wait();
+
 };
 
 vo::t Dll_usb_mmf01stl::srl_i(i::T _iDegree, i::T _id, i::T _velocity = 32){
-
-
 
     cmd::t command;
     cmd_id(command, _iDegree,  _id, _velocity);
 
     c::p pCmd = reinterpret_cast<c::p>(command);
-    emit write_cmd(pCmd);
 
+    i::T legNo = _id / 10;
+
+    switch (legNo) {
+
+    case 1:
+
+        emit write_cmdToFirstLeg(pCmd);  //id에 따라서 다른 시그널 발생. 해당 함수는 현재 마지막 스레드(모터 하나 담당) 안에서 돌고 있음..!
+        break;
+
+    case 2:
+
+        emit write_cmdToSecondLeg(pCmd);
+        break;
+
+    case 3:
+
+        emit write_cmdToThirdLeg(pCmd);
+        break;
+
+    case 4:
+
+        emit write_cmdToFourthLeg(pCmd);
+        break;
+
+    case 5:
+
+        emit write_cmdToFifthLeg(pCmd);
+        break;
+
+    case 6:
+
+        emit write_cmdToSixthLeg(pCmd);
+        break;
+
+    default :
+        qDebug() << "legNo in srl_i is wrong..!";
+
+    }
 }
 
 qt::yar::t yar_req(i::t _id){
@@ -297,19 +395,81 @@ qt::yar::t yar_req(i::t _id){
 
 i::t Dll_usb_mmf01stl::i_srl(i::t _id){
 
-    qDebug() << "i_srl" << endl;
-
+    isIsrlFinished = false;
     int recvEncVal;
     qt::yar::t arr = yar_req(_id);
 
-    QMetaObject::invokeMethod(sWorker, "onWrite_req", Qt::BlockingQueuedConnection,
-                              Q_RETURN_ARG(int, recvEncVal),
-                              Q_ARG(QByteArray, arr),
-                              Q_ARG(int, _id));
+
+    i::T legNo = _id / 10;
+
+    switch (legNo) {
+
+    case 1:
+
+        QMetaObject::invokeMethod(sWorkerLeg1, "onWrite_req", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 2:
+
+        QMetaObject::invokeMethod(sWorkerLeg2, "onWrite_req", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 3:
+
+        QMetaObject::invokeMethod(sWorkerLeg3, "onWrite_req", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 4:
+
+        QMetaObject::invokeMethod(sWorkerLeg4, "onWrite_req", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 5:
+
+        QMetaObject::invokeMethod(sWorkerLeg5, "onWrite_req", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 6:
+
+        QMetaObject::invokeMethod(sWorkerLeg6, "onWrite_req", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    default :
+
+        qDebug() << "legNo in srl_i is wrong..!";
+
+    }
 
     qDebug() << "recvEncVal : " << recvEncVal;
 
     if(recvEncVal == 99999){ qDebug() << "checkSum has been broken...!"; };
+
+    isIsrlFinished = true;
+
     return recvEncVal;
 
 }
@@ -325,9 +485,8 @@ vo::t Dll_usb_mmf01stl::thread_pai6(QFutureSynchronizer<b::t>& _synchronizer, i:
 
             i::t current = i_srl(_id);
 
-
             if( !( (_ai6[_col] - 100) < current && (_ai6[_col] + 100) >  current) ){  srl_i(_ai6[_col], _id, _ai6[_col + 3]);  }
-            else {  break; }
+            else {   break;  }
 
             qDebug() << "_ai6[_col]" << _ai6[_col] << "current" << current;
 
@@ -341,7 +500,9 @@ vo::t Dll_usb_mmf01stl::thread_pai6(QFutureSynchronizer<b::t>& _synchronizer, i:
     return b::T1;
 
     }));
+
 }
+
 
 b::t Dll_usb_mmf01stl::thsri_pai6(i::A6 _ai6, h::T _row){
 
@@ -363,40 +524,117 @@ b::t Dll_usb_mmf01stl::thsri_pai6(i::A6 _ai6, h::T _row){
 
 }
 
-b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
 
-    qDebug() << __func__ ;
 
-    isFinished = !isFinished;
+vo::t Dll_usb_mmf01stl::thread_cmd(QFutureSynchronizer<b::t>& _synchronizer, i::A6 _ai6, i::t _id, i::t _col){
 
-    pai6::p cmd = pai6_pp(_pai6);
+    if(_ai6[_col + 3] == 0){ qDebug() << " Motor speed zero on id : " << _id;  return; }
+
+    _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
+
+        srl_i(_ai6[_col], _id, _ai6[_col + 3]);
+
+        emit log("CMD ->  id  " + qt::s_i(_id) + "  send val : " + qt::s_i(_ai6[_col]));
+
+
+
+    return b::T1;
+
+    }));
+
+}
+
+
+b::t Dll_usb_mmf01stl::thsri_cmd(i::A6 _ai6, h::T _row){
+
+
     QFutureSynchronizer<b::t> synchronizer;
-    timer.restart();
+
+
+    for(i::t col : cols){
+
+        int id = (_row + 1) * 10 + (col + 1);
+
+        thread_cmd(synchronizer, _ai6, id, col);
+
+    }
+
+    synchronizer.waitForFinished();
+
+    return b::T0;
+
+}
+
+b::t Dll_usb_mmf01stl::srl_commands(pai6::p _commands){
+
+
+    qDebug() << __func__;
+
+    QFutureSynchronizer<b::t> synchronizer;
 
 
     for(i::t row : rows){
+
         synchronizer.addFuture(QtConcurrent::run([=](){
 
                 i::a6 ia6 = {0, };
-                ia6_pai6(ia6, cmd, row);
+                ia6_pai6(ia6, _commands, row);
                 if(ia6[3] + ia6[4] + ia6[5] == 0){ qDebug() << "speed for three legs are all zero"; return b::T0; }
-                thsri_pai6(ia6, row);
+                thsri_cmd(ia6, row);
 
                 return b::T1;
+
         }));
     }
 
     synchronizer.waitForFinished();
-    emit timeTaken(timer.elapsed());
 
-    isFinished = !isFinished;
+    return true;
+
+}
 
 
+vo::t Dll_usb_mmf01stl::thread_motorArrived(QFutureSynchronizer<b::t>& _synchronizer, pai6::p& _ai6, i::t _id, i::t _col){
 
 
-    emit log("");
-    delete[] cmd;
+    if(_ai6[_col + 3] == 0){ qDebug() << " Motor speed zero on id : " << _id;  return; }
+
+
+    _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
+
+        i::t encVal = i_srl(_id);
+
+        emit log("id  " + qt::s_i(_id) + "  motor Encoder value : " + qt::s_i(encVal) );
+
+        if((*_ai6)[_col] - 100 > encVal || encVal < (*_ai6)[_col] + 100){ (*_ai6)[_col + 3] = 0; }
+
+
     return b::T1;
+
+    }));
+
+
+}
+
+
+
+
+b::t Dll_usb_mmf01stl::thsri_motorArrived(pai6::p& _ai6, h::T _row){
+
+
+    QFutureSynchronizer<b::t> synchronizer;
+
+
+    for(i::t col : cols){
+
+        int id = (_row + 1) * 10 + (col + 1);
+        thread_motorArrived(synchronizer, _ai6, id, col);
+
+    }
+
+    synchronizer.waitForFinished();
+
+    return b::T0;
 
 }
 
@@ -404,20 +642,26 @@ vo::t Dll_usb_mmf01stl::thread_qai36(QFutureSynchronizer<b::t>& _synchronizer, Q
 
     _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
 
+        i::t current = 0;
         while(1){
 
-            if( !((_qai3[_row] - 100) < i_srl(_id) && (_qai3[_row] + 100) >  i_srl(_id))  ){ qDebug("_ai3[i] != i_srl(id)"); srl_i(_qai3[_row], _id);}
+            current = i_srl(_id);
+
+            srl_i(_qai3[_row], _id);
+
+            if( !((_qai3[_row] - 100) < current && (_qai3[_row] + 100) >  current)  ){ qDebug("_ai3[i] != i_srl(id)");}
             else { break; }
 
         }
 
-        emit log("id  " + qt::s_i(_id) + "  _qai3[i]  " + qt::s_i(_qai3[_row]) + "  i_srl(id)  " + qt::s_i(i_srl(_id)));
+        emit log("id  " + qt::s_i(_id) + "  _qai3[i]  " + qt::s_i(_qai3[_row]) + "  i_srl(id)  " + qt::s_i(current));
 
     return b::T1;
 
     }));
 
 }
+
 
 vo::t Dll_usb_mmf01stl::thsri_qai36(QList<int> _qai3, i::t _legNo){
 
@@ -438,17 +682,130 @@ vo::t Dll_usb_mmf01stl::thsri_qai36(QList<int> _qai3, i::t _legNo){
     emit thsri_qai36End();
 }
 
+
+b::t Dll_usb_mmf01stl::check_motorArrived(pai6::p _commands){
+
+
+    qDebug() << __func__;
+
+    QFutureSynchronizer<b::t> synchronizer;
+
+
+    for(i::t row : rows){
+        synchronizer.addFuture(QtConcurrent::run([=](){
+
+                pai6::p ia6 = nil;
+                ip6_pai6(ia6, _commands, row);
+
+                if((*ia6)[3] + (*ia6)[4] + (*ia6)[5] == 0){ qDebug() << "speed for three legs are all zero"; return b::T0; }
+                thsri_motorArrived(ia6, row);
+
+                return b::T1;
+        }));
+    }
+
+    synchronizer.waitForFinished();
+
+    return true;
+}
+
+b::t Dll_usb_mmf01stl::isSpeedZero_cmd(pai6::p _pai6){
+    i::t sum = 0;
+
+    for(i::t row : rows){
+        for(i::t colm : cols){
+            sum += _pai6[row][colm + 3];
+        }
+    }
+
+
+    return sum == 0;
+}
+
+b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
+
+    qDebug() << __func__ ;
+
+    pai6::p cmd = pai6_pp(_pai6);
+
+    timer.restart();
+    isFinished = !isFinished;
+
+
+    i::t tryCounter = 0;
+
+    for(z::t i(0) ; i < 5 ; ++i){
+
+        srl_commands(cmd);
+        check_motorArrived(cmd);
+
+        con_pai6(cmd);
+
+
+        if(isSpeedZero_cmd(cmd)) { break; };
+
+        qDebug() << "isSpeedZero_cmd(cmd) : false";
+
+
+        if(tryCounter++ > 0) { qDebug() << "tryCounter : " << tryCounter ;  }
+
+    }
+
+    emit timeTaken(timer.elapsed());
+    isFinished = !isFinished;
+
+    emit log("");
+    delete[] cmd;
+    return b::T1;
+
+}
+
+
+
 vo::t Dll_usb_mmf01stl::OnReadOffset(){
 
     emit log(__func__);
     emit readOffset();
 }
 
-vo::t Dll_usb_mmf01stl::onMmfClicked(){
-
-    if(sWorker->isSrlFinished){
-        emit mmfClicked();
+bool checkValid_pai3(pai3::p _pai6){
+    for(z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 3 ; ++j){
+            if(_pai6[i][j] > 50000){ return false; }
+        }
     }
+
+    return true;
+
+}
+
+vo::t Dll_usb_mmf01stl::onMmfClicked(){
+    if(!isIsrlFinished) return;
+    QFuture<void> mmfResult = QtConcurrent::run([this](){
+
+        //QList<int> ids = {11, 12, 13, 21, 22, 23, 31, 32, 33, 41, 42, 43, 51, 52, 53, 61, 62, 63 };
+        QList<int> ids = { 61, 62, 63 };
+        i::t tempArr[6][3] = { {0,},{0,},{0,},{0,},{0,},{0,} };
+        pai3::p encVal = tempArr;
+
+        for(i::t id : ids){
+             int row = (id / 10) -1;
+             int colm = (id % 10) -1;
+
+             encVal[row][colm] = i_srl(id) + OFFSET[row][colm];
+        }
+
+        con_pai3(encVal);
+        emit log(qs_pai3(encVal));
+
+        if(checkValid_pai3(encVal)){
+            mmf_pai3Val(encVal);
+        }else{
+            for(z::t i(0) ; i < 5 ; ++i){ qDebug() << "BROKEN CHECK SUM HAS BEEN DETECTED WRTING PAI3 TO MMF PAUSED.....!"; }
+        }
+    });
+
+
 }
 
 vo::t Dll_usb_mmf01stl::setIds(QList<int> _rows, QList<int> _cols){
@@ -484,16 +841,33 @@ i::t (*pai6_pai3( pai3::p _pai3, i::t _velocity = 10 ))[6]{
 vo::t Dll_usb_mmf01stl::legsToOrigin(){
 
     qt::s::t sDiff = qt::s::T0;
+
     QMetaObject::invokeMethod(oWorker,"qs_diff",Qt::BlockingQueuedConnection,
                               Q_RETURN_ARG(QString, sDiff));
 
-    if(vs_s(qt::s_qs(sDiff),' ').size() < 18){ qDebug() << ("size of diff < 18");  return;}
+    if(vs_s(qt::s_qs(sDiff),' ').size() < 18){ qDebug() << ("size of diff < 18");  return; }
 
     pai6::p diff = pai6_pai3(pai3_qs(sDiff), 10);
 
-    pai3_pai6(OFFSET, diff);  // pai3_pai6 diff 를 OFFSET으로 저장.
+    pai3_pai6(OFFSET, diff);  // OFFSET에다가 diff를 할당..!
 
     srl_pai6(pp_pai6(diff));
+}
+
+
+vo::t Dll_usb_mmf01stl::connectSixSrlNo(QList<int> _legsPortNo){
+
+    qDebug() << __func__;
+
+    qDebug() << "_legsPortNo : " << _legsPortNo;
+
+    emit openFirstLegPort ("COM" + qt::s_i(_legsPortNo[0]));
+    emit openSecondLegPort("COM" + qt::s_i(_legsPortNo[1]));
+    emit openThirdLegPort ("COM" + qt::s_i(_legsPortNo[2]));
+    emit openFourthLegPort("COM" + qt::s_i(_legsPortNo[3]));
+    emit openFifthLegPort ("COM" + qt::s_i(_legsPortNo[4]));
+    emit openSixthLegPort ("COM" + qt::s_i(_legsPortNo[5]));
+
 }
 
 
@@ -543,7 +917,8 @@ vo::t SerialWorker::onWrite_cmd(c::p _cmd){
 
 int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
 
-    qDebug() << __func__ << "in MainWindow ";
+    //qDebug() << __func__ << "in MainWindow ";
+    if(!port->isOpen()) return 99999;
     if(port->write(_req)){
 
         if(!port->waitForReadyRead(1000)){
@@ -649,19 +1024,18 @@ QList<int> SerialWorker::onLv_clicked(int _legNo){
 
 vo::t SerialWorker::setSerialPort(QString _comPort){
 
-    emit log("comport" + _comPort);
     port->close();
     port->setPortName(_comPort);
 
     if(!port->open(QIODevice::ReadWrite)){
 
-        qDebug() << "Serial connect failed" << endl;
-        emit log("Serial connect failed");
+        qDebug() << "Serial connect failed : " + _comPort << endl;
+        emit log("Serial connect failed : " + _comPort);
 
     }else{
 
-        qDebug() << "Serial opened" << endl;
-        emit log("Serial opened");
+        qDebug() << "Serial opened : " + _comPort << endl;
+        emit log("Serial opened : " + _comPort);
 
     }
 
@@ -713,7 +1087,10 @@ vo::t OffsetWorker::onReadOffset(){
 
     emit log(__func__);
 
+
     pai3::p tempHomeset =  pai3_srl(srl);
+
+    if(tempHomeset == nil){ emit log("Second Encoder Timeout..! "); return;}
 
     memcpy(homeSet, tempHomeset, 18*4);
 
@@ -755,12 +1132,13 @@ vo::t OffsetWorker::setSerialPort(QString _comPort){
 
     if(!srl->open(QIODevice::ReadWrite)){
 
-        emit log("Serial connect falled");
+        emit log("Serial connect falled : " + _comPort);
 
     }else{
 
-        emit log("Serial opened");
+        emit log("Serial opened : " + _comPort);
     }
+
 }
 
 
@@ -769,6 +1147,8 @@ vo::t OffsetWorker::setSerialPort(QString _comPort){
 
 qt::s::t OffsetWorker::calc_diff(){
     pai3::p tempHomeSet =  pai3_srl(srl);
+
+    if(tempHomeSet == nil){ emit log("Second Encoder TimeOut In Fuc calc_diff...!"); return nil; }
 
 
 
@@ -839,13 +1219,13 @@ qt::s::t OffsetWorker::qs_diff(){
 
 vo::t MainWindow::set_tbrs(){
 
-    ui->tbr_firstLeg->setMinimum(qt::i_s(ui->edit_min_firstleg->text()) );
+    ui->tbr_firstLeg->setMinimum( qt::i_s(ui->edit_min_firstleg->text()) );
     ui->tbr_secondLeg->setMinimum(qt::i_s(ui->edit_min_secondleg->text()));
-    ui->tbr_thirdLeg->setMinimum(qt::i_s(ui->edit_min_thirdLeg->text()) );
+    ui->tbr_thirdLeg->setMinimum( qt::i_s(ui->edit_min_thirdLeg->text()) );
 
-    ui->tbr_firstLeg->setMaximum(qt::i_s(ui->edit_max_firstLeg->text()) );
+    ui->tbr_firstLeg->setMaximum( qt::i_s(ui->edit_max_firstLeg->text()) );
     ui->tbr_secondLeg->setMaximum(qt::i_s(ui->edit_max_secondLeg->text()));
-    ui->tbr_thirdLeg->setMaximum(qt::i_s(ui->edit_max_thirdLeg->text()) );
+    ui->tbr_thirdLeg->setMaximum( qt::i_s(ui->edit_max_thirdLeg->text()) );
 
 }
 
@@ -930,7 +1310,7 @@ vo::t MainWindow::srl_ai3(){
 
 vo::t MainWindow::on_btn_send_clicked()
 {
-    qDebug() << __func__;
+    //qDebug() << __func__;
     srl_ai3();
 
 }
@@ -958,6 +1338,7 @@ vo::t MainWindow::on_btn_load_clicked()
 {
 
     QString path = QFileDialog::getOpenFileName(this,"Find Files",QDir::currentPath());
+    if(path == qt::s::T0){ return; }
     emit loadHomeset(path);
 
 
@@ -969,9 +1350,63 @@ vo::t MainWindow::tbrs_legNo(i::T _legNo){
     QList<int> recvEncVal;
 
 
-    QMetaObject::invokeMethod(stl->sWorker, "onLv_clicked", Qt::BlockingQueuedConnection,
-                                                        Q_RETURN_ARG(QList<int>, recvEncVal),
-                                                                          Q_ARG(int, _legNo));
+
+    switch (_legNo) {
+
+    case 1:
+
+
+        QMetaObject::invokeMethod(stl->sWorkerLeg1, "onLv_clicked", Qt::BlockingQueuedConnection,
+                                                            Q_RETURN_ARG(QList<int>, recvEncVal),
+                                                                              Q_ARG(int, _legNo));
+        break;
+
+    case 2:
+
+
+        QMetaObject::invokeMethod(stl->sWorkerLeg2, "onLv_clicked", Qt::BlockingQueuedConnection,
+                                                            Q_RETURN_ARG(QList<int>, recvEncVal),
+                                                                              Q_ARG(int, _legNo));
+        break;
+
+    case 3:
+
+
+        QMetaObject::invokeMethod(stl->sWorkerLeg3, "onLv_clicked", Qt::BlockingQueuedConnection,
+                                                            Q_RETURN_ARG(QList<int>, recvEncVal),
+                                                                              Q_ARG(int, _legNo));
+        break;
+
+    case 4:
+
+
+        QMetaObject::invokeMethod(stl->sWorkerLeg4, "onLv_clicked", Qt::BlockingQueuedConnection,
+                                                            Q_RETURN_ARG(QList<int>, recvEncVal),
+                                                                              Q_ARG(int, _legNo));
+        break;
+
+    case 5:
+
+
+        QMetaObject::invokeMethod(stl->sWorkerLeg5, "onLv_clicked", Qt::BlockingQueuedConnection,
+                                                            Q_RETURN_ARG(QList<int>, recvEncVal),
+                                                                              Q_ARG(int, _legNo));
+        break;
+
+    case 6:
+
+
+        QMetaObject::invokeMethod(stl->sWorkerLeg6, "onLv_clicked", Qt::BlockingQueuedConnection,
+                                                            Q_RETURN_ARG(QList<int>, recvEncVal),
+                                                                              Q_ARG(int, _legNo));
+        break;
+
+    default :
+
+        qDebug() << "legNo in srl_i is wrong..!";
+
+    }
+
     i::t row = _legNo - 1;
     if(!(recvEncVal.size() < 3)){
 
@@ -1037,8 +1472,6 @@ vo::t MainWindow::mCommands_vs(QMap<int, int (*)[6]>& _mCommands_, s::v _vs){
 
         s::v vsTemp = vs_s( _vs.at(i), ' ' );
 
-        qDebug() << "size of vsTemp : " << vsTemp.size();
-
         for(z::t j(0) ; j < vsTemp.size() / 6 ; ++j){
             for(z::t x(0) ; x < 6 ; ++x){
                 *((*temp) + ((j * 6) + x)) = x < 3 ? i_s(vsTemp.at((j * 3) + x)) : i_s(vsTemp.at((j * 3) + (x - 3) + 18));
@@ -1098,13 +1531,14 @@ vo::t MainWindow::cb_fn(qt::s::t _fn){
         ui->cb_commands->addItem(qt::qs_s(i->first));
 
     }
-
 }
 
 vo::t MainWindow::on_btn_commands_clicked()
 {
 
+    ui->cb_commands->clear();
     QString path = QFileDialog::getOpenFileName(this,"Find Files",QDir::currentPath());
+    if(path == qt::s::T0){ return; }
     cb_fn(path);
 
 }
@@ -1116,7 +1550,6 @@ vo::t MainWindow::on_lv_commands_doubleClicked(const QModelIndex &index){
     pai6::p command = mCommands.find(index.row()).value();
 
     thsrl_pai6(command);
-
 
 }
 
@@ -1187,16 +1620,6 @@ vo::t MainWindow::on_usb_mmf_mmfClicked()
 {
 
     emit mmfClicked();
-}
-
-vo::t MainWindow::on_edit_firstSerial_returnPressed()
-{
-    emit openFirstSerial("COM" + ui->edit_firstSerial->text());
-}
-
-vo::t MainWindow::on_edit_secondSerial_returnPressed()
-{
-    emit openSecondSerial("COM" + ui->edit_secondSerial->text());
 }
 
 vo::t MainWindow::i_cb(QList<int>& ids_ ,QListWidget* _lw, i::t endNo, i::t startNo = 0){
@@ -1546,4 +1969,150 @@ void MainWindow::on_btn_CalcDiff_clicked()
 void MainWindow::on_btn_setLegsToZero_clicked()
 {
     emit legsToOrigin();
+}
+
+void MainWindow::on_btn_legCon_clicked()
+{
+    QList<int> srlNo;
+
+    srlNo.append(qt::i_s(ui->cb_leg1->currentText()));
+    srlNo.append(qt::i_s(ui->cb_leg2->currentText()));
+    srlNo.append(qt::i_s(ui->cb_leg3->currentText()));
+    srlNo.append(qt::i_s(ui->cb_leg4->currentText()));
+    srlNo.append(qt::i_s(ui->cb_leg5->currentText()));
+    srlNo.append(qt::i_s(ui->cb_leg6->currentText()));
+
+    emit openSecondSerial("COM" + ui->cb_enc2->currentText());
+
+    emit connectSixSrlNo(srlNo);
+}
+
+void MainWindow::on_btn_portSave_clicked()
+{
+    QString temp;
+    QString port;
+
+    port.append(ui->cb_leg1->currentText() + " ");
+    port.append(ui->cb_leg2->currentText() + " ");
+    port.append(ui->cb_leg3->currentText() + " ");
+    port.append(ui->cb_leg4->currentText() + " ");
+    port.append(ui->cb_leg5->currentText() + " ");
+    port.append(ui->cb_leg6->currentText() + " ");
+    port.append(ui->cb_enc2->currentText() + " ");
+
+    QFile file("ports.ini");
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
+        qDebug() << "File read failed";
+    }
+
+    QTextStream out(&file);
+    qDebug() << port << endl;
+    out << port;
+
+}
+
+void clearComboBox(QComboBox* _box){
+
+    _box->clear();
+
+}
+
+void setComboBox(QComboBox* _box, qt::s::T _text){
+    _box->addItem(_text);
+}
+
+void MainWindow::on_btn_portLoad_clicked()
+{
+
+    QString path = QFileDialog::getOpenFileName(this,"Find Files",QDir::currentPath());
+
+    if(path == qt::s::T0){ return; }
+
+    QFile file(path, this);
+
+    file.open(QIODevice::ReadWrite);
+
+    qt::yar::t sOffset = file.readAll();
+    s::v vs = vs_s(sOffset.toStdString(), ' ');
+
+    for(std::string s : vs){
+        qDebug() << QString::fromStdString(s);
+    }
+
+    clearComboBox(ui->cb_leg1);
+    clearComboBox(ui->cb_leg2);
+    clearComboBox(ui->cb_leg3);
+    clearComboBox(ui->cb_leg4);
+    clearComboBox(ui->cb_leg5);
+    clearComboBox(ui->cb_leg6);
+    clearComboBox(ui->cb_enc2);
+
+
+    setComboBox(ui->cb_leg1, qt::qs_s(vs[0]));
+    setComboBox(ui->cb_leg2, qt::qs_s(vs[1]));
+    setComboBox(ui->cb_leg3, qt::qs_s(vs[2]));
+    setComboBox(ui->cb_leg4, qt::qs_s(vs[3]));
+    setComboBox(ui->cb_leg5, qt::qs_s(vs[4]));
+    setComboBox(ui->cb_leg6, qt::qs_s(vs[5]));
+    setComboBox(ui->cb_enc2, qt::qs_s(vs[6]));
+
+
+}
+
+void MainWindow::on_btn_serialSearch_clicked()
+{
+
+    liPorts.clear();
+    clearComboBox(ui->cb_leg1);
+    clearComboBox(ui->cb_leg2);
+    clearComboBox(ui->cb_leg3);
+    clearComboBox(ui->cb_leg4);
+    clearComboBox(ui->cb_leg5);
+    clearComboBox(ui->cb_leg6);
+    clearComboBox(ui->cb_enc2);
+
+
+    QSerialPort* srl = new QSerialPort(this);
+    srl->setBaudRate    (QSerialPort::Baud115200);
+    srl->setDataBits    (QSerialPort::Data8);
+    srl->setParity      (QSerialPort::NoParity);
+    srl->setStopBits    (QSerialPort::OneStop);
+    srl->setFlowControl (QSerialPort::NoFlowControl);
+
+    for(z::t i(0) ; i < 50 ; ++i){
+        srl->setPortName    ("COM" +  qt::s_i(i));
+
+        if(!srl->open       (QIODevice  ::ReadWrite)){
+
+
+        }else{
+
+            qDebug() << "Serial opened" << endl;
+            liPorts.append(i);
+
+        }
+        srl->close();
+
+    }
+
+    for(i::T port : liPorts){
+
+        ui->cb_leg1->addItem(qt::s_i(port));
+        ui->cb_leg2->addItem(qt::s_i(port));
+        ui->cb_leg3->addItem(qt::s_i(port));
+        ui->cb_leg4->addItem(qt::s_i(port));
+        ui->cb_leg5->addItem(qt::s_i(port));
+        ui->cb_leg6->addItem(qt::s_i(port));
+        ui->cb_enc2->addItem(qt::s_i(port));
+
+    }
+
+    ui->edit_serialPorts->setText(qs_li(liPorts));
+
+
+}
+
+void MainWindow::on_btn_logClear_clicked()
+{
+    ui->usb_log->clearLog();
 }
