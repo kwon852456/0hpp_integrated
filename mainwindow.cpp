@@ -1125,8 +1125,6 @@ vo::t OffsetWorker::loadHomeset(qt::s::t _path){
 
 vo::t OffsetWorker::setSerialPort(QString _comPort){
 
-    emit log("comport" + _comPort);
-
     srl->close();
     srl->setPortName(_comPort);
 
