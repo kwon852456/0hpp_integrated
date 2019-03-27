@@ -177,6 +177,8 @@ private slots:
 
     void on_btn_logClear_clicked();
 
+    void on_edit_serialPorts_returnPressed();
+
 private:
     Ui::MainWindow *ui;
 };

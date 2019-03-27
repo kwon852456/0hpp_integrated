@@ -857,6 +857,7 @@ vo::t Dll_usb_mmf01stl::legsToOrigin(){
 
     pai3_pai6(OFFSET, diff);  // OFFSET에다가 diff를 할당..!
 
+
     srl_pai6(pp_pai6(diff));
 }
 
@@ -1147,13 +1148,21 @@ vo::t OffsetWorker::setSerialPort(QString _comPort){
 
 
 
-
+b::t check_diffValid(pai3::p _diff){
+    for(z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 3 ; ++j){
+            if(abs(_diff[i][j]) > 8000){
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
 qt::s::t OffsetWorker::calc_diff(){
     pai3::p tempHomeSet =  pai3_srl(srl);
 
     if(tempHomeSet == nil){ emit log("Second Encoder TimeOut In Fuc calc_diff...!"); return nil; }
-
 
 
 
@@ -1167,19 +1176,26 @@ qt::s::t OffsetWorker::calc_diff(){
             i::T target  = homeSet[i][j];
             i::t dif     = current - target;
 
+
             if(abs(dif) > 18000){
 
                 if(current < target)  {   dif = (current +  36000     - target);    }
                 else                  {   dif = (current -  target  - 36000);       }
 
             }
+
+
             diff[i][j] = dif;
         }
 
     }
 
+
+
     qDebug() << "diff : ";
     con_pai3(diff);
+
+    if(!check_diffValid(diff)){ memset(diff, 0x00, 4 * 18); emit log("at least one (value > 8000) detected in diff "); return nil; }
 
     return qs_pai3H(diff);
 
@@ -2107,4 +2123,45 @@ void MainWindow::on_btn_serialSearch_clicked()
 void MainWindow::on_btn_logClear_clicked()
 {
     ui->usb_log->clearLog();
+}
+
+void MainWindow::on_edit_serialPorts_returnPressed()
+{
+    qDebug() << __func__;
+
+    qt::s::T serialPorts = ui->edit_serialPorts->text();
+
+    std::vector<std::string> vs = vs_s(qt::s_qs(serialPorts), ' ');
+
+    for(std::string s : vs ){
+        qDebug() << QString::fromStdString(s);
+    }
+
+    if(vs.size() == 7 ){
+
+        liPorts.clear();
+        clearComboBox(ui->cb_leg1);
+        clearComboBox(ui->cb_leg2);
+        clearComboBox(ui->cb_leg3);
+        clearComboBox(ui->cb_leg4);
+        clearComboBox(ui->cb_leg5);
+        clearComboBox(ui->cb_leg6);
+        clearComboBox(ui->cb_enc2);
+
+
+        ui->cb_leg1->addItem(qt::qs_s(vs[0]));
+        ui->cb_leg2->addItem(qt::qs_s(vs[1]));
+        ui->cb_leg3->addItem(qt::qs_s(vs[2]));
+        ui->cb_leg4->addItem(qt::qs_s(vs[3]));
+        ui->cb_leg5->addItem(qt::qs_s(vs[4]));
+        ui->cb_leg6->addItem(qt::qs_s(vs[5]));
+        ui->cb_enc2->addItem(qt::qs_s(vs[6]));
+
+    }else{
+        log(" serial port names != 7 ");
+    }
+
+
+
+
 }

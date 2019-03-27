@@ -163,7 +163,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>&amp;Save</string>
+      <string>S&amp;ave</string>
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_thirdLeg">
@@ -481,7 +481,7 @@
       <item>
        <widget class="QPushButton" name="pushButton">
         <property name="text">
-         <string>Set ids</string>
+         <string>Set &amp;ids</string>
         </property>
        </widget>
       </item>
@@ -573,7 +573,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Calc Diff</string>
+       <string>&amp;Calc Diff</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_5">
@@ -609,7 +609,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Set Legs To Origin</string>
+       <string>&amp;Set Legs To Origin</string>
       </property>
      </widget>
     </widget>
@@ -665,7 +665,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>연결</string>
+       <string>&amp;Connect</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_6">
@@ -756,7 +756,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Save</string>
+       <string>Sa&amp;ve</string>
       </property>
      </widget>
      <widget class="QPushButton" name="btn_portLoad">
@@ -769,7 +769,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Load</string>
+       <string>&amp;Load</string>
       </property>
      </widget>
      <widget class="QWidget" name="layoutWidget">
@@ -785,7 +785,7 @@
        <item>
         <widget class="QPushButton" name="btn_serialSearch">
          <property name="text">
-          <string>검색</string>
+          <string>&amp;Search</string>
          </property>
         </widget>
        </item>
@@ -955,6 +955,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionOpen_App_Folder"/>
+    <addaction name="actionQuit"/>
    </widget>
    <addaction name="menuHelp"/>
   </widget>
@@ -978,6 +979,14 @@
   <action name="actionOpen_App_Folder">
    <property name="text">
     <string>Open App Folder</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
  </widget>
