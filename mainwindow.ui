@@ -150,7 +150,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>-90</string>
+      <string>0</string>
      </property>
     </widget>
     <widget class="QPushButton" name="btn_tempSave">
@@ -254,7 +254,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>-80</string>
+      <string>-30</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="edit_min_secondleg">
@@ -280,7 +280,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>80</string>
+      <string>30</string>
      </property>
     </widget>
     <widget class="QSlider" name="tbr_secondLeg">

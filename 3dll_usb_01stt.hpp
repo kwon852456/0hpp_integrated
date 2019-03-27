@@ -66,6 +66,15 @@ namespace req {///
 //    typedef std::queue <t> qu; typedef const qu QU; typedef std::queue <qu> ququ; typedef const ququ QUQU; //typedef std::map<t,v> vm; typedef std::map<std::string,std::vector<std::string> > vm;
     T T0("");
 }///
+namespace res {///
+    typedef y::t t[6];
+    typedef const t T; typedef t(&r); typedef T(&R); typedef t(*p); typedef T(*const P); typedef T(*Tp); typedef t(*const tP); z::T Z(sizeof(t));
+//    typedef std::vector<t> v; typedef const v V; typedef v(&w); typedef V(&W); typedef std::vector<v> vv; typedef const vv VV; typedef vv(&ww); typedef VV(&WW);
+//    typedef std::list  <t> li; typedef const li LI; typedef std::list  <li> lili; typedef const lili LILI;
+//    typedef std::queue <t> qu; typedef const qu QU; typedef std::queue <qu> ququ; typedef const ququ QUQU; //typedef std::map<t,v> vm; typedef std::map<std::string,std::vector<std::string> > vm;
+    T T0("");
+}///
+
 namespace rep {///
     typedef y::t t[12];
     typedef const t T; typedef t(&r); typedef T(&R); typedef t(*p); typedef T(*const P); typedef T(*Tp); typedef t(*const tP); z::T Z(sizeof(t));
@@ -553,6 +562,8 @@ b::t srl_i(qt::srl::p srl_ ,i::R _iDegree, i::R _id){
 
 
 i::t i_srl(qt::srl::p _srl, i::t _id){
+
+
 
     req::t request; req_id(request, _id);
 
@@ -1122,7 +1133,6 @@ vo::t cmd_id(cmd::t cmd_,i::R _iDegree, i::R _id, i::R _iVelocity = 30){
         cmd_[i] = command[i] ;
     }
 
-    con_11bytes(command);
     qDebug() << "id : " << _id << "vel : " << vel << "posoff" << posoff << endl;
 
 }

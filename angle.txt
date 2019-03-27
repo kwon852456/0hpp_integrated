@@ -1,0 +1,12 @@
+function rng360_ang(const _f: single): single;
+begin
+  result := _f;
+  while result < 0.0 do result := result + 360.0;
+  while result >= 360.0 do result := result - 360.0;
+  result := (trunc(result) mod 360) + frac(_f);
+end;
+
+function rng180_ang(const _f: single): single;
+begin
+  result := rng360_ang(_f + 180.0) - 180.0
+end;

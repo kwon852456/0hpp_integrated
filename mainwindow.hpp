@@ -220,6 +220,8 @@ class Dll_usb_mmf01stl : public QObject{
     void thread_motorArrived(QFutureSynchronizer<bool>& _synchronizer,int (*&_ai6)[6], int _id, int _col);
 
     bool isSpeedZero_cmd(int (*_pai6)[6]);
+    bool ResetSrl_pai6(int** _pai6);
+    void srl_resetEnc(int _iDegree, const int _id, const int _velocity = 32);
 
     SerialWorker* sWorker;
     OffsetWorker* oWorker;

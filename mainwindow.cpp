@@ -395,6 +395,8 @@ qt::yar::t yar_req(i::t _id){
 
 i::t Dll_usb_mmf01stl::i_srl(i::t _id){
 
+    qDebug() << "i_srl" << " _id " << _id << " Thread " << QThread::currentThread();
+
     isIsrlFinished = false;
     int recvEncVal;
     qt::yar::t arr = yar_req(_id);
@@ -527,19 +529,6 @@ b::t Dll_usb_mmf01stl::thsri_pai6(i::A6 _ai6, h::T _row){
 
 vo::t Dll_usb_mmf01stl::thread_cmd(QFutureSynchronizer<b::t>& _synchronizer, i::A6 _ai6, i::t _id, i::t _col){
 
-    if(_ai6[_col + 3] == 0){ qDebug() << " Motor speed zero on id : " << _id;  return; }
-
-    _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
-
-        srl_i(_ai6[_col], _id, _ai6[_col + 3]);
-
-        emit log("CMD ->  id  " + qt::s_i(_id) + "  send val : " + qt::s_i(_ai6[_col]));
-
-
-
-    return b::T1;
-
-    }));
 
 }
 
@@ -547,14 +536,29 @@ vo::t Dll_usb_mmf01stl::thread_cmd(QFutureSynchronizer<b::t>& _synchronizer, i::
 b::t Dll_usb_mmf01stl::thsri_cmd(i::A6 _ai6, h::T _row){
 
 
-    QFutureSynchronizer<b::t> synchronizer;
 
-    for(i::t col : cols){
 
-        int id = (_row + 1) * 10 + (col + 1);
+    QFutureSynchronizer<void> synchronizer;
 
-        thread_cmd(synchronizer, _ai6, id, col);
+    const QList<int> col = cols;
 
+    for(i::T motor : col){
+
+        qDebug() << "col : " << motor << " current Thread : " << QThread::currentThread();
+        int id = (((_row + 1) * 10) + (motor + 1));
+
+        synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
+
+            qDebug() << "current Thread : " << QThread::currentThread();
+            srl_i(_ai6[motor], id, _ai6[motor + 3]);
+
+            emit log("CMD ->  id  " + qt::s_i(id) + "  send val : " + qt::s_i(_ai6[motor]) + " _ai6[_col + 3] " + qt::s_i(_ai6[motor + 3]));
+
+
+        }));
+
+
+    Sleep(10);
     }
 
     synchronizer.waitForFinished();
@@ -571,9 +575,11 @@ b::t Dll_usb_mmf01stl::srl_commands(pai6::p _commands){
     QFutureSynchronizer<b::t> synchronizer;
 
 
-    for(i::t row : rows){
+    for(i::T row : rows){
 
         synchronizer.addFuture(QtConcurrent::run([=](){
+
+                qDebug() << "one leg row : " << row << QThread::currentThread();
 
                 i::a6 ia6 = {0, };
                 ia6_pai6(ia6, _commands, row);
@@ -583,6 +589,7 @@ b::t Dll_usb_mmf01stl::srl_commands(pai6::p _commands){
                 return b::T1;
 
         }));
+        Sleep(10);
     }
 
     synchronizer.waitForFinished();
@@ -601,10 +608,12 @@ vo::t Dll_usb_mmf01stl::thread_motorArrived(QFutureSynchronizer<b::t>& _synchron
 
         i::t encVal = i_srl(_id);
 
+
+
         emit log("id  " + qt::s_i(_id) + "  motor Encoder value : " + qt::s_i(encVal) );
 
-        if((*_ai6)[_col] - 100 > encVal || encVal < (*_ai6)[_col] + 100){ (*_ai6)[_col + 3] = 0; }
-
+        if((*_ai6)[_col] - 100 < encVal && encVal < (*_ai6)[_col] + 100){ (*_ai6)[_col + 3] = 0; }
+        qDebug() << "(*_ai6)[_col] : " << (*_ai6)[_col] << "encVal : " << encVal << "(*_ai6)[_col + 3] = 0 : " << (*_ai6)[_col + 3] ;
 
     return b::T1;
 
@@ -644,23 +653,6 @@ vo::t Dll_usb_mmf01stl::thread_qai36(QFutureSynchronizer<b::t>& _synchronizer, Q
         srl_i(_qai3[_row], _id);
         emit log("reset sented ID: "+ qt::s_i(_id) +" ..value is : " + qt::s_i(_qai3[_row]));
 
-//        i::t current = 0;
-
-
-
-//        while(1){
-
-//            current = i_srl(_id);
-
-//            srl_i(_qai3[_row], _id);
-
-//            if( !((_qai3[_row] - 100) < current && (_qai3[_row] + 100) >  current)  ){ qDebug("_ai3[i] != i_srl(id)");}
-//            else { break; }
-
-//        }
-
-//        emit log("id  " + qt::s_i(_id) + "  _qai3[i]  " + qt::s_i(_qai3[_row]) + "  i_srl(id)  " + qt::s_i(current));
-
     return b::T1;
 
     }));
@@ -696,7 +688,7 @@ b::t Dll_usb_mmf01stl::check_motorArrived(pai6::p _commands){
     QFutureSynchronizer<b::t> synchronizer;
 
 
-    for(i::t row : rows){
+    for(i::T row : rows){
         synchronizer.addFuture(QtConcurrent::run([=](){
 
                 pai6::p ia6 = nil;
@@ -717,7 +709,7 @@ b::t Dll_usb_mmf01stl::check_motorArrived(pai6::p _commands){
 b::t Dll_usb_mmf01stl::isSpeedZero_cmd(pai6::p _pai6){
     i::t sum = 0;
 
-    for(i::t row : rows){
+    for(i::T row : rows){
         for(i::t colm : cols){
             sum += _pai6[row][colm + 3];
         }
@@ -739,13 +731,13 @@ b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
 
     i::t tryCounter = 0;
 
-    for(z::t i(0) ; i < 5 ; ++i){
+    while(1){
+
 
         srl_commands(cmd);
         check_motorArrived(cmd);
 
         con_pai6(cmd);
-
 
         if(isSpeedZero_cmd(cmd)) { break; };
 
@@ -753,6 +745,7 @@ b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
 
 
         if(tryCounter++ > 0) { qDebug() << "tryCounter : " << tryCounter ;  }
+
 
     }
 
