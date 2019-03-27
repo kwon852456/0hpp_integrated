@@ -326,6 +326,7 @@ void OFFSET_pai3Val(pai3::p OFFSET_, pai3::p _pai3){
 }
 
 int (*pai3_encVal(qt::srl::p _srl))[3]{
+
     debugMsg(__func__);
 
     pai3::p pai3Val = new i::t[6][3]{  {0 ,},{0 ,},{0 ,},{0 ,},{0 ,},{0 ,}  };

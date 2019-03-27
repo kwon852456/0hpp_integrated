@@ -7,7 +7,6 @@ pai3::p OFFSET     = new i::t[6][3]{  {0, },{0, },{0, },{0, },{0, },{0, }  };
 pai3::p OFFSETTEMP = new i::t[6][3]{  {0, },{0, },{0, },{0, },{0, },{0, }  };
 
 QMutex mutForOffset;
-
 QElapsedTimer timer;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -171,7 +170,6 @@ pai6::p pai6_msg(vo::p _message){
     }
 
     return nil;
-
 }
 
 b::t MainWindow::nativeEvent(const qt::yar::t &eventType, vo::p message, long *resultMSG){
@@ -207,7 +205,9 @@ vo::t MainWindow::onShowOffset(){
 };
 
 vo::t MainWindow::thsri_qai36End(){
+
     tbrEnded = true;
+
 }
 
 vo::t MainWindow::timeTaken(i::t _time){
@@ -285,37 +285,37 @@ Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
         connect(this,    &Dll_usb_mmf01stl::write_cmdToFifthLeg  ,   sWorkerLeg5, &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
         connect(this,    &Dll_usb_mmf01stl::write_cmdToSixthLeg  ,   sWorkerLeg6, &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
 
-        connect(this,    &Dll_usb_mmf01stl::openFirstSerial  , sWorker    , &SerialWorker::setSerialPort);
+        connect(this,    &Dll_usb_mmf01stl::openFirstSerial  , sWorker    , &SerialWorker::setSerialPort  );
 
-        connect(this,    &Dll_usb_mmf01stl::openFirstLegPort , sWorkerLeg1, &SerialWorker::setSerialPort);
-        connect(this,    &Dll_usb_mmf01stl::openSecondLegPort, sWorkerLeg2, &SerialWorker::setSerialPort);
-        connect(this,    &Dll_usb_mmf01stl::openThirdLegPort , sWorkerLeg3, &SerialWorker::setSerialPort);
-        connect(this,    &Dll_usb_mmf01stl::openFourthLegPort, sWorkerLeg4, &SerialWorker::setSerialPort);
-        connect(this,    &Dll_usb_mmf01stl::openFifthLegPort , sWorkerLeg5, &SerialWorker::setSerialPort);
-        connect(this,    &Dll_usb_mmf01stl::openSixthLegPort , sWorkerLeg6, &SerialWorker::setSerialPort);
-
-
-
-        connect(this,    &Dll_usb_mmf01stl::mmfClicked,       sWorker, &SerialWorker::onMmfCheck_clicked);
-        connect(this,    &Dll_usb_mmf01stl::tempSave,         sWorker, &SerialWorker::tempSave          );
+        connect(this,    &Dll_usb_mmf01stl::openFirstLegPort , sWorkerLeg1, &SerialWorker::setSerialPort  );
+        connect(this,    &Dll_usb_mmf01stl::openSecondLegPort, sWorkerLeg2, &SerialWorker::setSerialPort  );
+        connect(this,    &Dll_usb_mmf01stl::openThirdLegPort , sWorkerLeg3, &SerialWorker::setSerialPort  );
+        connect(this,    &Dll_usb_mmf01stl::openFourthLegPort, sWorkerLeg4, &SerialWorker::setSerialPort  );
+        connect(this,    &Dll_usb_mmf01stl::openFifthLegPort , sWorkerLeg5, &SerialWorker::setSerialPort  );
+        connect(this,    &Dll_usb_mmf01stl::openSixthLegPort , sWorkerLeg6, &SerialWorker::setSerialPort  );
 
 
-        connect(this,    &Dll_usb_mmf01stl::readOffset,       oWorker, &OffsetWorker::onReadOffset      );
-        connect(this,    &Dll_usb_mmf01stl::openSecondSerial, oWorker, &OffsetWorker::setSerialPort     );
-        connect(this,    &Dll_usb_mmf01stl::saveHomeSet,      oWorker, &OffsetWorker::saveHomeSet       );
-        connect(this,    &Dll_usb_mmf01stl::loadHomeset,      oWorker, &OffsetWorker::loadHomeset       );
 
-        connect(sWorkerLeg1, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log           );
-        connect(sWorkerLeg2, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log           );
-        connect(sWorkerLeg3, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log           );
-        connect(sWorkerLeg4, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log           );
-        connect(sWorkerLeg5, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log           );
-        connect(sWorkerLeg6, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log           );
-        connect(sWorker,     &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log           );
-        connect(oWorker,     &OffsetWorker::log,                 this, &Dll_usb_mmf01stl::log           );
+        connect(this,    &Dll_usb_mmf01stl::mmfClicked,       sWorker, &SerialWorker::onMmfCheck_clicked  );
+        connect(this,    &Dll_usb_mmf01stl::tempSave,         sWorker, &SerialWorker::tempSave            );
 
-        connect(sWorker, &SerialWorker::showOffset,              this, &Dll_usb_mmf01stl::showOffset    );
-        connect(oWorker, &OffsetWorker::setHomeSet,              this, &Dll_usb_mmf01stl::setHomeSet    );
+
+        connect(this,    &Dll_usb_mmf01stl::readOffset,       oWorker, &OffsetWorker::onReadOffset        );
+        connect(this,    &Dll_usb_mmf01stl::openSecondSerial, oWorker, &OffsetWorker::setSerialPort       );
+        connect(this,    &Dll_usb_mmf01stl::saveHomeSet,      oWorker, &OffsetWorker::saveHomeSet         );
+        connect(this,    &Dll_usb_mmf01stl::loadHomeset,      oWorker, &OffsetWorker::loadHomeset         );
+
+        connect(sWorkerLeg1, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log             );
+        connect(sWorkerLeg2, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log             );
+        connect(sWorkerLeg3, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log             );
+        connect(sWorkerLeg4, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log             );
+        connect(sWorkerLeg5, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log             );
+        connect(sWorkerLeg6, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log             );
+        connect(sWorker,     &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log             );
+        connect(oWorker,     &OffsetWorker::log,                 this, &Dll_usb_mmf01stl::log             );
+
+        connect(sWorker, &SerialWorker::showOffset,              this, &Dll_usb_mmf01stl::showOffset      );
+        connect(oWorker, &OffsetWorker::setHomeSet,              this, &Dll_usb_mmf01stl::setHomeSet      );
 
 
 
@@ -346,7 +346,7 @@ vo::t Dll_usb_mmf01stl::srl_i(i::T _iDegree, i::T _id, i::T _velocity = 32){
 
     i::T legNo = _id / 10;
 
-    switch (legNo) {
+    switch (legNo){
 
     case 1:
 
@@ -509,7 +509,6 @@ b::t Dll_usb_mmf01stl::thsri_pai6(i::A6 _ai6, h::T _row){
 
     QFutureSynchronizer<b::t> synchronizer;
 
-
     for(i::t col : cols){
 
         int id = (_row + 1) * 10 + (col + 1);
@@ -549,7 +548,6 @@ b::t Dll_usb_mmf01stl::thsri_cmd(i::A6 _ai6, h::T _row){
 
 
     QFutureSynchronizer<b::t> synchronizer;
-
 
     for(i::t col : cols){
 
@@ -599,7 +597,6 @@ vo::t Dll_usb_mmf01stl::thread_motorArrived(QFutureSynchronizer<b::t>& _synchron
 
     if(_ai6[_col + 3] == 0){ qDebug() << " Motor speed zero on id : " << _id;  return; }
 
-
     _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
 
         i::t encVal = i_srl(_id);
@@ -642,19 +639,27 @@ vo::t Dll_usb_mmf01stl::thread_qai36(QFutureSynchronizer<b::t>& _synchronizer, Q
 
     _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
 
-        i::t current = 0;
-        while(1){
 
-            current = i_srl(_id);
+        //리셋은 보내고 끝
+        srl_i(_qai3[_row], _id);
+        emit log("reset sented ID: "+ qt::s_i(_id) +" ..value is : " + qt::s_i(_qai3[_row]));
 
-            srl_i(_qai3[_row], _id);
+//        i::t current = 0;
 
-            if( !((_qai3[_row] - 100) < current && (_qai3[_row] + 100) >  current)  ){ qDebug("_ai3[i] != i_srl(id)");}
-            else { break; }
 
-        }
 
-        emit log("id  " + qt::s_i(_id) + "  _qai3[i]  " + qt::s_i(_qai3[_row]) + "  i_srl(id)  " + qt::s_i(current));
+//        while(1){
+
+//            current = i_srl(_id);
+
+//            srl_i(_qai3[_row], _id);
+
+//            if( !((_qai3[_row] - 100) < current && (_qai3[_row] + 100) >  current)  ){ qDebug("_ai3[i] != i_srl(id)");}
+//            else { break; }
+
+//        }
+
+//        emit log("id  " + qt::s_i(_id) + "  _qai3[i]  " + qt::s_i(_qai3[_row]) + "  i_srl(id)  " + qt::s_i(current));
 
     return b::T1;
 
@@ -783,8 +788,7 @@ vo::t Dll_usb_mmf01stl::onMmfClicked(){
     if(!isIsrlFinished) return;
     QFuture<void> mmfResult = QtConcurrent::run([this](){
 
-        //QList<int> ids = {11, 12, 13, 21, 22, 23, 31, 32, 33, 41, 42, 43, 51, 52, 53, 61, 62, 63 };
-        QList<int> ids = { 61, 62, 63 };
+        QList<int> ids = {11, 12, 13, 21, 22, 23, 31, 32, 33, 41, 42, 43, 51, 52, 53, 61, 62, 63 };
         i::t tempArr[6][3] = { {0,},{0,},{0,},{0,},{0,},{0,} };
         pai3::p encVal = tempArr;
 
@@ -799,13 +803,15 @@ vo::t Dll_usb_mmf01stl::onMmfClicked(){
         emit log(qs_pai3(encVal));
 
         if(checkValid_pai3(encVal)){
+
             mmf_pai3Val(encVal);
+
         }else{
+
             for(z::t i(0) ; i < 5 ; ++i){ qDebug() << "BROKEN CHECK SUM HAS BEEN DETECTED WRTING PAI3 TO MMF PAUSED.....!"; }
+
         }
     });
-
-
 }
 
 vo::t Dll_usb_mmf01stl::setIds(QList<int> _rows, QList<int> _cols){
@@ -1175,9 +1181,6 @@ qt::s::t OffsetWorker::calc_diff(){
     qDebug() << "diff : ";
     con_pai3(diff);
 
-
-
-
     return qs_pai3H(diff);
 
 
@@ -1284,7 +1287,7 @@ vo::t MainWindow::srl_ai3(){
 
     qDebug() << __func__;
 
-    if(ui->lv_legs->currentItem() != nullptr){
+    if( ui->lv_legs->currentItem() != nullptr ){
 
         int legNo = qt::i_s(ui->lv_legs->currentItem()->text());
 
@@ -1339,20 +1342,15 @@ vo::t MainWindow::on_btn_load_clicked()
     if(path == qt::s::T0){ return; }
     emit loadHomeset(path);
 
-
 }
 
 vo::t MainWindow::tbrs_legNo(i::T _legNo){
 
 
     QList<int> recvEncVal;
-
-
-
-    switch (_legNo) {
+    switch (_legNo){
 
     case 1:
-
 
         QMetaObject::invokeMethod(stl->sWorkerLeg1, "onLv_clicked", Qt::BlockingQueuedConnection,
                                                             Q_RETURN_ARG(QList<int>, recvEncVal),
@@ -1361,14 +1359,12 @@ vo::t MainWindow::tbrs_legNo(i::T _legNo){
 
     case 2:
 
-
         QMetaObject::invokeMethod(stl->sWorkerLeg2, "onLv_clicked", Qt::BlockingQueuedConnection,
                                                             Q_RETURN_ARG(QList<int>, recvEncVal),
                                                                               Q_ARG(int, _legNo));
         break;
 
     case 3:
-
 
         QMetaObject::invokeMethod(stl->sWorkerLeg3, "onLv_clicked", Qt::BlockingQueuedConnection,
                                                             Q_RETURN_ARG(QList<int>, recvEncVal),
@@ -1377,7 +1373,6 @@ vo::t MainWindow::tbrs_legNo(i::T _legNo){
 
     case 4:
 
-
         QMetaObject::invokeMethod(stl->sWorkerLeg4, "onLv_clicked", Qt::BlockingQueuedConnection,
                                                             Q_RETURN_ARG(QList<int>, recvEncVal),
                                                                               Q_ARG(int, _legNo));
@@ -1385,14 +1380,12 @@ vo::t MainWindow::tbrs_legNo(i::T _legNo){
 
     case 5:
 
-
         QMetaObject::invokeMethod(stl->sWorkerLeg5, "onLv_clicked", Qt::BlockingQueuedConnection,
                                                             Q_RETURN_ARG(QList<int>, recvEncVal),
                                                                               Q_ARG(int, _legNo));
         break;
 
     case 6:
-
 
         QMetaObject::invokeMethod(stl->sWorkerLeg6, "onLv_clicked", Qt::BlockingQueuedConnection,
                                                             Q_RETURN_ARG(QList<int>, recvEncVal),
@@ -1636,7 +1629,6 @@ vo::t MainWindow::ids_lili(QList<int>& ids_ ,QList<int> _ilLeg, QList<int> _ilMo
             ids_.push_back(i * 3 + j);
         }
     }
-
 }
 
 vo::t MainWindow::on_pushButton_clicked()
@@ -2076,6 +2068,8 @@ void MainWindow::on_btn_serialSearch_clicked()
     srl->setParity      (QSerialPort::NoParity);
     srl->setStopBits    (QSerialPort::OneStop);
     srl->setFlowControl (QSerialPort::NoFlowControl);
+
+    liPorts.append(-1);
 
     for(z::t i(0) ; i < 50 ; ++i){
         srl->setPortName    ("COM" +  qt::s_i(i));
