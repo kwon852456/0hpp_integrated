@@ -943,7 +943,7 @@ i::t Dll_usb_mmf01stl::checkEncIsZero(i::t _id){
 
     i::T legNo = _id / 10;
 
-    switch (legNo) {
+    switch (legNo){
 
     case 1:
 
