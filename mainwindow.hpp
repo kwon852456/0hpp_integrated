@@ -52,6 +52,8 @@ public:
     QThread* wThread;
     QTimer* sendTimer;
     QTimer* srl_fileTimer;
+    QTimer* cdsTimer;
+    bool isCdsTimerStarted = false;
     QMap<int, int (*)[6]> mCommands;
     QList<int> liPorts;
     std::map<std::string, std::map<std::string, std::string>> kmsmCommands;
@@ -59,9 +61,11 @@ public:
 
 
 
+
     Dll_usb_mmf01stl* stl;
     bool isSended = false;
     bool tbrEnded = true;
+    int cdsQueSize = 0;
     int idxSizeCommands;
 
 
@@ -87,6 +91,8 @@ signals:
 
 
 private slots:
+
+    void sendCds();
 
     void srl_ai3();
 
@@ -181,6 +187,8 @@ private slots:
     void on_edit_serialPorts_returnPressed();
 
     void on_pushButton_2_clicked();
+
+    void on_btn_queueClear_clicked();
 
 private:
     Ui::MainWindow *ui;

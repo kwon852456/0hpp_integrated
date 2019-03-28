@@ -977,6 +977,8 @@ b::t check_commandValid(pai6::p _command, i::t _first_max , i::t _first_min, i::
 }
 
 
+
+
 namespace m_to {
             void vs(ks::M& _mks, s::w vs_) { ; vs_ = ks::vs_m(_mks); }
             void fn(ks::M& _mks, s::R fn_) { ; rv2::vs_to::fn(ks::vs_m(_mks), fn_); }

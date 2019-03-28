@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
     wThread       = new QThread();
     sendTimer     = new QTimer (this);
     srl_fileTimer = new QTimer (this);
+    cdsTimer      = new QTimer (this);
     stl           = new Dll_usb_mmf01stl();
 
     stl->moveToThread(wThread);
@@ -31,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     sendTimer    -> setInterval (1000);
     srl_fileTimer-> setInterval (1000);
+    cdsTimer     ->setInterval  (10  );
 
     init_tbrs ();
     init_lv   ();
@@ -82,6 +84,7 @@ vo::t MainWindow::makeConnection(){
     connect(stl,           &Dll_usb_mmf01stl::setHomeSet,     this,    &MainWindow::setHomeSet         );
     connect(srl_fileTimer, &QTimer::timeout,                  this,    &MainWindow::fileTimerTimeOut   );
     connect(sendTimer,     &QTimer::timeout,                  this,    &MainWindow::srl_ai3            );
+    connect(cdsTimer,      &QTimer::timeout,                  this,    &MainWindow::sendCds            );
 
 }
 
@@ -173,15 +176,57 @@ pai6::p pai6_msg(vo::p _message){
     return nil;
 }
 
+b::t check_cds(pai6::p _cdsCmd){
+    for(z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 3 ; ++j){
+            if(_cdsCmd[i][j] > 10000 || _cdsCmd[i][j] < -10000) return false;
+        }
+    }
+    return true;
+}
+
+vo::t MainWindow::sendCds(){
+
+    if(!cmds.isEmpty()){
+
+        pai6::p command = cmds.front();
+
+        if(stl->isFinished){
+            QList<int> li_Val = li_legsVal();
+
+            cmds.pop_front();
+            ui->edit_cdsQue->setNum(--cdsQueSize);
+
+            if(! check_cds(command))   { log("wrong value detected in cds..!"); return; }
+
+            check_commandValid(command, li_Val[0],  li_Val[1], li_Val[2], li_Val[3], li_Val[4], li_Val[5]);
+
+            emit thsrl_cds(ipp_pai66(command, OFFSET, ui));
+
+        }else{ log("Serial is busy..!"); }
+
+    }
+
+}
+
 b::t MainWindow::nativeEvent(const qt::yar::t &eventType, vo::p message, long *resultMSG){
 
     pai6::p command = pai6_msg(message);
 
     if(command != nil){
 
-        log(qs_pai6(command));
+        if(ui->cb_cdsListen->isChecked()){
 
-        emit thsrl_cds(ipp_pai66(command, OFFSET, ui));
+            log(qs_pai6(command));
+            cmds.push_back(command);
+            ui->edit_cdsQue->setNum(++cdsQueSize);
+
+            if(!isCdsTimerStarted){  cdsTimer->start(); isCdsTimerStarted = !isCdsTimerStarted;  }
+
+        }else{
+
+            log("cds receved..but cds listen is not checked..!");
+        }
 
     }
     else    delete[] command;
@@ -217,6 +262,7 @@ vo::t MainWindow::timeTaken(i::t _time){
 
 
     ui->edit_time->append(qt::s_i(_time) );
+    ui->edit_cdsTime->append(qt::s_i(_time));
 
 }
 
@@ -727,14 +773,13 @@ b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
 
     for(z::t i(0) ; i < 100 ; ++i){
 
-
         srl_commands(cmd);
         check_motorArrived(cmd);
 
-        if(isSpeedZero_cmd(cmd)) { break; };
+        if(isSpeedZero_cmd(cmd)){ break; };
 
         qDebug() << "isSpeedZero_cmd(cmd) : false";
-        if(tryCounter++ > 0) { qDebug() << "tryCounter : " << tryCounter ;  }
+        if(tryCounter++ > 0){ qDebug() << "tryCounter : " << tryCounter ;  }
 
     }
 
@@ -1374,7 +1419,6 @@ qt::s::t OffsetWorker::calc_diff(){
     //타겟 엔코더 값은 homeSet에 있고 현재 엔코더 값은 tempHomeSet에 있다
 
     for(z::t i(0) ; i < 6 ; ++i){
-
         for(z::t j(0) ; j < 3 ; ++j){
 
             i::T current = tempHomeSet[i][j];
@@ -1392,7 +1436,6 @@ qt::s::t OffsetWorker::calc_diff(){
 
             diff[i][j] = dif;
         }
-
     }
 
 
@@ -2379,4 +2422,12 @@ void MainWindow::on_pushButton_2_clicked()
 {
       wThread->terminate();
       wThread->wait();
+}
+
+void MainWindow::on_btn_queueClear_clicked()
+{
+    cmds.clear();
+    ui->edit_cdsQue->setNum(0);
+    log("cds queue cleared..!");
+
 }
