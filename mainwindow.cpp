@@ -792,7 +792,7 @@ vo::t Dll_usb_mmf01stl::onMmfClicked(){
         }else{
 
             for(z::t i(0) ; i < 5 ; ++i){ qDebug() << "BROKEN CHECK SUM HAS BEEN DETECTED WRTING PAI3 TO MMF PAUSED.....!"; }
-
+            emit log("BROKEN CHECK SUM HAS BEEN DETECTED WRTING PAI3 TO MMF PAUSED.....!");
         }
     });
 }
@@ -943,7 +943,7 @@ i::t Dll_usb_mmf01stl::checkEncIsZero(i::t _id){
 
     i::T legNo = _id / 10;
 
-    switch (legNo) {
+    switch (legNo){
 
     case 1:
 
@@ -1317,6 +1317,8 @@ vo::t OffsetWorker::onReadOffset(){
     }
 }
 
+
+
 vo::t OffsetWorker::saveHomeSet(){
     save_pai3(homeSet,6, "homeSet.ini");
 }
@@ -1402,8 +1404,9 @@ qt::s::t OffsetWorker::calc_diff(){
 
     return qs_pai3H(diff);
 
-
 }
+
+
 qt::s::t OffsetWorker::qs_diff(){
 
     return qs_pai3H(diff);
@@ -2317,6 +2320,9 @@ void MainWindow::on_btn_serialSearch_clicked()
         ui->cb_enc2->addItem(qt::s_i(port));
 
     }
+    ////////////////포트 자동 잡기 시작 ////////////////////////
+
+    ////////////////포트 자동 잡기 끝 ////////////////////////
 
     ui->edit_serialPorts->setText(qs_li(liPorts));
 
@@ -2367,4 +2373,10 @@ void MainWindow::on_edit_serialPorts_returnPressed()
 
 
 
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+      wThread->terminate();
+      wThread->wait();
 }

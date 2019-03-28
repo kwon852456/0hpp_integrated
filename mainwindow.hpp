@@ -55,6 +55,7 @@ public:
     QMap<int, int (*)[6]> mCommands;
     QList<int> liPorts;
     std::map<std::string, std::map<std::string, std::string>> kmsmCommands;
+    QQueue<int (*)[6]> cmds;
 
 
 
@@ -178,6 +179,8 @@ private slots:
     void on_btn_logClear_clicked();
 
     void on_edit_serialPorts_returnPressed();
+
+    void on_pushButton_2_clicked();
 
 private:
     Ui::MainWindow *ui;

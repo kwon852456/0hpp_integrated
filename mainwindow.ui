@@ -544,7 +544,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -939,6 +939,19 @@
       <string>Page 2</string>
      </attribute>
     </widget>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>590</y>
+      <width>211</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>강제 정지</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

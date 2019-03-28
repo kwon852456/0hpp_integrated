@@ -180,6 +180,7 @@ b::t MainWindow::nativeEvent(const qt::yar::t &eventType, vo::p message, long *r
     if(command != nil){
 
         log(qs_pai6(command));
+        cmds.push_back(command);
 
         emit thsrl_cds(ipp_pai66(command, OFFSET, ui));
 
@@ -727,14 +728,13 @@ b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
 
     for(z::t i(0) ; i < 100 ; ++i){
 
-
         srl_commands(cmd);
         check_motorArrived(cmd);
 
-        if(isSpeedZero_cmd(cmd)) { break; };
+        if(isSpeedZero_cmd(cmd)){ break; };
 
         qDebug() << "isSpeedZero_cmd(cmd) : false";
-        if(tryCounter++ > 0) { qDebug() << "tryCounter : " << tryCounter ;  }
+        if(tryCounter++ > 0){ qDebug() << "tryCounter : " << tryCounter ;  }
 
     }
 
@@ -792,7 +792,7 @@ vo::t Dll_usb_mmf01stl::onMmfClicked(){
         }else{
 
             for(z::t i(0) ; i < 5 ; ++i){ qDebug() << "BROKEN CHECK SUM HAS BEEN DETECTED WRTING PAI3 TO MMF PAUSED.....!"; }
-
+            emit log("BROKEN CHECK SUM HAS BEEN DETECTED WRTING PAI3 TO MMF PAUSED.....!");
         }
     });
 }
@@ -1317,6 +1317,8 @@ vo::t OffsetWorker::onReadOffset(){
     }
 }
 
+
+
 vo::t OffsetWorker::saveHomeSet(){
     save_pai3(homeSet,6, "homeSet.ini");
 }
@@ -1372,7 +1374,6 @@ qt::s::t OffsetWorker::calc_diff(){
     //타겟 엔코더 값은 homeSet에 있고 현재 엔코더 값은 tempHomeSet에 있다
 
     for(z::t i(0) ; i < 6 ; ++i){
-
         for(z::t j(0) ; j < 3 ; ++j){
 
             i::T current = tempHomeSet[i][j];
@@ -1390,7 +1391,6 @@ qt::s::t OffsetWorker::calc_diff(){
 
             diff[i][j] = dif;
         }
-
     }
 
 
@@ -1402,8 +1402,9 @@ qt::s::t OffsetWorker::calc_diff(){
 
     return qs_pai3H(diff);
 
-
 }
+
+
 qt::s::t OffsetWorker::qs_diff(){
 
     return qs_pai3H(diff);
@@ -2317,6 +2318,9 @@ void MainWindow::on_btn_serialSearch_clicked()
         ui->cb_enc2->addItem(qt::s_i(port));
 
     }
+    ////////////////포트 자동 잡기 시작 ////////////////////////
+
+    ////////////////포트 자동 잡기 끝 ////////////////////////
 
     ui->edit_serialPorts->setText(qs_li(liPorts));
 
@@ -2367,4 +2371,10 @@ void MainWindow::on_edit_serialPorts_returnPressed()
 
 
 
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+      wThread->terminate();
+      wThread->wait();
 }
