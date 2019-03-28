@@ -229,6 +229,21 @@ QString qs_pai3(pai3::p _pai3){
     return msg;
 }
 
+QString qs_pai6(pai6::p _pai6){
+    qt::s::t temp = qt::s::T0;
+    qt::s::t msg = qt::s::T0;
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        temp.clear();
+        for(z::t j(0) ; j < 6 ; ++j){
+            temp.sprintf("%d ", _pai6[i][j]);
+            msg += temp;
+        }
+        msg += "\n";
+    }
+    return msg;
+}
+
 i::t (*pai3_qs(qt::s::t _sPai3))[3]{
 
     pai3::p pai3_ = new i::t[6][3]{ {0,},{0,},{0,},{0,},{0,},{0,}  };
@@ -1183,7 +1198,14 @@ void pai3_pai6(pai3::p pai3_, pai6::p _pai6){
 
 }
 
+qt::yar::t yar_req(i::t _id){
 
+    req::t request; req_id(request, _id);
+    c::p pReq = reinterpret_cast<c::p>(request);
+
+    return qt::yar::t::fromRawData(pReq,req::Z);
+
+}
 
 
 

@@ -222,6 +222,9 @@ class Dll_usb_mmf01stl : public QObject{
     bool isSpeedZero_cmd(int (*_pai6)[6]);
     bool ResetSrl_pai6(int** _pai6);
     void srl_resetEnc(int _iDegree, const int _id, const int _velocity = 32);
+    void setFirstEncZero();
+    int sendSetZero(int _id);
+    int checkEncIsZero(int _id);
 
     SerialWorker* sWorker;
     OffsetWorker* oWorker;
@@ -347,6 +350,7 @@ signals:
 public slots:
     void onWrite_cmd(char* _cmd);
     int  onWrite_req(QByteArray _req, int _id);
+    int  onResetEnc(QByteArray _req, int _id);
     QList<int> onLv_clicked(int legNo);
 
     void onMmfCheck_clicked();

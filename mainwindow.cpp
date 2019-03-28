@@ -42,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+
     delete ui;
 
     wThread->quit();
@@ -177,6 +178,8 @@ b::t MainWindow::nativeEvent(const qt::yar::t &eventType, vo::p message, long *r
     pai6::p command = pai6_msg(message);
 
     if(command != nil){
+
+        log(qs_pai6(command));
 
         emit thsrl_cds(ipp_pai66(command, OFFSET, ui));
 
@@ -384,14 +387,7 @@ vo::t Dll_usb_mmf01stl::srl_i(i::T _iDegree, i::T _id, i::T _velocity = 32){
     }
 }
 
-qt::yar::t yar_req(i::t _id){
 
-    req::t request; req_id(request, _id);
-    c::p pReq = reinterpret_cast<c::p>(request);
-
-    return qt::yar::t::fromRawData(pReq,req::Z);
-
-}
 
 i::t Dll_usb_mmf01stl::i_srl(i::t _id){
 
@@ -728,7 +724,6 @@ b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
     timer.restart();
     isFinished = !isFinished;
 
-
     i::t tryCounter = 0;
 
     while(1){
@@ -737,13 +732,9 @@ b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
         srl_commands(cmd);
         check_motorArrived(cmd);
 
-        con_pai6(cmd);
-
         if(isSpeedZero_cmd(cmd)) { break; };
 
         qDebug() << "isSpeedZero_cmd(cmd) : false";
-
-
         if(tryCounter++ > 0) { qDebug() << "tryCounter : " << tryCounter ;  }
 
 
@@ -837,6 +828,214 @@ i::t (*pai6_pai3( pai3::p _pai3, i::t _velocity = 10 ))[6]{
     return pai6_;
 }
 
+vo::t reset_id(req::t& req_,i::R _id ){
+
+    y::t checkSum = ~((y::t)((y::t)_id + 0x0C + 0x02));
+
+    req_[0] = 0xFF;
+    req_[1] = 0xFE;
+    req_[2] = (y::t)_id;
+    req_[3] = 0x02;
+    req_[4] = checkSum;
+    req_[5] = 0x0C;
+
+}
+
+
+qt::yar::t yar_reset(i::t _id){
+
+    req::t resetRequest; reset_id(resetRequest, _id);
+    c::p pReq = reinterpret_cast<c::p>(resetRequest);
+
+    return qt::yar::t::fromRawData(pReq,req::Z);
+
+}
+
+i::t Dll_usb_mmf01stl::sendSetZero(i::t _id){
+
+    qDebug() << "sendSetZero" << " _id " << _id << " Thread " << QThread::currentThread();
+
+    isIsrlFinished = false;
+    int recvEncVal;
+    qt::yar::t arr = yar_req(_id);
+
+    i::T legNo = _id / 10;
+
+    switch (legNo) {
+
+    case 1:
+
+        QMetaObject::invokeMethod(sWorkerLeg1, "onResetEnc", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 2:
+
+        QMetaObject::invokeMethod(sWorkerLeg2, "onResetEnc", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 3:
+
+        QMetaObject::invokeMethod(sWorkerLeg3, "onResetEnc", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 4:
+
+        QMetaObject::invokeMethod(sWorkerLeg4, "onResetEnc", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 5:
+
+        QMetaObject::invokeMethod(sWorkerLeg5, "onResetEnc", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 6:
+
+        QMetaObject::invokeMethod(sWorkerLeg6, "onResetEnc", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    default :
+
+        qDebug() << "legNo in srl_i is wrong..!";
+
+    }
+
+    qDebug() << "recvEncVal : " << recvEncVal;
+
+    if(recvEncVal == 99999){ qDebug() << "Serial not opened.. on id : " + _id; };
+
+    isIsrlFinished = true;
+
+    return recvEncVal;
+
+}
+
+i::t Dll_usb_mmf01stl::checkEncIsZero(i::t _id){
+
+    qDebug() << "i_srl" << " _id " << _id << " Thread " << QThread::currentThread();
+
+    isIsrlFinished = false;
+    int recvEncVal;
+    qt::yar::t arr = yar_req(_id);
+
+
+    i::T legNo = _id / 10;
+
+    switch (legNo) {
+
+    case 1:
+
+        QMetaObject::invokeMethod(sWorkerLeg1, "onWrite_req", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 2:
+
+        QMetaObject::invokeMethod(sWorkerLeg2, "onWrite_req", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 3:
+
+        QMetaObject::invokeMethod(sWorkerLeg3, "onWrite_req", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 4:
+
+        QMetaObject::invokeMethod(sWorkerLeg4, "onWrite_req", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 5:
+
+        QMetaObject::invokeMethod(sWorkerLeg5, "onWrite_req", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    case 6:
+
+        QMetaObject::invokeMethod(sWorkerLeg6, "onWrite_req", Qt::BlockingQueuedConnection,
+                                  Q_RETURN_ARG(int, recvEncVal),
+                                  Q_ARG(QByteArray, arr),
+                                  Q_ARG(int, _id));
+
+        break;
+
+    default :
+
+        qDebug() << "legNo in srl_i is wrong..!";
+
+    }
+
+    qDebug() << "recvEncVal : " << recvEncVal;
+
+    if(recvEncVal == 99999){ qDebug() << "checkSum has been broken...!"; emit log("checkSum has been broken...! OR Serial is closed..!"); };
+
+    isIsrlFinished = true;
+
+    return recvEncVal;
+
+}
+
+
+vo::t Dll_usb_mmf01stl::setFirstEncZero(){
+
+    const QList<int> ids = sWorker->ids;
+
+    for(z::t i(0) ; i < 2 ; ++i){
+
+        for(i::T id : ids){
+            sendSetZero(id);
+        }
+
+    }
+
+    for(i::T id : ids){
+
+        if( (checkEncIsZero(id) < -100 || checkEncIsZero(id) > 100) ){ emit log("Encoder Reset Failed...! id : " + qt::s_i(id));  }
+
+    }
+}
+
 vo::t Dll_usb_mmf01stl::legsToOrigin(){
 
     qt::s::t sDiff = qt::s::T0;
@@ -848,10 +1047,12 @@ vo::t Dll_usb_mmf01stl::legsToOrigin(){
 
     pai6::p diff = pai6_pai3(pai3_qs(sDiff), 10);
 
-    pai3_pai6(OFFSET, diff);  // OFFSET에다가 diff를 할당..!
-
+    //pai3_pai6(OFFSET, diff);  // OFFSET에다가 diff를 할당..!
 
     srl_pai6(pp_pai6(diff));
+
+    setFirstEncZero();
+
 }
 
 
@@ -932,6 +1133,13 @@ int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
         }
 
     }else{ return 0; emit log( qt::qs_s(" write failed on") + qt::qs_s("onWrite_req") );}
+
+}
+
+i::t SerialWorker::onResetEnc(qt::yar::t _req, i::t _id){
+
+    if(!port->isOpen()) return 99999;
+    port->write(_req);
 
 }
 
