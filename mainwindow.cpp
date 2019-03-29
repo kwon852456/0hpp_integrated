@@ -16,8 +16,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     qRegisterMetaType<QList<int>>("QList<int>");
 
-
-
     wThread       = new QThread();
     sendTimer     = new QTimer (this);
     srl_fileTimer = new QTimer (this);
@@ -37,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     init_tbrs ();
     init_lv   ();
     init_lw   ();
+
 
 
 }
@@ -60,31 +59,31 @@ vo::t MainWindow::init_lw(){
 
 vo::t MainWindow::makeConnection(){
 
-    connect(this,          &MainWindow::thsrl_cds,        stl,         &Dll_usb_mmf01stl::srl_pai6           );
-    connect(this,          &MainWindow::thsrl_file,       stl,         &Dll_usb_mmf01stl::srl_pai6           );
+    connect(this,              &MainWindow::write_log,            this,    &MainWindow::on_edit_log_setText      );
 
-    connect(this,          &MainWindow::send_clicked,     stl,         &Dll_usb_mmf01stl::thsri_qai36        );
-    connect(this,          &MainWindow::readOffset,       stl,         &Dll_usb_mmf01stl::OnReadOffset       );
-    connect(this,          &MainWindow::mmfClicked,       stl,         &Dll_usb_mmf01stl::onMmfClicked       );
-    connect(this,          &MainWindow::openFirstSerial,  stl,         &Dll_usb_mmf01stl::openFirstSerial    );
-    connect(this,          &MainWindow::openSecondSerial, stl,         &Dll_usb_mmf01stl::openSecondSerial   );
-    connect(this,          &MainWindow::setIds,           stl,         &Dll_usb_mmf01stl::setIds             );
-    connect(this,          &MainWindow::tempSave,         stl,         &Dll_usb_mmf01stl::tempSave           );
-    connect(this,          &MainWindow::saveHomeSet,      stl,         &Dll_usb_mmf01stl::saveHomeSet        );
-    connect(this,          &MainWindow::loadHomeset,      stl,         &Dll_usb_mmf01stl::loadHomeset        );
-    connect(this,          &MainWindow::legsToOrigin,     stl,         &Dll_usb_mmf01stl::legsToOrigin       );
-    connect(this,          &MainWindow::connectSixSrlNo,  stl,         &Dll_usb_mmf01stl::connectSixSrlNo    );
-    connect(this,          &MainWindow::write_log,        ui->usb_log, &Usb_log::setlog);
+    connect(this,              &MainWindow::thsrl_cds,            stl,     &Dll_usb_mmf01stl::srl_pai6           );
+    connect(this,              &MainWindow::thsrl_file,           stl,     &Dll_usb_mmf01stl::srl_pai6           );
+    connect(this,              &MainWindow::send_clicked,         stl,     &Dll_usb_mmf01stl::thsri_qai36        );
+    connect(this,              &MainWindow::readOffset,           stl,     &Dll_usb_mmf01stl::OnReadOffset       );
+    connect(this,              &MainWindow::mmfClicked,           stl,     &Dll_usb_mmf01stl::onMmfClicked       );
+    connect(this,              &MainWindow::openFirstSerial,      stl,     &Dll_usb_mmf01stl::openFirstSerial    );
+    connect(this,              &MainWindow::openSecondSerial,     stl,     &Dll_usb_mmf01stl::openSecondSerial   );
+    connect(this,              &MainWindow::setIds,               stl,     &Dll_usb_mmf01stl::setIds             );
+    connect(this,              &MainWindow::tempSave,             stl,     &Dll_usb_mmf01stl::tempSave           );
+    connect(this,              &MainWindow::saveHomeSet,          stl,     &Dll_usb_mmf01stl::saveHomeSet        );
+    connect(this,              &MainWindow::loadHomeset,          stl,     &Dll_usb_mmf01stl::loadHomeset        );
+    connect(this,              &MainWindow::legsToOrigin,         stl,     &Dll_usb_mmf01stl::legsToOrigin       );
+    connect(this,              &MainWindow::connectSixSrlNo,      stl,     &Dll_usb_mmf01stl::connectSixSrlNo    );
 
 
-    connect(stl,           &Dll_usb_mmf01stl::showOffset,     this,    &MainWindow::onShowOffset       );
-    connect(stl,           &Dll_usb_mmf01stl::log,            this,    &MainWindow::write_log          );
-    connect(stl,           &Dll_usb_mmf01stl::thsri_qai36End, this,    &MainWindow::thsri_qai36End     );
-    connect(stl,           &Dll_usb_mmf01stl::timeTaken,      this,    &MainWindow::timeTaken          );
-    connect(stl,           &Dll_usb_mmf01stl::setHomeSet,     this,    &MainWindow::setHomeSet         );
-    connect(srl_fileTimer, &QTimer::timeout,                  this,    &MainWindow::fileTimerTimeOut   );
-    connect(sendTimer,     &QTimer::timeout,                  this,    &MainWindow::srl_ai3            );
-    connect(cdsTimer,      &QTimer::timeout,                  this,    &MainWindow::sendCds            );
+    connect(stl,               &Dll_usb_mmf01stl::showOffset,     this,    &MainWindow::onShowOffset       );
+    connect(stl,               &Dll_usb_mmf01stl::log,            this,    &MainWindow::write_log          );
+    connect(stl,               &Dll_usb_mmf01stl::thsri_qai36End, this,    &MainWindow::thsri_qai36End     );
+    connect(stl,               &Dll_usb_mmf01stl::timeTaken,      this,    &MainWindow::timeTaken          );
+    connect(stl,               &Dll_usb_mmf01stl::setHomeSet,     this,    &MainWindow::setHomeSet         );
+    connect(srl_fileTimer,     &QTimer::timeout,                  this,    &MainWindow::fileTimerTimeOut   );
+    connect(sendTimer,         &QTimer::timeout,                  this,    &MainWindow::srl_ai3            );
+    connect(cdsTimer,          &QTimer::timeout,                  this,    &MainWindow::sendCds            );
 
 }
 
@@ -93,6 +92,10 @@ vo::t MainWindow::log(qt::s::t _text){
     emit write_log(_text);
 
 }
+
+vo::t MainWindow::on_edit_log_setText(qt::s::T _text){
+    ui->Edit_log->append(_text);
+};
 
 b::t MainWindow::init_tbrs(){
 
@@ -261,7 +264,6 @@ vo::t MainWindow::thsri_qai36End(){
 vo::t MainWindow::timeTaken(i::t _time){
 
 
-    ui->edit_time->append(qt::s_i(_time) );
     ui->edit_cdsTime->append(qt::s_i(_time));
     ui->edit_TimeTaken->setNum(_time);
 
@@ -400,7 +402,7 @@ vo::t Dll_usb_mmf01stl::srl_i(i::T _iDegree, i::T _id, i::T _velocity = 32){
 
     case 1:
 
-        emit write_cmdToFirstLeg(pCmd);  //id에 따라서 다른 시그널 발생. 해당 함수는 현재 마지막 스레드(모터 하나 담당) 안에서 돌고 있음..!
+        emit write_cmdToFirstLeg(pCmd);    //id에 따라서 다른 시그널 발생. 해당 함수는 현재 마지막 스레드(모터 하나 담당) 안에서 돌고 있음..!
         break;
 
     case 2:
@@ -598,7 +600,6 @@ b::t Dll_usb_mmf01stl::thsri_cmd(i::A6 _ai6, h::T _row){
 
 
         }));
-
 
     Sleep(10);
     }
@@ -1073,15 +1074,14 @@ vo::t Dll_usb_mmf01stl::setFirstEncZero(){
             sendSetZero(id);
 
         }
-
     }
-
 
     for(i::T id : ids){
 
         if( (checkEncIsZero(id) < -100 || checkEncIsZero(id) > 100) ){ emit log("Encoder Reset Failed...! id : " + qt::s_i(id));  }
 
     }
+
 }
 
 vo::t Dll_usb_mmf01stl::legsToOrigin(){
@@ -1094,8 +1094,6 @@ vo::t Dll_usb_mmf01stl::legsToOrigin(){
     if(vs_s(qt::s_qs(sDiff),' ').size() < 18){ qDebug() << ("size of diff < 18");  return; }
 
     pai6::p diff = pai6_pai3(pai3_qs(sDiff), 10);
-
-    //pai3_pai6(OFFSET, diff);  // OFFSET에다가 diff를 할당..!
 
     srl_pai6(pp_pai6(diff));
 
@@ -1166,7 +1164,6 @@ vo::t SerialWorker::onWrite_cmd(c::p _cmd){
 
 int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
 
-    //qDebug() << __func__ << "in MainWindow ";
     if(!port->isOpen()) return 99999;
     if(port->write(_req)){
 
@@ -1214,7 +1211,6 @@ vo::t SerialWorker::onMmfCheck_clicked(){
     }
 
     isSrlFinished = !isSrlFinished;
-
     emit showOffset();
 
 }
@@ -1426,7 +1422,6 @@ qt::s::t OffsetWorker::calc_diff(){
             i::T target  = homeSet[i][j];
             i::t dif     = current - target;
 
-
             if(abs(dif) > 18000){
 
                 if(current < target)  {   dif = (current +  36000     - target);    }
@@ -1434,18 +1429,15 @@ qt::s::t OffsetWorker::calc_diff(){
 
             }
 
-
             diff[i][j] = dif;
+
         }
     }
-
-
 
     qDebug() << "diff : ";
     con_pai3(diff);
 
     if(!check_diffValid(diff)){ memset(diff, 0x00, 4 * 18); emit log("at least one (value > 8000) detected in diff "); return nil; }
-
     return qs_pai3H(diff);
 
 }
@@ -1577,7 +1569,7 @@ vo::t MainWindow::srl_ai3(){
 
 vo::t MainWindow::on_btn_send_clicked()
 {
-    //qDebug() << __func__;
+
     srl_ai3();
 
 }
@@ -1868,7 +1860,6 @@ vo::t MainWindow::on_offset_readOffset()
 vo::t MainWindow::on_offset_saveOffset()
 {
 
-    //log(save_pai3(OFFSET, 6));
     emit saveHomeSet();
 
 }
@@ -1987,7 +1978,6 @@ void MainWindow::on_cb_release_clicked(bool checked)
 
 void MainWindow::on_btn_timeClear_clicked()
 {
-    ui->edit_time->clear();
 }
 
 
@@ -2295,6 +2285,10 @@ void MainWindow::on_btn_portLoad_clicked()
         qDebug() << QString::fromStdString(s);
     }
 
+
+
+
+
     clearComboBox(ui->cb_leg1);
     clearComboBox(ui->cb_leg2);
     clearComboBox(ui->cb_leg3);
@@ -2375,7 +2369,7 @@ void MainWindow::on_btn_serialSearch_clicked()
 
 void MainWindow::on_btn_logClear_clicked()
 {
-    ui->usb_log->clearLog();
+    ui->Edit_log->clear();
 }
 
 void MainWindow::on_edit_serialPorts_returnPressed()
@@ -2430,6 +2424,7 @@ void MainWindow::on_btn_queueClear_clicked()
     cmds.clear();
     cdsQueSize = 0;
     ui->edit_cdsQue->setNum(0);
+
     log("cds queue cleared..!");
 
 }

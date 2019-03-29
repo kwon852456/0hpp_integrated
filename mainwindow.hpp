@@ -190,6 +190,8 @@ private slots:
 
     void on_btn_queueClear_clicked();
 
+    void on_edit_log_setText(QString _text);
+
 private:
     Ui::MainWindow *ui;
 };
