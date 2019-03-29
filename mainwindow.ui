@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_6">
      <attribute name="title">
@@ -35,12 +35,12 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>771</width>
+        <width>861</width>
         <height>461</height>
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_9">
        <attribute name="title">
@@ -453,7 +453,7 @@
        <widget class="QGroupBox" name="groupBox_4">
         <property name="geometry">
          <rect>
-          <x>20</x>
+          <x>620</x>
           <y>20</y>
           <width>231</width>
           <height>381</height>
@@ -1053,19 +1053,44 @@
        <height>91</height>
       </rect>
      </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOn</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::NoTextInteraction</set>
+     </property>
     </widget>
    </widget>
    <widget class="QPushButton" name="btn_logClear">
     <property name="geometry">
      <rect>
-      <x>800</x>
-      <y>590</y>
+      <x>810</x>
+      <y>630</y>
       <width>75</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
      <string>clear</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_cds_send">
+    <property name="geometry">
+     <rect>
+      <x>560</x>
+      <y>630</y>
+      <width>241</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Cds 송신 테스트 btn</string>
     </property>
    </widget>
   </widget>

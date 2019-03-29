@@ -30,13 +30,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     sendTimer    -> setInterval (1000);
     srl_fileTimer-> setInterval (1000);
-    cdsTimer     -> setInterval (10  );
+    cdsTimer     -> setInterval (5   );
 
     init_tbrs ();
     init_lv   ();
     init_lw   ();
-
-
 
 }
 
@@ -147,9 +145,7 @@ vo::t MainWindow::fileTimerTimeOut(){
         if(ui->lv_commands->currentRow() != -1  && ui->lv_commands->currentRow() <= idxSizeCommands ){
 
             pai6::p command = mCommands.find(ui->lv_commands->currentRow()).value();
-
             thsrl_pai6(command);
-
             ui->lv_commands->setCurrentRow(ui->lv_commands->currentRow() + 1);
 
         }
@@ -171,21 +167,14 @@ pai6::p pai6_msg(vo::p _message){
         UNUSED(reciverhwnd);
 
         y::p yHdr = (y::p) pcds ->lpData;
+
         pai6_yHdr(pai6, yHdr);
 
         return pai6;
+
     }
 
     return nil;
-}
-
-b::t check_cds(pai6::p _cdsCmd){
-    for(z::t i(0) ; i < 6 ; ++i){
-        for(z::t j(0) ; j < 3 ; ++j){
-            if(_cdsCmd[i][j] > 10000 || _cdsCmd[i][j] < -10000) return false;
-        }
-    }
-    return true;
 }
 
 vo::t MainWindow::sendCds(){
@@ -200,7 +189,7 @@ vo::t MainWindow::sendCds(){
             cmds.pop_front();
             ui->edit_cdsQue->setNum(--cdsQueSize);
 
-            if(! check_cds(command))   { log("wrong value detected in cds..!"); return; }
+            if(!check_cds(command)){ log(" wrong value detected in cds..! "); return; }
 
             check_commandValid(command, li_Val[0],  li_Val[1], li_Val[2], li_Val[3], li_Val[4], li_Val[5]);
 
@@ -214,6 +203,7 @@ vo::t MainWindow::sendCds(){
 
 b::t MainWindow::nativeEvent(const qt::yar::t &eventType, vo::p message, long *resultMSG){
 
+
     pai6::p command = pai6_msg(message);
 
     if(command != nil){
@@ -224,18 +214,17 @@ b::t MainWindow::nativeEvent(const qt::yar::t &eventType, vo::p message, long *r
             cmds.push_back(command);
             ui->edit_cdsQue->setNum(++cdsQueSize);
 
-            if(!isCdsTimerStarted){  cdsTimer->start(); isCdsTimerStarted = !isCdsTimerStarted;  }
+            if(!isCdsTimerStarted){ cdsTimer->start(); isCdsTimerStarted = true; }
 
         }else{
 
             log("cds receved..but cds listen is not checked..!");
         }
-
     }
+
     else    delete[] command;
 
     *resultMSG = 0;
-
     UNUSED(eventType);
 
     return b::T0;
@@ -247,6 +236,7 @@ vo::t MainWindow::onShowOffset(){
     write_log("offset read result : ");
 
     hnd::t handle = open_mmf("mmftest_pchr");
+
 
     pai3::p pai;
     pai3_mmf(pai, handle);
@@ -638,7 +628,6 @@ b::t Dll_usb_mmf01stl::srl_commands(pai6::p _commands){
     synchronizer.waitForFinished();
 
     return true;
-
 }
 
 
@@ -650,8 +639,6 @@ vo::t Dll_usb_mmf01stl::thread_motorArrived(QFutureSynchronizer<b::t>& _synchron
     _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
 
         i::t encVal = i_srl(_id);
-
-
 
         emit log("id  " + qt::s_i(_id) + "  motor Encoder value : " + qt::s_i(encVal) );
 
@@ -699,7 +686,6 @@ vo::t Dll_usb_mmf01stl::thread_qai36(QFutureSynchronizer<b::t>& _synchronizer, Q
     return b::T1;
 
     }));
-
 }
 
 
@@ -745,11 +731,11 @@ b::t Dll_usb_mmf01stl::check_motorArrived(pai6::p _commands){
     }
 
     synchronizer.waitForFinished();
-
     return true;
 }
 
 b::t Dll_usb_mmf01stl::isSpeedZero_cmd(pai6::p _pai6){
+
     i::t sum = 0;
 
     for(i::T row : rows){
@@ -757,7 +743,6 @@ b::t Dll_usb_mmf01stl::isSpeedZero_cmd(pai6::p _pai6){
             sum += _pai6[row][colm + 3];
         }
     }
-
 
     return sum == 0;
 }
@@ -806,7 +791,7 @@ bool checkValid_pai3(pai3::p _pai6){
 
     for(z::t i(0) ; i < 6 ; ++i){
         for(z::t j(0) ; j < 3 ; ++j){
-            if(_pai6[i][j] > 50000){ return false; }
+            if(_pai6[i][j] > 50000){   return false;  }
         }
     }
 
@@ -1177,7 +1162,7 @@ int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
             return encVal_srl(port);
         }
 
-    }else{ return 0; emit log( qt::qs_s(" write failed on") + qt::qs_s("onWrite_req") );}
+    }else{  return 0; emit log( qt::qs_s(" write failed on") + qt::qs_s("onWrite_req") );   }
 
 }
 
@@ -1396,6 +1381,7 @@ vo::t OffsetWorker::setSerialPort(QString _comPort){
 
 
 b::t check_diffValid(pai3::p _diff){
+
     for(z::t i(0) ; i < 6 ; ++i){
         for(z::t j(0) ; j < 3 ; ++j){
             if(abs(_diff[i][j]) > 8000){
@@ -1404,14 +1390,13 @@ b::t check_diffValid(pai3::p _diff){
         }
     }
     return true;
+
 }
 
 qt::s::t OffsetWorker::calc_diff(){
     pai3::p tempHomeSet =  pai3_srl(srl);
 
     if(tempHomeSet == nil){ emit log("Second Encoder TimeOut In Fuc calc_diff...!"); return nil; }
-
-
 
     //타겟 엔코더 값은 homeSet에 있고 현재 엔코더 값은 tempHomeSet에 있다
 
@@ -1436,6 +1421,9 @@ qt::s::t OffsetWorker::calc_diff(){
 
     qDebug() << "diff : ";
     con_pai3(diff);
+
+
+
 
     if(!check_diffValid(diff)){ memset(diff, 0x00, 4 * 18); emit log("at least one (value > 8000) detected in diff "); return nil; }
     return qs_pai3H(diff);
@@ -1603,7 +1591,6 @@ vo::t MainWindow::on_btn_load_clicked()
 }
 
 vo::t MainWindow::tbrs_legNo(i::T _legNo){
-
 
     QList<int> recvEncVal;
     switch (_legNo){
@@ -1868,6 +1855,7 @@ vo::t MainWindow::on_usb_mmf_mmfClicked()
 {
 
     emit mmfClicked();
+
 }
 
 vo::t MainWindow::i_cb(QList<int>& ids_ ,QListWidget* _lw, i::t endNo, i::t startNo = 0){
@@ -1978,6 +1966,7 @@ void MainWindow::on_cb_release_clicked(bool checked)
 
 void MainWindow::on_btn_timeClear_clicked()
 {
+
 }
 
 
@@ -2370,6 +2359,7 @@ void MainWindow::on_btn_serialSearch_clicked()
 void MainWindow::on_btn_logClear_clicked()
 {
     ui->Edit_log->clear();
+    log("log clear");
 }
 
 void MainWindow::on_edit_serialPorts_returnPressed()
@@ -2426,5 +2416,12 @@ void MainWindow::on_btn_queueClear_clicked()
     ui->edit_cdsQue->setNum(0);
 
     log("cds queue cleared..!");
+
+}
+
+void MainWindow::on_btn_cds_send_clicked()
+{
+    i::A6 ia6 = {1, 1, 1, 0, 1, 1};
+    cdsClass_ai6("TfmCds",ia6);
 
 }

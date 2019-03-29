@@ -192,6 +192,8 @@ private slots:
 
     void on_edit_log_setText(QString _text);
 
+    void on_btn_cds_send_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

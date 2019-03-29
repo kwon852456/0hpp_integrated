@@ -1210,6 +1210,16 @@ qt::yar::t yar_req(i::t _id){
 }
 
 
+b::t check_cds(pai6::p _cdsCmd){
+    for(z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 3 ; ++j){
+            if(_cdsCmd[i][j] > 10000 || _cdsCmd[i][j] < -10000) return false;
+        }
+    }
+    return true;
+}
+
+
 
 #endif // DLL_USB_OFFSET01STT_H
 /*
