@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1253</width>
-    <height>809</height>
+    <width>1013</width>
+    <height>736</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -346,6 +346,19 @@
      </property>
      <property name="text">
       <string>S&amp;end</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_2">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>230</y>
+       <width>191</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>강제 정지</string>
      </property>
     </widget>
    </widget>
@@ -810,25 +823,12 @@
      </attribute>
     </widget>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
-    <property name="geometry">
-     <rect>
-      <x>1010</x>
-      <y>550</y>
-      <width>191</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>강제 정지</string>
-    </property>
-   </widget>
    <widget class="QTabWidget" name="tabWidget_2">
     <property name="geometry">
      <rect>
       <x>640</x>
       <y>10</y>
-      <width>571</width>
+      <width>361</width>
       <height>411</height>
      </rect>
     </property>
@@ -842,10 +842,10 @@
      <widget class="QGroupBox" name="groupBox_2">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>-10</x>
         <y>10</y>
         <width>361</width>
-        <height>301</height>
+        <height>361</height>
        </rect>
       </property>
       <property name="title">
@@ -974,67 +974,106 @@
      <attribute name="title">
       <string>Cds</string>
      </attribute>
-     <widget class="QCheckBox" name="cb_cdsListen">
+     <widget class="QGroupBox" name="groupBox_4">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>20</y>
-        <width>141</width>
-        <height>31</height>
+        <y>10</y>
+        <width>331</width>
+        <height>381</height>
        </rect>
       </property>
-      <property name="text">
-       <string>Cds Listen</string>
+      <property name="title">
+       <string>Cds</string>
       </property>
-     </widget>
-     <widget class="QWidget" name="layoutWidget">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>40</y>
-        <width>201</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_6">
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Cds Queue Size :</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="edit_cdsQue">
-         <property name="text">
-          <string>0</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QPushButton" name="btn_queueClear">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>110</y>
-        <width>201</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Queue Clear</string>
-      </property>
-     </widget>
-     <widget class="QTextEdit" name="edit_cdsTime">
-      <property name="geometry">
-       <rect>
-        <x>13</x>
-        <y>180</y>
-        <width>201</width>
-        <height>201</height>
-       </rect>
-      </property>
+      <widget class="QCheckBox" name="cb_cdsListen">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>141</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Cds Listen</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="edit_cdsQue">
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>40</y>
+         <width>92</width>
+         <height>39</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>40</y>
+         <width>101</width>
+         <height>39</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Cds Queue Size :</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="edit_TimeTaken">
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>60</y>
+         <width>110</width>
+         <height>39</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>110</width>
+         <height>39</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Cds Time Taken : </string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="btn_queueClear">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>90</y>
+         <width>201</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Queue Clear</string>
+       </property>
+      </widget>
+      <widget class="QTextEdit" name="edit_cdsTime">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>140</y>
+         <width>201</width>
+         <height>201</height>
+        </rect>
+       </property>
+      </widget>
      </widget>
     </widget>
    </widget>
@@ -1044,7 +1083,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1253</width>
+     <width>1013</width>
      <height>21</height>
     </rect>
    </property>

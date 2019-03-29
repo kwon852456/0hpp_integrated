@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     sendTimer    -> setInterval (1000);
     srl_fileTimer-> setInterval (1000);
-    cdsTimer     ->setInterval  (10  );
+    cdsTimer     -> setInterval (10  );
 
     init_tbrs ();
     init_lv   ();
@@ -263,6 +263,7 @@ vo::t MainWindow::timeTaken(i::t _time){
 
     ui->edit_time->append(qt::s_i(_time) );
     ui->edit_cdsTime->append(qt::s_i(_time));
+    ui->edit_TimeTaken->setNum(_time);
 
 }
 
@@ -2427,6 +2428,7 @@ void MainWindow::on_pushButton_2_clicked()
 void MainWindow::on_btn_queueClear_clicked()
 {
     cmds.clear();
+    cdsQueSize = 0;
     ui->edit_cdsQue->setNum(0);
     log("cds queue cleared..!");
 
