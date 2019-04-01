@@ -410,6 +410,25 @@ qt::s::t s_pai3(pai3::p _pai3, h::T _h){
      return text;
 }
 
+i::t (*pai6_pai3( pai3::p _pai3))[6]{
+
+    pai6::p pai6_ = new i::t[6][6]{  {0},{0},{0},{0},{0},{0},  };
+
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        for(z::t j(0) ; j < 6 ; ++j){
+
+            pai6_[i][j] = j < 3 ? _pai3[i][j] : 32;
+
+        }
+    }
+
+    delete[] _pai3;
+    return pai6_;
+}
+
+
+
 
 qt::s::t save_pai3(pai3::p _pai3, h::T _h, qt::s::T _fn = "OFFSET.txt"){
 

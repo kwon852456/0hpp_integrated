@@ -65,8 +65,9 @@ public:
     Dll_usb_mmf01stl* stl;
     bool isSended = false;
     bool tbrEnded = true;
-    int cdsQueSize = 0;
     int idxSizeCommands;
+    int cdsQueSize = 0;
+    bool isAutoMode = false;
 
 
 signals:
@@ -327,6 +328,7 @@ public slots:
     void thsri_qai36(QList<int> _qai3, int _legNo);
     void legsToOrigin();
     void connectSixSrlNo(QList<int> _legsPortNo);
+    QList<int> findPorts(QList<int> _liPorts);
 
 };
 
