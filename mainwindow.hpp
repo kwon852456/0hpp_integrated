@@ -46,7 +46,7 @@ public:
     void cb_fn(QString _fn);
     QList<int> li_legsVal();
     void thsrl_pai6(int (*_commands)[6]);
-
+    void doAutoStart();
 
 
     QThread* wThread;
@@ -167,8 +167,6 @@ private slots:
 
     void timeTaken(int _time);
 
-    void on_btn_timeClear_clicked();
-
     void setHomeSet(QString _text);
 
     void on_btn_CalcDiff_clicked();
@@ -191,7 +189,7 @@ private slots:
 
     void on_btn_queueClear_clicked();
 
-    void on_edit_log_setText(QString _text);
+    void onEdit_log_setText(QString _text);
 
     void on_btn_cds_send_clicked();
 
@@ -217,9 +215,6 @@ class Dll_usb_mmf01stl : public QObject{
     void srl_i(const int _iDegree, const int _id,const int _velocity);
     int  i_srl(int _id);
 
-    void thread_pai6(QFutureSynchronizer<bool> & _synchronizer ,  const int _qai6[6], int _id , int _row);
-    bool thsri_pai6(const int _ai6[6],const unsigned short _row);
-
     void thread_qai3(QFutureSynchronizer<bool> & _synchronizer ,  QList<int> _qai3,   int _id , int _row);
     void thread_qai36(QFutureSynchronizer<bool>& _synchronizer ,  QList<int> _qai3,   int _id , int _row);
 
@@ -228,7 +223,6 @@ class Dll_usb_mmf01stl : public QObject{
     bool thsri_pai3(const int _ai3[3], unsigned short _row);
 
     bool srl_commands(int (*_commands)[6] );
-    void thread_cmd(QFutureSynchronizer<bool>& _synchronizer,const int _ai6[6], int _id, int _col);
     bool thsri_cmd(const int _ai6[6], unsigned short _row);
 
     bool check_motorArrived(int (*_commands)[6] );
@@ -241,6 +235,7 @@ class Dll_usb_mmf01stl : public QObject{
     void setFirstEncZero();
     int sendSetZero(int _id);
     int checkEncIsZero(int _id);
+    void discon_srls();
 
     SerialWorker* sWorker;
     OffsetWorker* oWorker;

@@ -123,6 +123,9 @@ qt::thr::p thr_Srl(qt::srl::p _Srl, QObject *parent = nullptr){
 
 }
 
+
+
+
 qt::yar::li yarl_yar(qt::yar::t _yar){
 
     qt::yar::li li_;
@@ -318,16 +321,7 @@ void pai3_yarl(pai3::p pai3_,qt::yar::li _yarl){
 
 }
 
-b::T pai3_srl(pai3::p pai3_,qt::srl::p _srl){
 
-    debugMsg(__func__);
-
-    qt::yar::li yarl = yarl_proc(_srl);
-
-    pai3_yarl(pai3_, yarl);
-
-    return b::T1;
-}
 
 
 void mmf_pai3Val(pai3::p _pai3Val){
@@ -349,14 +343,29 @@ void OFFSET_pai3Val(pai3::p OFFSET_, pai3::p _pai3){
     }
 }
 
+b::T pai3_srl(pai3::p pai3_,qt::srl::p _srl){
+
+
+    debugMsg(__func__);
+
+    qt::yar::li yarl = yarl_proc(_srl);
+
+    pai3_yarl(pai3_, yarl);
+
+    return b::T1;
+}
+
 int (*pai3_encVal(qt::srl::p _srl))[3]{
 
     debugMsg(__func__);
+
+    qDebug() << __func__;
 
     pai3::p pai3Val = new i::t[6][3]{  {0 ,},{0 ,},{0 ,},{0 ,},{0 ,},{0 ,}  };
 
     if(_srl->waitForReadyRead(10000)){  // 2번 엔코더 읽는 대기시간
 
+        qDebug() << "_srl->waitForReadyRead(10000)" ;
         if(pai3_srl(pai3Val, _srl)){ return pai3Val; }
 
     }else{ qDebug() << "read Failed"; return nullptr; }
@@ -365,6 +374,7 @@ int (*pai3_encVal(qt::srl::p _srl))[3]{
 }
 
 int (*pai3_srl(qt::srl::p _srl))[3]{
+
 
     if(!_srl->isOpen()){ return nil; }
     if(_srl->write("e",1)){

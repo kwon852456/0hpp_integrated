@@ -44,6 +44,12 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     }
 
+    isAutoMode = true; //테스트용..! 삭제하세요!
+
+    if(isAutoMode){
+        doAutoStart();
+    }
+
 }
 
 
@@ -56,6 +62,15 @@ MainWindow::~MainWindow()
     wThread->wait();
 }
 
+vo::t MainWindow::doAutoStart(){
+
+    on_btn_serialSearch_clicked();
+    ui->cb_cdsListen->setCheckState(Qt::CheckState::Checked);
+    ui->cb_release->click();
+    ui->pushButton->click();
+
+}
+
 vo::t MainWindow::init_lw(){
 
     lw_cb(ui->lw_legs,   1, 6);
@@ -65,7 +80,7 @@ vo::t MainWindow::init_lw(){
 
 vo::t MainWindow::makeConnection(){
 
-    connect(this,              &MainWindow::write_log,            this,    &MainWindow::on_edit_log_setText      );
+    connect(this,              &MainWindow::write_log,            this,    &MainWindow::onEdit_log_setText      );
 
     connect(this,              &MainWindow::thsrl_cds,            stl,     &Dll_usb_mmf01stl::srl_pai6           );
     connect(this,              &MainWindow::thsrl_file,           stl,     &Dll_usb_mmf01stl::srl_pai6           );
@@ -99,7 +114,7 @@ vo::t MainWindow::log(qt::s::t _text){
 
 }
 
-vo::t MainWindow::on_edit_log_setText(qt::s::T _text){
+vo::t MainWindow::onEdit_log_setText(qt::s::T _text){
     ui->Edit_log->append(_text);
 };
 
@@ -233,6 +248,7 @@ b::t MainWindow::nativeEvent(const qt::yar::t &eventType, vo::p message, long *r
             log(qs_pai6(command));
             cmds.push_back(command);
             ui->edit_cdsQue->setNum(++cdsQueSize);
+
 
             if(!isCdsTimerStarted){ cdsTimer->start(); isCdsTimerStarted = true; }
 
@@ -468,18 +484,16 @@ vo::t Dll_usb_mmf01stl::srl_i(i::T _iDegree, i::T _id, i::T _velocity = 32){
 
 
 
-i::t Dll_usb_mmf01stl::i_srl(i::t _id){
+i::t Dll_usb_mmf01stl::i_srl(i::T _id){
 
-    qDebug() << "i_srl" << " _id " << _id << " Thread " << QThread::currentThread();
 
     isIsrlFinished = false;
     int recvEncVal;
     qt::yar::t arr = yar_req(_id);
 
-
     i::T legNo = _id / 10;
 
-    switch (legNo) {
+    switch (legNo){
 
     case 1:
 
@@ -541,7 +555,7 @@ i::t Dll_usb_mmf01stl::i_srl(i::t _id){
 
     }
 
-    qDebug() << "recvEncVal : " << recvEncVal;
+
 
 
     isIsrlFinished = true;
@@ -556,12 +570,16 @@ i::t Dll_usb_mmf01stl::i_srl(i::t _id){
     case 99998:
 
         qDebug() << "Serial Port timed out...!    ";
-        return 99999;
+        return 99998;
 
     case 99997:
 
         qDebug() << "Serial Port is not opened...!";
-        return 99999;
+        return 99997;
+
+    default:
+        //qDebug() << "recvEncVal : " << recvEncVal;
+        break;
 
     }
 
@@ -573,77 +591,10 @@ i::t Dll_usb_mmf01stl::i_srl(i::t _id){
 
 
 
-vo::t Dll_usb_mmf01stl::thread_pai6(QFutureSynchronizer<b::t>& _synchronizer, i::A6 _ai6, i::t _id, i::t _col){
-
-    if(_ai6[_col + 3] == 0){ qDebug() << " Motor speed zero on id : " << _id;  return; }
-
-    _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
-
-        i::t i = 0;
-        while(1){
-
-            i::t current = i_srl(_id);
-
-            if( !( (_ai6[_col] - 100) < current && (_ai6[_col] + 100) >  current) ){  srl_i(_ai6[_col], _id, _ai6[_col + 3]);  }
-            else {   break;  }
-
-            qDebug() << "_ai6[_col]" << _ai6[_col] << "current" << current;
-
-            if(i > 0)
-                qDebug() << " waiting for motor to be placed where it should be... try : " + i;
-            i++;
-        }
-
-        emit log("id  " + qt::s_i(_id) + "  send val : " + qt::s_i(_ai6[_col]) + "  motor Encoder value : " + qt::s_i(i_srl(_id)));
-
-    return b::T1;
-
-    }));
-}
-
-
-
-
-
-b::t Dll_usb_mmf01stl::thsri_pai6(i::A6 _ai6, h::T _row){
-
-
-    QFutureSynchronizer<b::t> synchronizer;
-
-    for(i::t col : cols){
-
-        int id = (_row + 1) * 10 + (col + 1);
-
-        thread_pai6(synchronizer, _ai6, id, col);
-
-    }
-
-    synchronizer.waitForFinished();
-
-    return b::T0;
-
-}
-
-
-
-
-
-
-
-
-vo::t Dll_usb_mmf01stl::thread_cmd(QFutureSynchronizer<b::t>& _synchronizer, i::A6 _ai6, i::t _id, i::t _col){
-
-
-}
-
-
-
 
 
 
 b::t Dll_usb_mmf01stl::thsri_cmd(i::A6 _ai6, h::T _row){
-
-
 
 
     QFutureSynchronizer<void> synchronizer;
@@ -652,16 +603,13 @@ b::t Dll_usb_mmf01stl::thsri_cmd(i::A6 _ai6, h::T _row){
 
     for(i::T motor : col){
 
-        qDebug() << "col : " << motor << " current Thread : " << QThread::currentThread();
         int id = (((_row + 1) * 10) + (motor + 1));
 
         synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
 
-            qDebug() << "current Thread : " << QThread::currentThread();
             srl_i(_ai6[motor], id, _ai6[motor + 3]);
 
             emit log("CMD ->  id  " + qt::s_i(id) + "  send val : " + qt::s_i(_ai6[motor]) + " _ai6[_col + 3] " + qt::s_i(_ai6[motor + 3]));
-
 
         }));
 
@@ -691,11 +639,9 @@ b::t Dll_usb_mmf01stl::srl_commands(pai6::p _commands){
 
         synchronizer.addFuture(QtConcurrent::run([=](){
 
-                qDebug() << "one leg row : " << row << QThread::currentThread();
-
                 i::a6 ia6 = {0, };
                 ia6_pai6(ia6, _commands, row);
-                if(ia6[3] + ia6[4] + ia6[5] == 0){ qDebug() << "speed for three legs are all zero"; return b::T0; }
+                if(ia6[3] + ia6[4] + ia6[5] == 0){  return b::T0; }
                 thsri_cmd(ia6, row);
 
                 return b::T1;
@@ -718,11 +664,16 @@ vo::t Dll_usb_mmf01stl::thread_motorArrived(QFutureSynchronizer<b::t>& _synchron
     _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
 
         i::t encVal = i_srl(_id);
+        i::T sendVal = (*_ai6)[_col];
+        i::T velocity = (*_ai6)[_col + 3];
 
-        emit log("id  " + qt::s_i(_id) + "  motor Encoder value : " + qt::s_i(encVal) );
+        if(encVal == 99999){ log( " wrong EncVal from Id : " +  qt::s_i(_id) ); return b::T1;  }
+        else if(encVal == 99998 || encVal == 99997){ log(" Serial Error from Id : " +  qt::s_i(_id) ); return b::T0; }
 
-        if((*_ai6)[_col] - 100 < encVal && encVal < (*_ai6)[_col] + 100){ (*_ai6)[_col + 3] = 0; }
-        qDebug() << "(*_ai6)[_col] : " << (*_ai6)[_col] << "encVal : " << encVal << "(*_ai6)[_col + 3] = 0 : " << (*_ai6)[_col + 3] ;
+        emit log("id  " + qt::s_i(_id) + " motor Encoder value : " + qt::s_i(encVal) );
+
+        if(sendVal - 100 < encVal && encVal < sendVal + 100){ (*_ai6)[_col + 3] = 0; }
+        qDebug() << "id : " << _id << " sendVal : " << sendVal << " encVal : " << encVal << " velocity : " << velocity;
 
     return b::T1;
 
@@ -748,8 +699,12 @@ b::t Dll_usb_mmf01stl::thsri_motorArrived(pai6::p& _ai6, h::T _row){
     }
 
     synchronizer.waitForFinished();
+    for(z::t i(0) ; i < cols.size() ; ++i){
+        if(synchronizer.futures()[i] == b::T0) { return b::T0; }
+    }
 
-    return b::T0;
+
+    return b::T1;
 
 }
 
@@ -802,15 +757,20 @@ b::t Dll_usb_mmf01stl::check_motorArrived(pai6::p _commands){
                 pai6::p ia6 = nil;
                 ip6_pai6(ia6, _commands, row);
 
-                if((*ia6)[3] + (*ia6)[4] + (*ia6)[5] == 0){ qDebug() << "speed for three legs are all zero"; return b::T0; }
-                thsri_motorArrived(ia6, row);
+                if((*ia6)[3] + (*ia6)[4] + (*ia6)[5] == 0){ qDebug() << "speed for three legs are all zero in leg : " << row + 1; return b::T1; }
+                if(!thsri_motorArrived(ia6, row)) { return b::T0; }
 
                 return b::T1;
         }));
     }
 
     synchronizer.waitForFinished();
-    return true;
+
+    for(z::t i(0) ; i < rows.size() ; ++i){
+        if(synchronizer.futures()[i] == b::T0) { return b::T0; }
+    }
+
+    return b::T1;
 }
 
 b::t Dll_usb_mmf01stl::isSpeedZero_cmd(pai6::p _pai6){
@@ -837,10 +797,11 @@ b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
 
     i::t tryCounter = 0;
 
+
     for(z::t i(0) ; i < 100 ; ++i){
 
         srl_commands(cmd);
-        check_motorArrived(cmd);
+        if( !check_motorArrived(cmd) ){ isFinished = !isFinished; qDebug() << "Serial Error.....!"; log("Serial Error..!"); return b::T0; };
 
         if(isSpeedZero_cmd(cmd)){ break; };
 
@@ -1126,7 +1087,7 @@ vo::t Dll_usb_mmf01stl::setFirstEncZero(){
 
     for(i::T id : ids){
 
-        if( (checkEncIsZero(id) < -100 || checkEncIsZero(id) > 100) ){ emit log("Encoder Reset Failed...! id : " + qt::s_i(id));  }
+        if( (checkEncIsZero(id) < -100 || checkEncIsZero(id) > 100) ){ emit log( "Encoder Reset Failed...! id : " + qt::s_i(id));  }
 
     }
 
@@ -1144,7 +1105,7 @@ vo::t Dll_usb_mmf01stl::legsToOrigin(){
 
     pai6::p diff = pai6_pai3(pai3_qs(sDiff));
 
-    srl_pai6(pp_pai6(diff));
+    if(!srl_pai6(pp_pai6(diff))){log("Serial error on legsToOrigin"); return; };
 
     setFirstEncZero();
 
@@ -1154,15 +1115,38 @@ vo::t Dll_usb_mmf01stl::legsToOrigin(){
 vo::t Dll_usb_mmf01stl::connectSixSrlNo(QList<int> _legsPortNo){
 
     qDebug() << __func__;
-
     qDebug() << "_legsPortNo : " << _legsPortNo;
 
-    emit openFirstLegPort ("COM" + qt::s_i(_legsPortNo[0]));
-    emit openSecondLegPort("COM" + qt::s_i(_legsPortNo[1]));
-    emit openThirdLegPort ("COM" + qt::s_i(_legsPortNo[2]));
-    emit openFourthLegPort("COM" + qt::s_i(_legsPortNo[3]));
-    emit openFifthLegPort ("COM" + qt::s_i(_legsPortNo[4]));
-    emit openSixthLegPort ("COM" + qt::s_i(_legsPortNo[5]));
+    discon_srls();
+
+    emit openFirstLegPort  ("COM" + qt::s_i(_legsPortNo[0]));
+    emit openSecondLegPort ("COM" + qt::s_i(_legsPortNo[1]));
+    emit openThirdLegPort  ("COM" + qt::s_i(_legsPortNo[2]));
+    emit openFourthLegPort ("COM" + qt::s_i(_legsPortNo[3]));
+    emit openFifthLegPort  ("COM" + qt::s_i(_legsPortNo[4]));
+    emit openSixthLegPort  ("COM" + qt::s_i(_legsPortNo[5]));
+
+
+}
+
+void discon_serial(SerialWorker* _sWorker){
+    _sWorker->port->close();
+}
+
+void discon_offsetSerial(OffsetWorker* _oWorker){
+    _oWorker->srl->close();
+}
+
+
+void Dll_usb_mmf01stl::discon_srls(){
+
+    discon_offsetSerial(oWorker);
+    discon_serial(sWorkerLeg1);
+    discon_serial(sWorkerLeg2);
+    discon_serial(sWorkerLeg3);
+    discon_serial(sWorkerLeg4);
+    discon_serial(sWorkerLeg5);
+    discon_serial(sWorkerLeg6);
 
 }
 
@@ -1170,105 +1154,149 @@ QList<int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
     qDebug() << __func__;
     qDebug() << "_liPorts : " << _liPorts;
 
+    discon_srls();
+
+    qDebug() << "_liports before " << _liPorts;
 
     QList<int> liPorts_;
     i::T legNumber = 6;
+    i::T otherSerialPortNo = 1;
 
-    for(z::t i(0) ; i < legNumber ; ++i){
+
+    for(z::t i(0) ; i < legNumber + otherSerialPortNo ; ++i){
 
         switch (i){
+
         case 0:
 
-            for(z::t i(0) ; i < _liPorts.size() ; ++i){
+            for(z::t j(0) ; j < _liPorts.size() ; ++j)
+            {
 
-                emit openFirstLegPort("COM" + qt::s_i(_liPorts[i]));
+                discon_srls();
+                emit openFirstLegPort("COM" + qt::s_i(_liPorts[j]));
 
-                if( i_srl(11) != 99999 ){ qDebug() << "Serial Number : " << _liPorts[i] << " Connected To Leg : " << legNumber + 1   ; liPorts_.append(_liPorts[i]);
-                    _liPorts.removeAt(i);
+                i::T res = i_srl(11);
+
+                if( res != 99999 && res != 99998 && res != 99997  ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1   ; liPorts_.append(_liPorts[j]);
+                    _liPorts.removeAt(j);
                     break;
-                }
-
+                }else{ }
+                Sleep(100);
             }
 
             break;
 
         case 1:
 
-            for(z::t i(0) ; i < _liPorts.size() ; ++i){
+            for(z::t j(0) ; j < _liPorts.size() ; ++j){
 
-                emit openSecondLegPort("COM" + qt::s_i(_liPorts[i]));
+                discon_srls();
+                emit openSecondLegPort("COM" + qt::s_i(_liPorts[j]));
 
-                if( i_srl(21) != 99999 ){ qDebug() << "Serial Number : " << _liPorts[i] << " Connected To Leg : " << legNumber + 1 ; liPorts_.append(_liPorts[i]);
-                    _liPorts.removeAt(i);
+                i::T res = i_srl(21);
+
+                if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
+                    _liPorts.removeAt(j);
                     break;
-                }
-
+                }else{ }
+                Sleep(100);
             }
+
             break;
 
         case 2:
 
-            for(z::t i(0) ; i < _liPorts.size() ; ++i){
+            for(z::t j(0) ; j < _liPorts.size() ; ++j){
 
-                emit openThirdLegPort("COM" + qt::s_i(_liPorts[i]));
+                discon_srls();
+                emit openThirdLegPort("COM" + qt::s_i(_liPorts[j]));
 
-                if( i_srl(31) != 99999 ){ qDebug() << "Serial Number : " << _liPorts[i] << " Connected To Leg : " << legNumber + 1 ; liPorts_.append(_liPorts[i]);
-                    _liPorts.removeAt(i);
+                i::T res = i_srl(31);
+
+                if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
+                    _liPorts.removeAt(j);
                     break;
-                }
-
+                }else{ }
+                Sleep(100);
             }
+
             break;
 
         case 3:
 
-            for(z::t i(0) ; i < _liPorts.size() ; ++i){
+            for(z::t j(0) ; j < _liPorts.size() ; ++j){
 
-                emit openFourthLegPort("COM" + qt::s_i(_liPorts[i]));
+                discon_srls();
+                emit openFourthLegPort("COM" + qt::s_i(_liPorts[j]));
 
-                if( i_srl(41) != 99999 ){ qDebug() << "Serial Number : " << _liPorts[i] << " Connected To Leg : " << legNumber + 1 ; liPorts_.append(_liPorts[i]);
-                    _liPorts.removeAt(i);
+                i::T res = i_srl(41);
+
+                if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
+                    _liPorts.removeAt(j);
                     break;
-                }
-
+                }else{ }
+                Sleep(100);
             }
 
             break;
 
         case 4:
 
-            for(z::t i(0) ; i < _liPorts.size() ; ++i){
+            for(z::t j(0) ; j < _liPorts.size() ; ++j){
 
-                emit openFifthLegPort("COM" + qt::s_i(_liPorts[i]));
+                discon_srls();
+                emit openFifthLegPort("COM" + qt::s_i(_liPorts[j]));
 
-                if( i_srl(51) != 99999 ){ qDebug() << "Serial Number : " << _liPorts[i] << " Connected To Leg : " << legNumber + 1 ; liPorts_.append(_liPorts[i]);
-                    _liPorts.removeAt(i);
+                i::T res = i_srl(51);
+
+                if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
+                    _liPorts.removeAt(j);
                     break;
-                }
-
+                }else{ }
+                Sleep(100);
             }
+
             break;
 
         case 5:
 
-            for(z::t i(0) ; i < _liPorts.size() ; ++i){
+            for(z::t j(0) ; j < _liPorts.size() ; ++j){
 
-                emit openSixthLegPort("COM" + qt::s_i(_liPorts[i]));
+                discon_srls();
+                emit openSixthLegPort("COM" + qt::s_i(_liPorts[j]));
 
-                if( i_srl(61) != 99999 ){ qDebug() << "Serial Number : " << _liPorts[i] << " Connected To Leg : " << legNumber + 1 ; liPorts_.append(_liPorts[i]);
-                    _liPorts.removeAt(i);
+                i::T res = i_srl(61);
+
+                if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
+                    _liPorts.removeAt(j);
                     break;
-                }
-
+                }else{ }
+                Sleep(100);
             }
 
             break;
+
+        case 6:
+
+//            for(z::t j(0) ; j < _liPorts.size() ; ++j){         절대 엔코더 혹은 바닥 감지 스위치 감지할 시리얼 포트 확인. 핑 기능 요구할것.혹은 바닥스위치 피드백 보낼것
+
+//                discon_srls();
+//                emit openSecondSerial("COM" + qt::s_i(_liPorts[j]));
+
+//                if( i_srl(61) != 99999 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
+//                    _liPorts.removeAt(j);
+//                    break;
+//                }
+
+//            }
+
+            break;
         }
+
+
     }
 
-
-
-
+    qDebug() << "after sorted : " << _liPorts;
 
     return liPorts_;
 }
@@ -1323,7 +1351,7 @@ int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
     if(!port->isOpen()) return 99997;
     if(port->write(_req)){
 
-        if(!port->waitForReadyRead(1000)){
+        if(!port->waitForReadyRead(500)){
 
             qDebug() << " response time out from id : "   + qt::s_i(_id)  +    "..! try again..!"   ;
             emit log   (" response time out from id : "   + qt::s_i(_id)  +    "..! try again..!"   );
@@ -1499,7 +1527,7 @@ vo::t OffsetWorker::onReadOffset(){
 
     pai3::p tempHomeset =  pai3_srl(srl);
 
-    if(tempHomeset == nil){ emit log("Second Encoder Timeout..! "); return;}
+    if(tempHomeset == nil){ emit log("Second Encoder Timeout..! OR Serial is not Opened..!"); return;}
 
     memcpy(homeSet, tempHomeset, 18*4);
 
@@ -2136,11 +2164,6 @@ void MainWindow::on_cb_release_clicked(bool checked)
 
 }
 
-void MainWindow::on_btn_timeClear_clicked()
-{
-
-}
-
 
 
 
@@ -2380,22 +2403,21 @@ void MainWindow::on_btn_setLegsToZero_clicked()
 
 void MainWindow::on_btn_legCon_clicked()
 {
+    if( liPorts.size() < 6 ){  return; }
+
     QList<int> srlNo;
+    srlNo.swap(liPorts);
 
-    srlNo.append(qt::i_s(ui->cb_leg1->currentText()));
-    srlNo.append(qt::i_s(ui->cb_leg2->currentText()));
-    srlNo.append(qt::i_s(ui->cb_leg3->currentText()));
-    srlNo.append(qt::i_s(ui->cb_leg4->currentText()));
-    srlNo.append(qt::i_s(ui->cb_leg5->currentText()));
-    srlNo.append(qt::i_s(ui->cb_leg6->currentText()));
+    //qDebug() << "liPorts[6] : " << liPorts[6];
 
-    emit openSecondSerial("COM" + ui->cb_enc2->currentText());
+//    emit openSecondSerial( "COM" + liPorts[6] );
+    emit connectSixSrlNo ( srlNo );
 
-    emit connectSixSrlNo(srlNo);
 }
 
 void MainWindow::on_btn_portSave_clicked()
 {
+
     QString temp;
     QString port;
 
@@ -2522,20 +2544,34 @@ void MainWindow::on_btn_serialSearch_clicked()
 
     ////////////////포트 자동 잡기 시작 ////////////////////////
 
+
+    for(z::t i(0) ; i < 6 ; ++i){
+
+        liPorts.append(8);
+
+    }
+
     QList<int> sortedPortLi;
     QMetaObject::invokeMethod(stl,"findPorts", Qt::BlockingQueuedConnection,
                               Q_RETURN_ARG(QList<int>, sortedPortLi),
                               Q_ARG(QList<int>,liPorts));
 
-    qDebug() << sortedPortLi << endl;
+
+
+    qDebug() << "sortedPortLi : " << sortedPortLi << endl;
 
 
 
 
     ////////////////포트 자동 잡기 끝 ////////////////////////
 
-    ui->edit_serialPorts->setText(qs_li(liPorts));
+    if(sortedPortLi.size() >= 6){ qDebug() << "size of sortedPortLi : " << sortedPortLi.size();
 
+        liPorts.swap(sortedPortLi);
+        on_btn_legCon_clicked();
+    }
+
+    ui->edit_serialPorts->setText(qs_li(sortedPortLi));
 
 }
 
@@ -2578,10 +2614,10 @@ void MainWindow::on_edit_serialPorts_returnPressed()
         ui->cb_enc2->addItem(qt::qs_s(vs[6]));
 
     }else{
+
         log(" serial port names != 7 ");
+
     }
-
-
 
 
 }
