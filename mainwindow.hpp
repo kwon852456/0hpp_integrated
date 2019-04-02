@@ -89,6 +89,7 @@ signals:
     void legsToOrigin();
 
     void connectSixSrlNo(QList<int> _legsPortNo);
+    void errorSetText(QString _text);
 
 
 private slots:
@@ -192,6 +193,12 @@ private slots:
     void onEdit_log_setText(QString _text);
 
     void on_btn_cds_send_clicked();
+
+    void on_btn_resetProgam_clicked();
+
+    void on_btn_clearTimeTable_clicked();
+
+    void onErrorSetText(QString _text);
 
 private:
     Ui::MainWindow *ui;

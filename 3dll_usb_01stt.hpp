@@ -8,7 +8,7 @@
 #include <QMutex>
 #include <QThread>
 #include <6qtu9.hpp>
-#include "ui_mainwindow.h"
+//#include "ui_mainwindow.h"
 
 using namespace rv2;
 

@@ -47,6 +47,11 @@ MainWindow::MainWindow(QWidget *parent) :
     isAutoMode = true; //테스트용..! 삭제하세요!
 
     if(isAutoMode){
+
+        ui->cb_cdsListen->setCheckState(Qt::CheckState::Checked);
+        ui->cb_release->click();
+        ui->pushButton->click();
+
         doAutoStart();
     }
 
@@ -65,9 +70,7 @@ MainWindow::~MainWindow()
 vo::t MainWindow::doAutoStart(){
 
     on_btn_serialSearch_clicked();
-    ui->cb_cdsListen->setCheckState(Qt::CheckState::Checked);
-    ui->cb_release->click();
-    ui->pushButton->click();
+
 
 }
 
@@ -81,6 +84,7 @@ vo::t MainWindow::init_lw(){
 vo::t MainWindow::makeConnection(){
 
     connect(this,              &MainWindow::write_log,            this,    &MainWindow::onEdit_log_setText      );
+    connect(this,              &MainWindow::errorSetText,         this,    &MainWindow::onErrorSetText          );
 
     connect(this,              &MainWindow::thsrl_cds,            stl,     &Dll_usb_mmf01stl::srl_pai6           );
     connect(this,              &MainWindow::thsrl_file,           stl,     &Dll_usb_mmf01stl::srl_pai6           );
@@ -181,6 +185,10 @@ vo::t MainWindow::fileTimerTimeOut(){
 
 }
 
+vo::t MainWindow::onErrorSetText(qt::s::t _text){
+
+    ui->edit_error->setText(_text);
+}
 
 
 
@@ -224,7 +232,7 @@ vo::t MainWindow::sendCds(){
             cmds.pop_front();
             ui->edit_cdsQue->setNum(--cdsQueSize);
 
-            if(!check_cds(command)){ log(" wrong value detected in cds..! "); return; }
+            if(!check_cds(command)){ log("wrong value detected in cds..! "); return; }
 
             check_commandValid(command, li_Val[0],  li_Val[1], li_Val[2], li_Val[3], li_Val[4], li_Val[5]);
 
@@ -668,7 +676,7 @@ vo::t Dll_usb_mmf01stl::thread_motorArrived(QFutureSynchronizer<b::t>& _synchron
         i::T velocity = (*_ai6)[_col + 3];
 
         if(encVal == 99999){ log( " wrong EncVal from Id : " +  qt::s_i(_id) ); return b::T1;  }
-        else if(encVal == 99998 || encVal == 99997){ log(" Serial Error from Id : " +  qt::s_i(_id) ); return b::T0; }
+        else if(encVal == 99998 || encVal == 99997){ log("Serial Error from Id : " +  qt::s_i(_id) ); return b::T0; }
 
         emit log("id  " + qt::s_i(_id) + " motor Encoder value : " + qt::s_i(encVal) );
 
@@ -801,7 +809,7 @@ b::t Dll_usb_mmf01stl::srl_pai6(int** _pai6){
     for(z::t i(0) ; i < 100 ; ++i){
 
         srl_commands(cmd);
-        if( !check_motorArrived(cmd) ){ isFinished = !isFinished; qDebug() << "Serial Error.....!"; log("Serial Error..!"); return b::T0; };
+        if( !check_motorArrived(cmd) ){ isFinished = !isFinished; qDebug() << "Serial Error.....!"; return b::T0; };
 
         if(isSpeedZero_cmd(cmd)){ break; };
 
@@ -1478,6 +1486,8 @@ vo::t SerialWorker::setSerialPort(QString _comPort){
 
 }
 
+
+
 vo::t SerialWorker::tempSave(qt::s::t _fn){
 
     save_srl(port, ids, OFFSET, _fn);
@@ -1596,7 +1606,7 @@ b::t check_diffValid(pai3::p _diff){
 qt::s::t OffsetWorker::calc_diff(){
     pai3::p tempHomeSet =  pai3_srl(srl);
 
-    if(tempHomeSet == nil){ emit log("Second Encoder TimeOut In Fuc calc_diff...!"); return nil; }
+    if( tempHomeSet == nil ){ emit log("Second Encoder TimeOut In Fuc calc_diff...!"); return nil; }
 
     //타겟 엔코더 값은 homeSet에 있고 현재 엔코더 값은 tempHomeSet에 있다
 
@@ -1741,9 +1751,9 @@ vo::t MainWindow::srl_ai3(){
 
         int iFirstLeg = -1,        iSecondLeg = -1,         iThirdLeg = -1;
 
-        if(ui->cb_firstLeg->isChecked())  iFirstLeg  =  ui->tbr_firstLeg->value()     * 100 - OFFSET[row][0];
+        if(ui->cb_firstLeg ->isChecked())  iFirstLeg  =  ui->tbr_firstLeg->value()     * 100 - OFFSET[row][0];
         if(ui->cb_secondLeg->isChecked()) iSecondLeg = ui->tbr_secondLeg->value()     * 100 - OFFSET[row][1];
-        if(ui->cb_thirdLeg->isChecked())  iThirdLeg  =  ui->tbr_thirdLeg->value()     * 100 - OFFSET[row][2];
+        if(ui->cb_thirdLeg ->isChecked())  iThirdLeg  =  ui->tbr_thirdLeg->value()     * 100 - OFFSET[row][2];
 
         QList<int> qai3 = { iFirstLeg, iSecondLeg, iThirdLeg };
 
@@ -2403,14 +2413,14 @@ void MainWindow::on_btn_setLegsToZero_clicked()
 
 void MainWindow::on_btn_legCon_clicked()
 {
-    if( liPorts.size() < 6 ){  return; }
+    if( liPorts.size() < 6 ){ emit errorSetText("connectable ports number < 6 "); return; }
 
     QList<int> srlNo;
     srlNo.swap(liPorts);
 
-    //qDebug() << "liPorts[6] : " << liPorts[6];
+    qDebug() << "liPorts[6] : " << liPorts[6];
 
-//    emit openSecondSerial( "COM" + liPorts[6] );
+    emit openSecondSerial( "COM" + liPorts[6] );
     emit connectSixSrlNo ( srlNo );
 
 }
@@ -2494,8 +2504,10 @@ void MainWindow::on_btn_portLoad_clicked()
 
 void MainWindow::on_btn_serialSearch_clicked()
 {
+    stl->discon_srls();
 
     liPorts.clear();
+
     clearComboBox(ui->cb_leg1);
     clearComboBox(ui->cb_leg2);
     clearComboBox(ui->cb_leg3);
@@ -2512,9 +2524,8 @@ void MainWindow::on_btn_serialSearch_clicked()
     srl->setStopBits    (QSerialPort::OneStop);
     srl->setFlowControl (QSerialPort::NoFlowControl);
 
-    liPorts.append(-1);
-
     for(z::t i(0) ; i < 50 ; ++i){
+
         srl->setPortName    ("COM" +  qt::s_i(i));
 
         if(!srl->open       (QIODevice  ::ReadWrite)){
@@ -2545,13 +2556,8 @@ void MainWindow::on_btn_serialSearch_clicked()
     ////////////////포트 자동 잡기 시작 ////////////////////////
 
 
-    for(z::t i(0) ; i < 6 ; ++i){
-
-        liPorts.append(8);
-
-    }
-
     QList<int> sortedPortLi;
+
     QMetaObject::invokeMethod(stl,"findPorts", Qt::BlockingQueuedConnection,
                               Q_RETURN_ARG(QList<int>, sortedPortLi),
                               Q_ARG(QList<int>,liPorts));
@@ -2563,21 +2569,36 @@ void MainWindow::on_btn_serialSearch_clicked()
 
 
 
+
     ////////////////포트 자동 잡기 끝 ////////////////////////
 
     if(sortedPortLi.size() >= 6){ qDebug() << "size of sortedPortLi : " << sortedPortLi.size();
 
+        ui->edit_serialPorts->setText(qs_li(sortedPortLi));
+
         liPorts.swap(sortedPortLi);
         on_btn_legCon_clicked();
+
+    }else{
+
+        qDebug() << "Serial port init error...!";
+
+        emit errorSetText("Serial port init error...!");
+        emit errorSetText("connectable ports number : "+ qt::s_i(sortedPortLi.size()) +" ,  sorted Port No : " + qs_li(sortedPortLi));
+
+        ui->edit_serialPorts->setText(qs_li(liPorts));
+
     }
 
-    ui->edit_serialPorts->setText(qs_li(sortedPortLi));
+    emit write_log("sorted Port No : " + qs_li(sortedPortLi));
+
 
 }
 
 void MainWindow::on_btn_logClear_clicked()
 {
     ui->Edit_log->clear();
+    ui->edit_error->clear();
     log("log clear");
 }
 
@@ -2593,7 +2614,7 @@ void MainWindow::on_edit_serialPorts_returnPressed()
         qDebug() << QString::fromStdString(s);
     }
 
-    if(vs.size() == 7 ){
+    if(vs.size() >= 6 ){
 
         liPorts.clear();
         clearComboBox(ui->cb_leg1);
@@ -2615,7 +2636,8 @@ void MainWindow::on_edit_serialPorts_returnPressed()
 
     }else{
 
-        log(" serial port names != 7 ");
+        log("serial port names != 7 ");
+        emit errorSetText( "serial port names < 6 " );
 
     }
 
@@ -2624,8 +2646,10 @@ void MainWindow::on_edit_serialPorts_returnPressed()
 
 void MainWindow::on_pushButton_2_clicked()
 {
+
       wThread->terminate();
       wThread->wait();
+
 }
 
 void MainWindow::on_btn_queueClear_clicked()
@@ -2643,4 +2667,14 @@ void MainWindow::on_btn_cds_send_clicked()
     i::A6 ia6 = {1, 1, 1, 0, 1, 1};
     cdsClass_ai6("TfmCds",ia6);
 
+}
+
+void MainWindow::on_btn_resetProgam_clicked()
+{
+    doAutoStart();
+}
+
+void MainWindow::on_btn_clearTimeTable_clicked()
+{
+    ui->edit_cdsTime->clear();
 }

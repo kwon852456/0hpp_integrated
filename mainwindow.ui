@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>901</width>
-    <height>733</height>
+    <height>749</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -111,7 +111,7 @@
          </rect>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -570,11 +570,24 @@
           <rect>
            <x>10</x>
            <y>170</y>
-           <width>201</width>
+           <width>211</width>
            <height>201</height>
           </rect>
          </property>
         </widget>
+       </widget>
+       <widget class="QPushButton" name="btn_clearTimeTable">
+        <property name="geometry">
+         <rect>
+          <x>770</x>
+          <y>400</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>clear</string>
+        </property>
        </widget>
       </widget>
      </widget>
@@ -1032,59 +1045,24 @@
      </widget>
     </widget>
    </widget>
-   <widget class="QGroupBox" name="groupBox_7">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>510</y>
-      <width>881</width>
-      <height>121</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Log</string>
-    </property>
-    <widget class="QTextEdit" name="Edit_log">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>861</width>
-       <height>91</height>
-      </rect>
-     </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOn</enum>
-     </property>
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
-     <property name="readOnly">
-      <bool>false</bool>
-     </property>
-     <property name="textInteractionFlags">
-      <set>Qt::TextEditorInteraction</set>
-     </property>
-    </widget>
-   </widget>
    <widget class="QPushButton" name="btn_logClear">
     <property name="geometry">
      <rect>
-      <x>810</x>
-      <y>630</y>
+      <x>680</x>
+      <y>660</y>
       <width>75</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>clear</string>
+     <string>log clear</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btn_cds_send">
     <property name="geometry">
      <rect>
-      <x>560</x>
-      <y>630</y>
+      <x>420</x>
+      <y>660</y>
       <width>241</width>
       <height>23</height>
      </rect>
@@ -1092,6 +1070,90 @@
     <property name="text">
      <string>Cds 송신 테스트 btn</string>
     </property>
+   </widget>
+   <widget class="QPushButton" name="btn_resetProgam">
+    <property name="geometry">
+     <rect>
+      <x>770</x>
+      <y>660</y>
+      <width>121</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>프로그램 초기화</string>
+    </property>
+   </widget>
+   <widget class="QTabWidget" name="tabWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>510</y>
+      <width>881</width>
+      <height>141</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>1</number>
+    </property>
+    <widget class="QWidget" name="tab_4">
+     <attribute name="title">
+      <string>Log</string>
+     </attribute>
+     <widget class="QGroupBox" name="groupBox_7">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>881</width>
+        <height>121</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <widget class="QTextEdit" name="Edit_log">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>861</width>
+         <height>91</height>
+        </rect>
+       </property>
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
+       </property>
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOff</enum>
+       </property>
+       <property name="readOnly">
+        <bool>false</bool>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::TextEditorInteraction</set>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_5">
+     <attribute name="title">
+      <string>Error</string>
+     </attribute>
+     <widget class="QTextEdit" name="edit_error">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>861</width>
+        <height>101</height>
+       </rect>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOn</enum>
+      </property>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
