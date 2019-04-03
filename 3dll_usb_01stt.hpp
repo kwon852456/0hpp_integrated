@@ -330,9 +330,6 @@ qt::yar::li yarl_proc(qt::srl::p _srl){
         debugMsg(i);
     }
 
-    qDebug() << __LINE__;
-
-
     return yarl;
 }
 
@@ -473,13 +470,20 @@ int (*pai3_srl(qt::srl::p _srl))[3]{
 
     if(!_srl->isOpen()){ qDebug() << "offset Serial is closed.." ; return nil; }
 
-    _srl->readAll();  //버퍼 비우기
+
     if(!_srl->write("S",1)){ qDebug() << "write failed....! on pai3_srl "; }
+
+    while(true){ qDebug() << "asd ";
+        if(!_srl->write("S",1)){ qDebug() << "write failed....! on pai3_srl "; }
+        if(_srl->waitForReadyRead(1000)){ _srl->readAll();}
+        else{ break; }
+    }
+
     if(_srl->write("e",1)){
 
         pai3::p pai3_ = pai3_encVal(_srl);
 
-        _srl->write("s",1);
+        _srl->write("s",1); // 멈춘 스위치 신호 다시시작
         _srl->write("s",1);
 
         return pai3_;
@@ -512,6 +516,7 @@ bool isResponded(qt::srl::p _srl){
 }
 
 bool ping_srl(qt::srl::p _srl){
+    qDebug() << __func__;
 
     if(!_srl->isOpen()){ qDebug() << "second srl is closed.. "; return b::T0 ; }
 
