@@ -130,19 +130,24 @@ qt::yar::li yarl_yar(qt::yar::t _yar){
 
     qt::yar::li li_;
     qt::yar::t temp;
-
+    i::t count = 0;
     for(auto i = _yar.cbegin() ; i != _yar.cend() ; ++i ){
         temp.clear();
         if(*i == '['){
             do{
                 temp.append(*i);
                 ++i;
-            }while(*i != ']');
-            temp.append(*i);
-            li_.append(temp);
+                if(i == _yar.cend() - 1) break;
+            }while(*i != ']' );
+
+            if(*i == ']'){
+                temp.append(*i);
+                li_.append(temp);
+            }
         }
     }
 
+    qDebug()<< "end yarl_yar ";
     return li_;
 }
 
@@ -316,12 +321,17 @@ qt::yar::li yarl_proc(qt::srl::p _srl){
     qt::yar::t temp;
 
 
-    while(_srl->waitForReadyRead(1000)){ temp.append(_srl->readAll());  }  con_yar(temp);
+    while(_srl->waitForReadyRead(1000)){ temp.append(_srl->readAll());  con_yar(temp); }
+    qDebug() << "total data from second serial";
+    con_yar(temp);
     qt::yar::li yarl = yarl_yar(temp);
 
     for(auto i : yarl){
         debugMsg(i);
     }
+
+    qDebug() << __LINE__;
+
 
     return yarl;
 }
@@ -357,8 +367,9 @@ void pai3_yarl(pai3::p pai3_,qt::yar::li _yarl){
 
 void ai6_vs(i::a6& _ai6 , std::vector<std::string>& _vs){
 
-    for(z::t i(0) ; i < 8 ; ++i){
-        _ai6[i] = i_s(_vs[i]);
+    if(_vs.size() == 0 ){ qDebug() << "_vs.size() == 0"; return; }
+    for(z::t i(0) ; i < 6 ; ++i){
+        _ai6[i] = i_s(_vs[i + 2]);
     }
 
 }
@@ -370,6 +381,8 @@ b::T pai3_srl(pai3::p pai3_,qt::srl::p _srl){
 
 
     debugMsg(__func__);
+
+
 
     qt::yar::li yarl = yarl_proc(_srl);
 
@@ -385,34 +398,54 @@ qt::yar::t yarl_srl(qt::srl::p _srl){
     qt::yar::t temp;
 
 
-    _srl->readAll();
-    while(_srl->waitForReadyRead(1000)){ temp.append(_srl->readAll());  if( temp.size() > 40 ){ break; } }  con_yar(temp);
+    while(_srl->waitForReadyRead(100)){ temp.append(_srl->readAll());  if( temp.size() > 30 ){ break; } }  con_yar(temp);
     qt::yar::li yarl = yarl_yar(temp);
 
     for(auto i : yarl){
-        debugMsg(i);
+        qDebug() << (i);
     }
 
-    return yarl[yarl.size() - 1];
+    if(yarl.size() > 0)
+        return yarl[yarl.size() - 1];
+    else{
+        return nil;
+    }
+
 }
 
 
 void ai6_yar(i::a6& _ai6 ,qt::yar::t _yar){
 
     debugMsg(__func__);
-
+qDebug() << __LINE__;
     s::v vTemp = del_basket(qs_yar(_yar));
+qDebug() << __LINE__;
     ai6_vs(_ai6, vTemp);
 
+    qDebug() << __LINE__;
 }
+
 
 b::T ai6_srl(i::a6& _ai6, qt::srl::p _srl){
     qDebug() << __func__;
 
-    qt::yar::t yar = yarl_srl(_srl);
-    ai6_yar(_ai6, yar);
+    _srl->open(QIODevice::ReadWrite);
+
+    _srl->readAll();
+    if(!_srl->isOpen()){ qDebug() << "srl closed..!"; return b::T0; }
+
+    if(_srl->waitForReadyRead(500)){
+
+        qt::yar::t yar = yarl_srl(_srl);
+        ai6_yar(_ai6, yar);
+
+    }else{ qDebug() <<"no response from second board";  return b::T0; }
 
     return b::T1;
+
+
+
+
 }
 
 
@@ -438,10 +471,18 @@ int (*pai3_encVal(qt::srl::p _srl))[3]{
 int (*pai3_srl(qt::srl::p _srl))[3]{
 
 
-    if(!_srl->isOpen()){ return nil; }
+    if(!_srl->isOpen()){ qDebug() << "offset Serial is closed.." ; return nil; }
+
+    _srl->readAll();  //버퍼 비우기
+    if(!_srl->write("S",1)){ qDebug() << "write failed....! on pai3_srl "; }
     if(_srl->write("e",1)){
 
-        return pai3_encVal(_srl);
+        pai3::p pai3_ = pai3_encVal(_srl);
+
+        _srl->write("s",1);
+        _srl->write("s",1);
+
+        return pai3_;
 
     }else{
 
@@ -474,6 +515,7 @@ bool ping_srl(qt::srl::p _srl){
 
     if(!_srl->isOpen()){ qDebug() << "second srl is closed.. "; return b::T0 ; }
 
+    _srl->readAll();
     if(_srl->write("s",1)){
 
         return isResponded(_srl);

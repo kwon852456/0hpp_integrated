@@ -829,6 +829,7 @@ vo::t Dll_usb_mmf01stl::OnReadOffset(){
 
     emit log(__func__);
     emit readOffset();
+
 }
 
 bool checkValid_pai3(pai3::p _pai6){
@@ -1118,10 +1119,8 @@ vo::t Dll_usb_mmf01stl::legsToOrigin(){
 
 vo::t Dll_usb_mmf01stl::connectSixSrlNo(QList<int> _legsPortNo){
 
-    qDebug() << __func__;
+    qDebug() << __func__ ;
     qDebug() << "_legsPortNo : " << _legsPortNo;
-
-    discon_srls();
 
     emit openFirstLegPort  ( "COM" + qt::s_i(_legsPortNo[0] ));
     emit openSecondLegPort ( "COM" + qt::s_i(_legsPortNo[1] ));
@@ -1135,6 +1134,8 @@ vo::t Dll_usb_mmf01stl::connectSixSrlNo(QList<int> _legsPortNo){
 
 
 void Dll_usb_mmf01stl::discon_srls(){
+
+    qDebug() << __func__;
 
     QMetaObject::invokeMethod(sWorkerLeg1,"closeSrl",Qt::BlockingQueuedConnection);
     QMetaObject::invokeMethod(sWorkerLeg2,"closeSrl",Qt::BlockingQueuedConnection);
@@ -1190,6 +1191,7 @@ QList<int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                     _liPorts.removeAt(j);
 
                     break;
+
                 }else{ }
 
             }
@@ -1322,12 +1324,13 @@ QList<int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
 
             }
 
+            discon_srls();
             break;
         }
     }
 
     qDebug() << "after sorted : " << _liPorts;
-    discon_srls();
+
 
 
     return liPorts_;
@@ -1381,6 +1384,7 @@ vo::t SerialWorker::onWrite_cmd(c::p _cmd){
 int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
 
     if(!port->isOpen()) return 99997;
+    port->readAll(); // 버퍼 비우기
     if(port->write(_req)){
 
         if(!port->waitForReadyRead(500)){
@@ -1396,6 +1400,7 @@ int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
     }else{  return 0; emit log( qt::qs_s(" write failed on") + qt::qs_s("onWrite_req") );   }
 
     return 99998;
+
 }
 
 i::t SerialWorker::onResetEnc(qt::yar::t _req, i::t _id){
@@ -1496,6 +1501,7 @@ vo::t SerialWorker::setSerialPort(QString _comPort){
     port->close();
     port->setPortName(_comPort);
 
+
     if(!port->open(QIODevice::ReadWrite)){
 
         qDebug() << "Serial connect failed : " + _comPort << endl;
@@ -1547,10 +1553,9 @@ vo::t SerialWorker::closeSrl(){
 OffsetWorker::OffsetWorker(QObject *parent){
 
     srl = CreateSrl(this,0);
+
     mmfTimer = new QTimer(this);
-
     mmfTimer->setInterval(333);
-
 
     connect(mmfTimer, &QTimer::timeout,  this, &OffsetWorker::onMmf_SwitchVal);
 
@@ -1570,7 +1575,7 @@ vo::t OffsetWorker::onReadOffset(){
 
     pai3::p tempHomeset =  pai3_srl(srl);
 
-    if(tempHomeset == nil){ emit log("Second Encoder Timeout..! OR Serial is not Opened..!"); return;}
+    if(tempHomeset == nil){qDebug() << "Second Encoder Timeout..! OR Serial is not Opened..!";  emit log( "Second Encoder Timeout..! OR Serial is not Opened..!" ); return;}
 
     memcpy(homeSet, tempHomeset, 18*4);
 
@@ -1603,7 +1608,7 @@ b::t OffsetWorker::onPingCheck(){
     emit log(__func__);
     b::T result = ping_srl(srl);
 
-    if(result == b::T0 ){   emit log( "Second Encoder is not responding...");   }
+    if(result == b::T0 ){ qDebug() << "Second Encoder is not responding...";   emit log( "Second Encoder is not responding...");   }
     return result;
 
 }
@@ -1628,16 +1633,26 @@ vo::t OffsetWorker::loadHomeset(qt::s::t _path){
 
 vo::t OffsetWorker::setSerialPort(QString _comPort){
 
+    qDebug() << __func__;
+
+    qDebug() << " offset setSerial Port : " + _comPort << endl;
+
+    const QString port = _comPort;
+
     srl->close();
-    srl->setPortName(_comPort);
+    srl->setPortName(port);
 
     if(!srl->open(QIODevice::ReadWrite)){
 
         emit log("Serial connect falled : " + _comPort);
 
+        qDebug() << "Serial connect falled : " + _comPort ;
+
     }else{
 
-        emit log("Serial opened : " + _comPort);
+        emit log("Offset Serial opened : " + _comPort);
+
+        qDebug() << "Offset Serial opened : " + _comPort;
     }
 
 }
@@ -1652,6 +1667,7 @@ b::t check_diffValid(pai3::p _diff){
             }
         }
     }
+
     return true;
 
 }
@@ -1699,18 +1715,36 @@ qt::s::t OffsetWorker::qs_diff(){
 }
 
 vo::t OffsetWorker::closeSrl(){
-
     srl->close();
+
+}
+QString qs_ai6(i::A6 _ai6){
+    QString result_;
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        result_ += " " + qt::s_i(_ai6[i]);
+    }
+
+    return result_;
 
 }
 
 vo::t OffsetWorker::onMmf_SwitchVal(){
     qDebug() << __func__ << endl;
 
-    i::a6 ai6_ = { 0, };
-    ai6_srl(ai6_, srl);
 
-    mmf_ai6(handle, ai6_);
+    i::a6 ai6_ = { 0, };
+    if(ai6_srl(ai6_, srl)){
+
+        qDebug() << "ai6 To mmf : " << qs_ai6(ai6_);
+
+        mmf_ai6(handle, ai6_);
+
+    }else{
+        qDebug() << "onMmf_SwitchVal Serial error..!";
+        return;
+    }
+
 
 }
 
@@ -2289,9 +2323,9 @@ void MainWindow::on_btn_legCon_clicked()
     QList<int> srlNo;
     srlNo.swap(liPorts);
 
-    qDebug() << "liPorts[6] : " << liPorts[6];
+    qDebug() << "srlNo[6] : " << srlNo[6];
 
-    emit openSecondSerial( "COM" + liPorts[6] );
+    emit openSecondSerial( "COM" + qt::s_i(srlNo[6]) );
     emit connectSixSrlNo ( srlNo );
 
 }
@@ -2425,6 +2459,19 @@ void MainWindow::on_btn_serialSearch_clicked()
 
     ////////////////포트 자동 잡기 시작 ////////////////////////
 
+    ///////////////////  디버그 코드 ////////////////////
+
+    liPorts.append(8);
+    liPorts.append(8);
+    liPorts.append(8);
+    liPorts.append(8);
+    liPorts.append(8);
+    liPorts.append(8);
+
+
+    //////////////////// 디버그 코드 끝 ////////////////////
+
+
 
     QList<int> sortedPortLi;
 
@@ -2447,7 +2494,21 @@ void MainWindow::on_btn_serialSearch_clicked()
         ui->edit_serialPorts->setText(qs_li(sortedPortLi));
 
         liPorts.swap(sortedPortLi);
-        on_btn_legCon_clicked();
+
+    ///////////////////  디버그 코드 ////////////////////
+
+    liPorts.clear();
+    liPorts.append(1);
+    liPorts.append(1);
+    liPorts.append(1);
+    liPorts.append(1);
+    liPorts.append(1);
+    liPorts.append(1);
+    liPorts.append(8);
+
+    ///////////////////  디버그 코드 ////////////////////
+
+    on_btn_legCon_clicked();
 
     }else{
 
