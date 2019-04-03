@@ -8,7 +8,7 @@
 #include <QMutex>
 #include <QThread>
 #include <6qtu9.hpp>
-//#include "ui_mainwindow.h"
+#include "ui_mainwindow.h"
 
 using namespace rv2;
 
@@ -157,21 +157,7 @@ void con_yar(qt::yar::t _yar){
     debugMsg("end data from Serial..");
 }
 
-qt::yar::li yarl_proc(qt::srl::p _srl){
-    debugMsg(__func__);
 
-    qt::yar::t temp;
-
-
-    while(_srl->waitForReadyRead(1000)){ temp.append(_srl->readAll());  }  con_yar(temp);
-    qt::yar::li yarl = yarl_yar(temp);
-
-    for(auto i : yarl){
-        debugMsg(i);
-    }
-
-    return yarl;
-}
 
 std::string qs_yar(qt::yar::t _yar){
 
@@ -179,11 +165,7 @@ std::string qs_yar(qt::yar::t _yar){
 
 }
 
-void pai3_vs(pai3::p _pai, std::vector<std::string>& _vs, i::T _row){
-    for( z::t i(0) ; i < 3 ; ++i){
-        _pai[_row][i] = (i::t)(d_s(_vs.at(i + 3)) * 100);
-    }
-}
+
 
 void con_pai3(pai3::p _pai3){
     qt::s::t temp = qt::s::T0;
@@ -303,23 +285,6 @@ i::t (*pai3_fn(qt::s::t _path, QObject* _parent))[3] {
     return pai3_;
 }
 
-s::v del_basket(s::t _String){
-    replace_s(_String,"["," ");
-    replace_s(_String,"]"," ");
-
-    return vs_s(_String, ' ');
-}
-
-void pai3_yarl(pai3::p pai3_,qt::yar::li _yarl){
-
-    debugMsg(__func__);
-
-    for(z::t i(1) ; i < 7 ; ++i){
-            s::v vTemp = del_basket(qs_yar(_yarl[i]));
-            pai3_vs(pai3_, vTemp, i - 1);
-    }
-
-}
 
 
 
@@ -343,6 +308,64 @@ void OFFSET_pai3Val(pai3::p OFFSET_, pai3::p _pai3){
     }
 }
 
+
+
+qt::yar::li yarl_proc(qt::srl::p _srl){
+    debugMsg(__func__);
+
+    qt::yar::t temp;
+
+
+    while(_srl->waitForReadyRead(1000)){ temp.append(_srl->readAll());  }  con_yar(temp);
+    qt::yar::li yarl = yarl_yar(temp);
+
+    for(auto i : yarl){
+        debugMsg(i);
+    }
+
+    return yarl;
+}
+
+
+
+
+s::v del_basket(s::t _String){
+    replace_s(_String,"["," ");
+    replace_s(_String,"]"," ");
+
+    return vs_s(_String, ' ');
+}
+
+void pai3_vs(pai3::p _pai, std::vector<std::string>& _vs, i::T _row){
+    for( z::t i(0) ; i < 3 ; ++i){
+        _pai[_row][i] = (i::t)(d_s(_vs.at(i + 3)) * 100);
+    }
+}
+
+void pai3_yarl(pai3::p pai3_,qt::yar::li _yarl){
+
+    debugMsg(__func__);
+
+    for(z::t i(1) ; i < 7 ; ++i){
+            s::v vTemp = del_basket(qs_yar(_yarl[i]));
+            pai3_vs(pai3_, vTemp, i - 1);
+    }
+
+}
+
+
+
+void ai6_vs(i::a6& _ai6 , std::vector<std::string>& _vs){
+
+    for(z::t i(0) ; i < 8 ; ++i){
+        _ai6[i] = i_s(_vs[i]);
+    }
+
+}
+
+
+
+
 b::T pai3_srl(pai3::p pai3_,qt::srl::p _srl){
 
 
@@ -354,6 +377,45 @@ b::T pai3_srl(pai3::p pai3_,qt::srl::p _srl){
 
     return b::T1;
 }
+
+
+qt::yar::t yarl_srl(qt::srl::p _srl){
+    debugMsg(__func__);
+
+    qt::yar::t temp;
+
+
+    _srl->readAll();
+    while(_srl->waitForReadyRead(1000)){ temp.append(_srl->readAll());  if( temp.size() > 40 ){ break; } }  con_yar(temp);
+    qt::yar::li yarl = yarl_yar(temp);
+
+    for(auto i : yarl){
+        debugMsg(i);
+    }
+
+    return yarl[yarl.size() - 1];
+}
+
+
+void ai6_yar(i::a6& _ai6 ,qt::yar::t _yar){
+
+    debugMsg(__func__);
+
+    s::v vTemp = del_basket(qs_yar(_yar));
+    ai6_vs(_ai6, vTemp);
+
+}
+
+b::T ai6_srl(i::a6& _ai6, qt::srl::p _srl){
+    qDebug() << __func__;
+
+    qt::yar::t yar = yarl_srl(_srl);
+    ai6_yar(_ai6, yar);
+
+    return b::T1;
+}
+
+
 
 int (*pai3_encVal(qt::srl::p _srl))[3]{
 
@@ -390,6 +452,41 @@ int (*pai3_srl(qt::srl::p _srl))[3]{
 
 }
 
+bool isResponded(qt::srl::p _srl){
+
+    qDebug() << __func__;
+
+    if(_srl->waitForReadyRead(1000)){  // 2번 엔코더 읽는 대기시간
+
+        _srl->readAll();
+        return b::T1;
+
+    }else{
+
+        qDebug() << "'s' has been sent to srl but no response arrived..." ;
+        return b::T0;
+
+    }
+
+}
+
+bool ping_srl(qt::srl::p _srl){
+
+    if(!_srl->isOpen()){ qDebug() << "second srl is closed.. "; return b::T0 ; }
+
+    if(_srl->write("s",1)){
+
+        return isResponded(_srl);
+
+    }else{
+
+        debugMsg("write failed....!");
+        return b::T0;
+    }
+
+}
+
+
 void mmf_encVal(qt::srl::p _srl){
 
     debugMsg(__func__);
@@ -423,7 +520,6 @@ qt::s::t s_pai3(pai3::p _pai3, h::T _h){
 i::t (*pai6_pai3( pai3::p _pai3))[6]{
 
     pai6::p pai6_ = new i::t[6][6]{  {0},{0},{0},{0},{0},{0},  };
-
 
     for(z::t i(0) ; i < 6 ; ++i){
         for(z::t j(0) ; j < 6 ; ++j){

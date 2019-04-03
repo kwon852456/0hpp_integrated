@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->cb_cdsListen->setCheckState(Qt::CheckState::Checked);
         ui->cb_release->click();
         ui->pushButton->click();
+        emit setSwitchMMfName(ui->edit_switchMMfName->text());
 
         doAutoStart();
     }
@@ -79,6 +80,7 @@ vo::t MainWindow::init_lw(){
     lw_cb(ui->lw_legs,   1, 6);
     lw_cb(ui->lw_motors, 1, 3);
 
+
 }
 
 vo::t MainWindow::makeConnection(){
@@ -99,6 +101,11 @@ vo::t MainWindow::makeConnection(){
     connect(this,              &MainWindow::loadHomeset,          stl,     &Dll_usb_mmf01stl::loadHomeset        );
     connect(this,              &MainWindow::legsToOrigin,         stl,     &Dll_usb_mmf01stl::legsToOrigin       );
     connect(this,              &MainWindow::connectSixSrlNo,      stl,     &Dll_usb_mmf01stl::connectSixSrlNo    );
+    connect(this,              &MainWindow::mmf_SwitchVal,        stl,     &Dll_usb_mmf01stl::Mmf_SwitchVal      );
+    connect(this,              &MainWindow::setSwitchMMfName,     stl,     &Dll_usb_mmf01stl::setSwitchMMFName   );
+    connect(this,              &MainWindow::ftSwitchStart,        stl,     &Dll_usb_mmf01stl::ftSwitchStart      );
+    connect(this,              &MainWindow::ftSwitchStop,         stl,     &Dll_usb_mmf01stl::ftSwitchStop       );
+    connect(this,              &MainWindow::setSwitchMmfDelay,    stl,     &Dll_usb_mmf01stl::setSwitchMmfDelay  );
 
 
     connect(stl,               &Dll_usb_mmf01stl::showOffset,     this,    &MainWindow::onShowOffset       );
@@ -188,6 +195,7 @@ vo::t MainWindow::fileTimerTimeOut(){
 vo::t MainWindow::onErrorSetText(qt::s::t _text){
 
     ui->edit_error->setText(_text);
+
 }
 
 
@@ -214,9 +222,6 @@ pai6::p pai6_msg(vo::p _message){
 
     return nil;
 }
-
-
-
 
 
 
@@ -322,20 +327,6 @@ vo::t MainWindow::setHomeSet(qt::s::t _homeSet){
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
 
 
@@ -393,14 +384,20 @@ Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
 
 
 
-        connect(this,    &Dll_usb_mmf01stl::mmfClicked,       sWorker, &SerialWorker::onMmfCheck_clicked  );
-        connect(this,    &Dll_usb_mmf01stl::tempSave,         sWorker, &SerialWorker::tempSave            );
+        connect(this,    &Dll_usb_mmf01stl::mmfClicked,         sWorker, &SerialWorker::onMmfCheck_clicked  );
+        connect(this,    &Dll_usb_mmf01stl::tempSave,           sWorker, &SerialWorker::tempSave            );
 
 
-        connect(this,    &Dll_usb_mmf01stl::readOffset,       oWorker, &OffsetWorker::onReadOffset        );
-        connect(this,    &Dll_usb_mmf01stl::openSecondSerial, oWorker, &OffsetWorker::setSerialPort       );
-        connect(this,    &Dll_usb_mmf01stl::saveHomeSet,      oWorker, &OffsetWorker::saveHomeSet         );
-        connect(this,    &Dll_usb_mmf01stl::loadHomeset,      oWorker, &OffsetWorker::loadHomeset         );
+        connect(this,    &Dll_usb_mmf01stl::readOffset,         oWorker, &OffsetWorker::onReadOffset        );
+        connect(this,    &Dll_usb_mmf01stl::openSecondSerial,   oWorker, &OffsetWorker::setSerialPort       );
+        connect(this,    &Dll_usb_mmf01stl::saveHomeSet,        oWorker, &OffsetWorker::saveHomeSet         );
+        connect(this,    &Dll_usb_mmf01stl::loadHomeset,        oWorker, &OffsetWorker::loadHomeset         );
+        connect(this,    &Dll_usb_mmf01stl::Mmf_SwitchVal,      oWorker, &OffsetWorker::onMmf_SwitchVal     );
+        connect(this,    &Dll_usb_mmf01stl::setSwitchMMFName,   oWorker, &OffsetWorker::setMMFName          );
+        connect(this,    &Dll_usb_mmf01stl::ftSwitchStart,      oWorker, &OffsetWorker::onFtSwitchStart     );
+        connect(this,    &Dll_usb_mmf01stl::ftSwitchStop,       oWorker, &OffsetWorker::onFtSwitchStop      );
+        connect(this,    &Dll_usb_mmf01stl::setSwitchMmfDelay,  oWorker, &OffsetWorker::onSetSwitchMmfDelay );
+
 
         connect(sWorkerLeg1, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log             );
         connect(sWorkerLeg2, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log             );
@@ -436,6 +433,7 @@ Dll_usb_mmf01stl::~Dll_usb_mmf01stl(){
     sThread->wait();
 
 };
+
 
 
 
@@ -482,14 +480,11 @@ vo::t Dll_usb_mmf01stl::srl_i(i::T _iDegree, i::T _id, i::T _velocity = 32){
         break;
 
     default :
+
         qDebug() << "legNo in srl_i is wrong..!";
 
     }
 }
-
-
-
-
 
 
 i::t Dll_usb_mmf01stl::i_srl(i::T _id){
@@ -707,6 +702,7 @@ b::t Dll_usb_mmf01stl::thsri_motorArrived(pai6::p& _ai6, h::T _row){
     }
 
     synchronizer.waitForFinished();
+
     for(z::t i(0) ; i < cols.size() ; ++i){
         if(synchronizer.futures()[i] == b::T0) { return b::T0; }
     }
@@ -720,7 +716,6 @@ vo::t Dll_usb_mmf01stl::thread_qai36(QFutureSynchronizer<b::t>& _synchronizer, Q
 
     _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
 
-
         //리셋은 보내고 끝
         srl_i(_qai3[_row], _id);
         emit log("reset sented ID: "+ qt::s_i(_id) +" ..value is : " + qt::s_i(_qai3[_row]));
@@ -728,6 +723,7 @@ vo::t Dll_usb_mmf01stl::thread_qai36(QFutureSynchronizer<b::t>& _synchronizer, Q
     return b::T1;
 
     }));
+
 }
 
 
@@ -1127,38 +1123,41 @@ vo::t Dll_usb_mmf01stl::connectSixSrlNo(QList<int> _legsPortNo){
 
     discon_srls();
 
-    emit openFirstLegPort  ("COM" + qt::s_i(_legsPortNo[0]));
-    emit openSecondLegPort ("COM" + qt::s_i(_legsPortNo[1]));
-    emit openThirdLegPort  ("COM" + qt::s_i(_legsPortNo[2]));
-    emit openFourthLegPort ("COM" + qt::s_i(_legsPortNo[3]));
-    emit openFifthLegPort  ("COM" + qt::s_i(_legsPortNo[4]));
-    emit openSixthLegPort  ("COM" + qt::s_i(_legsPortNo[5]));
+    emit openFirstLegPort  ( "COM" + qt::s_i(_legsPortNo[0] ));
+    emit openSecondLegPort ( "COM" + qt::s_i(_legsPortNo[1] ));
+    emit openThirdLegPort  ( "COM" + qt::s_i(_legsPortNo[2] ));
+    emit openFourthLegPort ( "COM" + qt::s_i(_legsPortNo[3] ));
+    emit openFifthLegPort  ( "COM" + qt::s_i(_legsPortNo[4] ));
+    emit openSixthLegPort  ( "COM" + qt::s_i(_legsPortNo[5] ));
 
 
-}
-
-void discon_serial(SerialWorker* _sWorker){
-    _sWorker->port->close();
-}
-
-void discon_offsetSerial(OffsetWorker* _oWorker){
-    _oWorker->srl->close();
 }
 
 
 void Dll_usb_mmf01stl::discon_srls(){
 
-    discon_offsetSerial(oWorker);
-    discon_serial(sWorkerLeg1);
-    discon_serial(sWorkerLeg2);
-    discon_serial(sWorkerLeg3);
-    discon_serial(sWorkerLeg4);
-    discon_serial(sWorkerLeg5);
-    discon_serial(sWorkerLeg6);
+    QMetaObject::invokeMethod(sWorkerLeg1,"closeSrl",Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg2,"closeSrl",Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg3,"closeSrl",Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg4,"closeSrl",Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg5,"closeSrl",Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg6,"closeSrl",Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(oWorker    ,"closeSrl",Qt::BlockingQueuedConnection);
+
+}
+
+bool Dll_usb_mmf01stl::ping_secondEnc(){
+
+    b::t result = b::T0;
+    QMetaObject::invokeMethod(oWorker,"onPingCheck",Qt::BlockingQueuedConnection,
+                              Q_RETURN_ARG(bool, result));
+
+    return result;
 
 }
 
 QList<int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
+
     qDebug() << __func__;
     qDebug() << "_liPorts : " << _liPorts;
 
@@ -1183,13 +1182,16 @@ QList<int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                 discon_srls();
                 emit openFirstLegPort("COM" + qt::s_i(_liPorts[j]));
 
+                Sleep(1000);
+
                 i::T res = i_srl(11);
 
                 if( res != 99999 && res != 99998 && res != 99997  ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1   ; liPorts_.append(_liPorts[j]);
                     _liPorts.removeAt(j);
+
                     break;
                 }else{ }
-                Sleep(100);
+
             }
 
             break;
@@ -1201,13 +1203,16 @@ QList<int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                 discon_srls();
                 emit openSecondLegPort("COM" + qt::s_i(_liPorts[j]));
 
+                Sleep(1000);
+
                 i::T res = i_srl(21);
 
                 if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
                     _liPorts.removeAt(j);
+
                     break;
                 }else{ }
-                Sleep(100);
+
             }
 
             break;
@@ -1219,13 +1224,16 @@ QList<int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                 discon_srls();
                 emit openThirdLegPort("COM" + qt::s_i(_liPorts[j]));
 
+                Sleep(1000);
+
                 i::T res = i_srl(31);
 
                 if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
                     _liPorts.removeAt(j);
+
                     break;
                 }else{ }
-                Sleep(100);
+
             }
 
             break;
@@ -1235,33 +1243,42 @@ QList<int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
             for(z::t j(0) ; j < _liPorts.size() ; ++j){
 
                 discon_srls();
+
+
                 emit openFourthLegPort("COM" + qt::s_i(_liPorts[j]));
+
+                Sleep(1000);
 
                 i::T res = i_srl(41);
 
                 if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
                     _liPorts.removeAt(j);
+
                     break;
                 }else{ }
-                Sleep(100);
+
             }
 
             break;
 
         case 4:
 
-            for(z::t j(0) ; j < _liPorts.size() ; ++j){
+            for(z::t j(0) ; j < _liPorts.size() ; ++j)
+            {
 
                 discon_srls();
                 emit openFifthLegPort("COM" + qt::s_i(_liPorts[j]));
+
+                Sleep(1000);
 
                 i::T res = i_srl(51);
 
                 if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
                     _liPorts.removeAt(j);
+
                     break;
                 }else{ }
-                Sleep(100);
+
             }
 
             break;
@@ -1273,38 +1290,45 @@ QList<int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                 discon_srls();
                 emit openSixthLegPort("COM" + qt::s_i(_liPorts[j]));
 
+                Sleep(1000);
+
                 i::T res = i_srl(61);
 
                 if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
                     _liPorts.removeAt(j);
+
                     break;
+
                 }else{ }
-                Sleep(100);
+
             }
 
             break;
 
         case 6:
 
-//            for(z::t j(0) ; j < _liPorts.size() ; ++j){         절대 엔코더 혹은 바닥 감지 스위치 감지할 시리얼 포트 확인. 핑 기능 요구할것.혹은 바닥스위치 피드백 보낼것
+            for(z::t j(0) ; j < _liPorts.size() ; ++j){
 
-//                discon_srls();
-//                emit openSecondSerial("COM" + qt::s_i(_liPorts[j]));
+                discon_srls();
+                emit openSecondSerial("COM" + qt::s_i(_liPorts[j]));
 
-//                if( i_srl(61) != 99999 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
-//                    _liPorts.removeAt(j);
-//                    break;
-//                }
+                Sleep(2000);
 
-//            }
+                if( ping_secondEnc() ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To SecondBoard "; liPorts_.append(_liPorts[j]);
+                    _liPorts.removeAt(j);
+
+                    break;
+                }
+
+            }
 
             break;
         }
-
-
     }
 
     qDebug() << "after sorted : " << _liPorts;
+    discon_srls();
+
 
     return liPorts_;
 }
@@ -1496,7 +1520,9 @@ vo::t SerialWorker::tempSave(qt::s::t _fn){
 
 }
 
-
+vo::t SerialWorker::closeSrl(){
+    port->close();
+}
 
 
 
@@ -1521,6 +1547,13 @@ vo::t SerialWorker::tempSave(qt::s::t _fn){
 OffsetWorker::OffsetWorker(QObject *parent){
 
     srl = CreateSrl(this,0);
+    mmfTimer = new QTimer(this);
+
+    mmfTimer->setInterval(333);
+
+
+    connect(mmfTimer, &QTimer::timeout,  this, &OffsetWorker::onMmf_SwitchVal);
+
 
 }
 
@@ -1552,6 +1585,27 @@ vo::t OffsetWorker::onReadOffset(){
 
         emit log("Serial read failed");
     }
+}
+
+vo::t OffsetWorker::setMMFName(qt::s::t _mmfName){
+    qDebug() << __func__;
+    qDebug() << _mmfName << endl;
+
+    i::a6 sus = {1, 2, 3, 4, 5 ,6};
+
+    handle = create_mmf(qt::s_qs(_mmfName), 1024);
+}
+
+
+
+b::t OffsetWorker::onPingCheck(){
+
+    emit log(__func__);
+    b::T result = ping_srl(srl);
+
+    if(result == b::T0 ){   emit log( "Second Encoder is not responding...");   }
+    return result;
+
 }
 
 
@@ -1589,7 +1643,6 @@ vo::t OffsetWorker::setSerialPort(QString _comPort){
 }
 
 
-
 b::t check_diffValid(pai3::p _diff){
 
     for(z::t i(0) ; i < 6 ; ++i){
@@ -1604,6 +1657,7 @@ b::t check_diffValid(pai3::p _diff){
 }
 
 qt::s::t OffsetWorker::calc_diff(){
+
     pai3::p tempHomeSet =  pai3_srl(srl);
 
     if( tempHomeSet == nil ){ emit log("Second Encoder TimeOut In Fuc calc_diff...!"); return nil; }
@@ -1632,9 +1686,6 @@ qt::s::t OffsetWorker::calc_diff(){
     qDebug() << "diff : ";
     con_pai3(diff);
 
-
-
-
     if(!check_diffValid(diff)){ memset(diff, 0x00, 4 * 18); emit log("at least one (value > 8000) detected in diff "); return nil; }
     return qs_pai3H(diff);
 
@@ -1647,9 +1698,44 @@ qt::s::t OffsetWorker::qs_diff(){
 
 }
 
+vo::t OffsetWorker::closeSrl(){
+
+    srl->close();
+
+}
+
+vo::t OffsetWorker::onMmf_SwitchVal(){
+    qDebug() << __func__ << endl;
+
+    i::a6 ai6_ = { 0, };
+    ai6_srl(ai6_, srl);
+
+    mmf_ai6(handle, ai6_);
+
+}
 
 
+vo::t OffsetWorker::onFtSwitchStart(){
+    qDebug() << __func__;
 
+    mmfTimer->start();
+
+}
+
+
+vo::t OffsetWorker::onFtSwitchStop(){
+    qDebug() << __func__;
+
+    mmfTimer->stop();
+
+}
+
+
+vo::t OffsetWorker::onSetSwitchMmfDelay(i::T _interval){
+    qDebug() << __func__ << "interval : " << _interval;
+
+    mmfTimer->setInterval(_interval);
+}
 
 
 
@@ -2178,221 +2264,6 @@ void MainWindow::on_cb_release_clicked(bool checked)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-////////////////////////////////////////HOME////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/////////////////////버린 함수 //////////////////////////////////////
-/*
-
-b::t Dll_usb_mmf01stl::srl_pai3(int** _pai3){
-
-
-    isFinished = !isFinished;
-
-    pai3::p cmd = pai3_pp(_pai3);
-
-    QFutureSynchronizer<b::t> synchronizer;
-
-    for(i::t row : rows){
-        synchronizer.addFuture(QtConcurrent::run([=](){
-
-                i::a3 ia3 = {0, };
-
-                ia3_pai3(ia3, cmd, row);
-                thsri_pai3(ia3, row);
-
-                return b::T1;
-        }));
-    }
-
-    emit log("");
-    emit log("end loop...");
-    emit log("");
-
-    synchronizer.waitForFinished();
-
-    isFinished = !isFinished;
-
-    delete[] cmd;
-
-    return b::T1;
-
-}
-
-
-
-
-b::t Dll_usb_mmf01stl::thsri_pai3(i::A3 _ai3, h::T _row){
-
-    QFutureSynchronizer<b::t> synchronizer;
-
-    for(i::t col : cols){
-
-        int id = (_row + 1) * 10 + (col + 1);
-
-        thread_pai3(synchronizer, _ai3, id, col);
-    }
-
-    synchronizer.waitForFinished();
-    return b::T0;
-
-}
-
-
-vo::t Dll_usb_mmf01stl::thread_pai3(QFutureSynchronizer<b::t>& _synchronizer, i::A3 _ai3, i::t _id, i::t _row){
-
-    _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
-
-        while(1){
-
-            if( !((_ai3[_row] - 100) < i_srl(_id) && (_ai3[_row] + 100) >  i_srl(_id))  ){ qDebug("_ai3[i] != i_srl(id)"); srl_i(_ai3[_row], _id);}
-            else { break; }
-
-        }
-
-        emit log("id  " + qt::s_i(_id) + "  _ai3[i]  " + qt::s_i(_ai3[_row]) + "  i_srl(id)  " + qt::s_i(i_srl(_id)));
-
-    return b::T1;
-
-    }));
-
-}
-
-vo::t MainWindow::thsrl_pai36(pai3::p _commands){
-
-
-    QList<int> li_Val = li_legsVal();
-
-    pai3::p temp_pai3 = new i::t[6][3]{{0},{0},{0},{0},{0} };
-
-    memcpy(temp_pai3, _commands, 18 * 4); // 실제 멤버변수에 있는 pai3에는 변화가 가지 않도록 한다.
-
-    subOffset(temp_pai3, OFFSET);
-
-    check_commandValid(temp_pai3, li_Val[0],  li_Val[1], li_Val[2], li_Val[3], li_Val[4], li_Val[5]);
-
-    emit thsrl_file(pp_pai3(temp_pai3));
-
-}
-
-
-vo::t Dll_usb_mmf01stl::thread_pai3(QFutureSynchronizer<b::t>& _synchronizer, i::A3 _ai3, i::t _id, i::t _row){
-
-    _synchronizer.addFuture(QtConcurrent::run([=](){  // 3번 도는 쓰레드
-
-        while(1){
-
-            if( !((_ai3[_row] - 100) < i_srl(_id) && (_ai3[_row] + 100) >  i_srl(_id))  ){ qDebug("_ai3[i] != i_srl(id)"); srl_i(_ai3[_row], _id);}
-            else { break; }
-
-        }
-
-        emit log("id  " + qt::s_i(_id) + "  _ai3[i]  " + qt::s_i(_ai3[_row]) + "  i_srl(id)  " + qt::s_i(i_srl(_id)));
-    return b::T1;
-
-    }));
-
-}
-
-
-b::t Dll_usb_mmf01stl::thsri_pai3(i::A3 _ai3, h::T _row){
-
-    QFutureSynchronizer<b::t> synchronizer;
-
-    for(i::t col : cols){
-
-        int id = (_row + 1) * 10 + (col + 1);
-
-        thread_pai3(synchronizer, _ai3, id, col);
-
-    }
-
-    synchronizer.waitForFinished();
-    return b::T0;
-
-}
-
-b::t Dll_usb_mmf01stl::srl_pai3(int** _pai3){
-
-    isFinished = !isFinished;
-
-    pai3::p cmd = pai3_pp(_pai3);
-    QFutureSynchronizer<b::t> synchronizer;
-
-    for(i::t row : rows){
-        synchronizer.addFuture(QtConcurrent::run([=](){
-
-                i::a3 ia3 = {0, };
-
-                ia3_pai3(ia3, cmd, row);
-                thsri_pai3(ia3, row);
-
-                return b::T1;
-        }));
-    }
-
-    emit log("");
-    emit log("end loop...");
-    emit log("");
-
-    synchronizer.waitForFinished();
-    isFinished = !isFinished;
-
-    delete[] cmd;
-
-    return b::T1;
-
-}
-
-
-
-*/
-
-
-
 void MainWindow::on_btn_CalcDiff_clicked()
 {
     QString diff;
@@ -2413,7 +2284,7 @@ void MainWindow::on_btn_setLegsToZero_clicked()
 
 void MainWindow::on_btn_legCon_clicked()
 {
-    if( liPorts.size() < 6 ){ emit errorSetText("connectable ports number < 6 "); return; }
+    if( liPorts.size() < 7 ){ emit errorSetText("connectable ports number < 7 "); return; }
 
     QList<int> srlNo;
     srlNo.swap(liPorts);
@@ -2527,7 +2398,6 @@ void MainWindow::on_btn_serialSearch_clicked()
     for(z::t i(0) ; i < 50 ; ++i){
 
         srl->setPortName    ("COM" +  qt::s_i(i));
-
         if(!srl->open       (QIODevice  ::ReadWrite)){
 
 
@@ -2572,7 +2442,7 @@ void MainWindow::on_btn_serialSearch_clicked()
 
     ////////////////포트 자동 잡기 끝 ////////////////////////
 
-    if(sortedPortLi.size() >= 6){ qDebug() << "size of sortedPortLi : " << sortedPortLi.size();
+    if(sortedPortLi.size() > 6){ qDebug() << "size of sortedPortLi : " << sortedPortLi.size();
 
         ui->edit_serialPorts->setText(qs_li(sortedPortLi));
 
@@ -2591,7 +2461,6 @@ void MainWindow::on_btn_serialSearch_clicked()
     }
 
     emit write_log("sorted Port No : " + qs_li(sortedPortLi));
-
 
 }
 
@@ -2677,4 +2546,34 @@ void MainWindow::on_btn_resetProgam_clicked()
 void MainWindow::on_btn_clearTimeTable_clicked()
 {
     ui->edit_cdsTime->clear();
+}
+
+void MainWindow::on_btn_switchSend_clicked()
+{
+    emit mmf_SwitchVal();
+}
+
+void MainWindow::on_edit_switchMMfName_returnPressed()
+{
+    emit setSwitchMMfName(ui->edit_switchMMfName->text());
+}
+
+void MainWindow::on_tbr_switchTimer_sliderReleased()
+{
+    emit setSwitchMmfDelay(ui->tbr_switchTimer->value());
+
+}
+
+void MainWindow::on_tbr_switchTimer_sliderMoved(int position)
+{
+    ui->edit_mmfSwitchDelay->setText(qt::s_i(position));
+}
+
+void MainWindow::on_cb_switchTimer_stateChanged(int arg1)
+{
+    if(arg1){
+        emit ftSwitchStart();
+    }else{
+        emit ftSwitchStop();
+    }
 }

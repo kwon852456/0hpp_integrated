@@ -90,7 +90,11 @@ signals:
 
     void connectSixSrlNo(QList<int> _legsPortNo);
     void errorSetText(QString _text);
-
+    void mmf_SwitchVal();
+    void setSwitchMMfName(QString _mmfName);
+    void ftSwitchStart();
+    void ftSwitchStop();
+    void setSwitchMmfDelay(int _tbrValue);
 
 private slots:
 
@@ -200,6 +204,16 @@ private slots:
 
     void onErrorSetText(QString _text);
 
+    void on_btn_switchSend_clicked();
+
+    void on_edit_switchMMfName_returnPressed();
+
+    void on_tbr_switchTimer_sliderReleased();
+
+    void on_tbr_switchTimer_sliderMoved(int position);
+
+    void on_cb_switchTimer_stateChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
 };
@@ -243,6 +257,7 @@ class Dll_usb_mmf01stl : public QObject{
     int sendSetZero(int _id);
     int checkEncIsZero(int _id);
     void discon_srls();
+    bool ping_secondEnc();
 
     SerialWorker* sWorker;
     OffsetWorker* oWorker;
@@ -318,6 +333,11 @@ signals:
     void openFourthLegPort (QString _portName);
     void openFifthLegPort  (QString _portName);
     void openSixthLegPort  (QString _portName);
+    void Mmf_SwitchVal();
+    void setSwitchMMFName(QString _mmfName);
+    void ftSwitchStart();
+    void ftSwitchStop();
+    void setSwitchMmfDelay(int _tbrValue);
 
 
 
@@ -331,6 +351,7 @@ public slots:
     void legsToOrigin();
     void connectSixSrlNo(QList<int> _legsPortNo);
     QList<int> findPorts(QList<int> _liPorts);
+
 
 };
 
@@ -375,6 +396,7 @@ public slots:
     void onMmfCheck_clicked();
     void setSerialPort(QString _port);
     void tempSave(QString _fn);
+    void closeSrl();
 
 };
 
@@ -389,11 +411,18 @@ class OffsetWorker : public QObject{
         ~OffsetWorker();
 
 
+    Q_INVOKABLE QString qs_diff();
+
+
+
     QSerialPort* srl;
     int (*homeSet)[3] = new int[6][3]{  {0, },{0, },{0, },{0, },{0, },{0, }  };
     int (*diff)[3] = new int[6][3]{  {0, },{0, },{0, },{0, },{0, },{0, }  };
+    void* handle = 0;
+    QTimer* mmfTimer;
 
-    Q_INVOKABLE QString qs_diff();
+
+
 
 signals:
     void log(QString _text);
@@ -404,6 +433,15 @@ public slots:
     void saveHomeSet();
     void setSerialPort(QString _port);
     void loadHomeset(QString _path);
+    bool onPingCheck();
+    void closeSrl();
+    void onMmf_SwitchVal();
+    void setMMFName(QString _mmfName);
+    void onFtSwitchStart();
+    void onFtSwitchStop();
+    void onSetSwitchMmfDelay(int _tbrValue);
+
+
     QString calc_diff();
 
 };
