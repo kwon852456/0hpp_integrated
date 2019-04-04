@@ -294,11 +294,11 @@ i::t (*pai3_fn(qt::s::t _path, QObject* _parent))[3] {
 
 
 
-void mmf_pai3Val(pai3::p _pai3Val){
+void mmf_pai3Val(mmf_cp::writer::l* _writer ,pai3::p _pai3Val){
     debugMsg(__func__);
 
-    hnd::t handle = create_mmf("mmftest_pchr", 1024);
-    mmf_pai3(handle,_pai3Val,6);
+
+    _writer->writ_pai3(_pai3Val,6);
 
     qDebug() << "mmf write result :" << endl;
     con_pai3(_pai3Val);
@@ -324,6 +324,7 @@ qt::yar::li yarl_proc(qt::srl::p _srl){
     while(_srl->waitForReadyRead(1000)){ temp.append(_srl->readAll());  con_yar(temp); }
     qDebug() << "total data from second serial";
     con_yar(temp);
+
     qt::yar::li yarl = yarl_yar(temp);
 
     for(auto i : yarl){
@@ -331,16 +332,19 @@ qt::yar::li yarl_proc(qt::srl::p _srl){
     }
 
     return yarl;
+
 }
 
 
 
 
 s::v del_basket(s::t _String){
+
     replace_s(_String,"["," ");
     replace_s(_String,"]"," ");
 
     return vs_s(_String, ' ');
+
 }
 
 void pai3_vs(pai3::p _pai, std::vector<std::string>& _vs, i::T _row){
@@ -374,19 +378,6 @@ void ai6_vs(i::a6& _ai6 , std::vector<std::string>& _vs){
 
 
 
-b::T pai3_srl(pai3::p pai3_,qt::srl::p _srl){
-
-
-    debugMsg(__func__);
-
-
-
-    qt::yar::li yarl = yarl_proc(_srl);
-
-    pai3_yarl(pai3_, yarl);
-
-    return b::T1;
-}
 
 
 qt::yar::t yarl_srl(qt::srl::p _srl){
@@ -445,6 +436,19 @@ b::T ai6_srl(i::a6& _ai6, qt::srl::p _srl){
 
 }
 
+b::T pai3_srl(pai3::p pai3_,qt::srl::p _srl){
+
+
+    debugMsg(__func__);
+
+
+
+    qt::yar::li yarl = yarl_proc(_srl);
+
+    pai3_yarl(pai3_, yarl);
+
+    return b::T1;
+}
 
 
 int (*pai3_encVal(qt::srl::p _srl))[3]{
@@ -471,11 +475,9 @@ int (*pai3_srl(qt::srl::p _srl))[3]{
     if(!_srl->isOpen()){ qDebug() << "offset Serial is closed.." ; return nil; }
 
 
-    if(!_srl->write("S",1)){ qDebug() << "write failed....! on pai3_srl "; }
-
     while(true){ qDebug() << "asd ";
-        if(!_srl->write("S",1)){ qDebug() << "write failed....! on pai3_srl "; }
-        if(_srl->waitForReadyRead(1000)){ _srl->readAll();}
+        if(!_srl->write("S",1)){ qDebug() << "write failed....! on pai3_srl "; break;}
+        if(_srl->waitForReadyRead(1000)){  _srl->readAll();  }
         else{ break; }
     }
 
@@ -487,6 +489,111 @@ int (*pai3_srl(qt::srl::p _srl))[3]{
         _srl->write("s",1);
 
         return pai3_;
+
+    }else{
+
+        debugMsg("write failed....!");
+        return nullptr;
+
+    }
+
+}
+
+
+
+
+qt::yar::li qsBattery_proc(qt::srl::p _srl){
+    debugMsg(__func__);
+
+    qt::yar::t temp;
+
+
+    while(_srl->waitForReadyRead(1000)){ temp.append(_srl->readAll());  con_yar(temp);  qDebug() << temp; }
+    qDebug() << "total data from second serial";
+    con_yar(temp);
+    qt::yar::li yarl = yarl_yar(temp);
+
+    for(auto i : yarl){
+        debugMsg(i);
+    }
+
+    return yarl;
+}
+
+void qsBettary_vs(qt::s::r qsBattery_, std::vector<std::string>& _vs){
+    for( z::t i(2) ; i < 3 ; ++i){
+        qDebug() << "_vs[i] : " << qt::qs_s(_vs[i]);
+        qsBattery_ += qt::qs_s(_vs[i]);
+    }
+
+    qDebug() << __func__;
+    qDebug() << "qsBattery_ : " << qsBattery_;
+}
+
+void qsBattery_yarl(qt::s::r qsBattery_ ,qt::yar::li _yarl){
+
+    debugMsg(__func__);
+
+    if(_yarl.size() > 0){
+
+        s::v vTemp = del_basket(qs_yar(_yarl[_yarl.size() - 1]));
+        qsBettary_vs(qsBattery_ , vTemp);
+
+    }
+
+}
+
+b::T qs_srl(qt::s::r qsBattery_,qt::srl::p _srl){
+
+
+    debugMsg(__func__);
+
+
+    qt::yar::li yarl = qsBattery_proc(_srl);
+
+    qsBattery_yarl(qsBattery_, yarl);
+
+    return b::T1;
+}
+
+
+QString qs_BValue( qt::srl::p _srl ){
+
+    debugMsg(__func__);
+
+    qDebug() << __func__;
+
+    qt::s::t qsBattery_;
+
+    if(_srl->waitForReadyRead(3000)){  // 2번 엔코더 읽는 대기시간
+
+        if(qs_srl(qsBattery_, _srl)){ return qsBattery_; }
+
+    }else{ qDebug() << "read Failed"; return nullptr; }
+
+    return nullptr;
+}
+
+
+QString qsBattery_srl(qt::srl::p _srl){
+    if(!_srl->isOpen()){ qDebug() << "offset Serial is closed.." ; return nil; }
+
+
+    while(true){
+        qDebug() << "clearing buffer.. ";
+        if(!_srl->write("S",1)){ qDebug() << "write failed....! on pai3_srl "; break;  }
+        if(_srl->waitForReadyRead(1000)){ qt::yar::t yar = _srl->readAll();  qDebug() << yar;}
+        else{  break; }
+    }
+
+    if(_srl->write("b",1)){
+
+        qt::s::t BValue = qs_BValue(_srl);
+
+        _srl->write("s",1); // 멈춘 스위치 신호 다시시작
+        _srl->write("s",1);
+
+        return BValue;
 
     }else{
 
@@ -534,22 +641,6 @@ bool ping_srl(qt::srl::p _srl){
 }
 
 
-void mmf_encVal(qt::srl::p _srl){
-
-    debugMsg(__func__);
-
-    i::t encVal[6][3] = { {0,},{0,},{0,},{0,},{0,},{0,} };
-
-    pai3::p pai3Val = encVal;
-
-    if(_srl->waitForReadyRead(3000)){
-
-        if(pai3_srl(pai3Val, _srl)){   mmf_pai3Val(pai3Val);}
-
-    }else{ debugMsg("read failed..!"); }
-
-
-}
 
 qt::s::t s_pai3(pai3::p _pai3, h::T _h){
      qt::s::t text = qt::s::T0;
@@ -921,7 +1012,7 @@ i::t i_srl_mmf(qt::srl::p _srl ,i::t _id){
 
 
 
-void mmf_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
+void mmf_srl(rv2::mmf_cp::writer::l* _mmfwriter, qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
 
     qDebug() << __func__ << endl;
 
@@ -937,7 +1028,7 @@ void mmf_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
 
     }
 
-    mmf_pai3Val(encVal);
+    mmf_pai3Val(_mmfwriter, encVal);
 
 }
 

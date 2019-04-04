@@ -11,6 +11,19 @@
 #include <QListWidgetItem>
 #include <QDesktopServices>
 
+namespace rv2 {
+
+namespace mmf_cp {
+    namespace writer {
+        class l;
+        typedef const l L; typedef l(&r); typedef L(&R); typedef l(*p); typedef L(*Tp); typedef std::vector<l> v; typedef const v V; typedef v(&w); typedef const v(&W);
+    }
+}
+
+}
+
+
+
 
 
 class Dll_usb_mmf01stl;
@@ -53,11 +66,14 @@ public:
     QTimer* sendTimer;
     QTimer* srl_fileTimer;
     QTimer* cdsTimer;
+    QTimer* bMmfTimer;
     bool isCdsTimerStarted = false;
     QMap<int, int (*)[6]> mCommands;
     QList<int> liPorts;
     std::map<std::string, std::map<std::string, std::string>> kmsmCommands;
     QQueue<int (*)[6]> cmds;
+
+
 
 
 
@@ -95,6 +111,8 @@ signals:
     void ftSwitchStart();
     void ftSwitchStop();
     void setSwitchMmfDelay(int _tbrValue);
+    void check_bat();
+    void setBMmfName(QString _text);
 
 private slots:
 
@@ -214,6 +232,16 @@ private slots:
 
     void on_cb_switchTimer_stateChanged(int arg1);
 
+    void on_btn_batterySend_clicked();
+
+    void on_edit_batteryMMfName_returnPressed();
+
+    void on_cb_batteryTimer_toggled(bool checked);
+
+    void on_tbr_batteryTimer_sliderReleased();
+
+    void onShowSval(QString _sVal);
+
 private:
     Ui::MainWindow *ui;
 };
@@ -286,6 +314,7 @@ class Dll_usb_mmf01stl : public QObject{
     QList<int> cols;
 
     QElapsedTimer timer;
+    rv2::mmf_cp::writer::l* mmfWriter;
 
     bool isFinished = true;
     bool isIsrlFinished = true;
@@ -338,7 +367,9 @@ signals:
     void ftSwitchStart();
     void ftSwitchStop();
     void setSwitchMmfDelay(int _tbrValue);
-
+    void check_bat();
+    void setBMmfName(QString _text);
+    void showSval(QString _sVal);
 
 
 public slots:
@@ -364,6 +395,7 @@ public slots:
 
 
 
+
 class SerialWorker : public QObject{
 
 
@@ -378,6 +410,7 @@ class SerialWorker : public QObject{
     void onLegClick_pushEncVal(QList<int>& leg_Enc, QSerialPort* _port, int _id);
 
 
+    rv2::mmf_cp::writer::l* mmfWriter;
     QSerialPort* port;
     QList<int> ids;
 
@@ -393,7 +426,6 @@ public slots:
     int  onResetEnc(QByteArray _req, int _id);
     QList<int> onLv_clicked(int legNo);
 
-    void onMmfCheck_clicked();
     void setSerialPort(QString _port);
     void tempSave(QString _fn);
     void closeSrl();
@@ -418,15 +450,17 @@ class OffsetWorker : public QObject{
     QSerialPort* srl;
     int (*homeSet)[3] = new int[6][3]{  {0, },{0, },{0, },{0, },{0, },{0, }  };
     int (*diff)[3] = new int[6][3]{  {0, },{0, },{0, },{0, },{0, },{0, }  };
-    void* handle = 0;
     QTimer* mmfTimer;
 
+    rv2::mmf_cp::writer::p pMmfWritAi6;
+    rv2::mmf_cp::writer::p pMmfWritCp;
 
 
 
 signals:
     void log(QString _text);
     void setHomeSet(QString _text);
+    void showSval(QString _sVal);
 
 public slots:
     void onReadOffset();
@@ -440,6 +474,8 @@ public slots:
     void onFtSwitchStart();
     void onFtSwitchStop();
     void onSetSwitchMmfDelay(int _tbrValue);
+    void onCheck_bat();
+    void onSetBMmfName(QString _mName);
 
 
     QString calc_diff();

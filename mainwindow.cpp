@@ -20,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent) :
     sendTimer     = new QTimer (this);
     srl_fileTimer = new QTimer (this);
     cdsTimer      = new QTimer (this);
+    bMmfTimer     = new QTimer (this);
+
     stl           = new Dll_usb_mmf01stl();
 
     stl->moveToThread(wThread);
@@ -31,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sendTimer    -> setInterval (1000);
     srl_fileTimer-> setInterval (1000);
     cdsTimer     -> setInterval (5   );
+    bMmfTimer    -> setInterval (ui->tbr_batteryTimer->value());
 
     init_tbrs ();
     init_lv   ();
@@ -52,8 +55,10 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->cb_release->click();
         ui->pushButton->click();
         emit setSwitchMMfName(ui->edit_switchMMfName->text());
+        emit setBMmfName(ui->edit_batteryMMfName->text());
 
         doAutoStart();
+
     }
 
 }
@@ -106,6 +111,8 @@ vo::t MainWindow::makeConnection(){
     connect(this,              &MainWindow::ftSwitchStart,        stl,     &Dll_usb_mmf01stl::ftSwitchStart      );
     connect(this,              &MainWindow::ftSwitchStop,         stl,     &Dll_usb_mmf01stl::ftSwitchStop       );
     connect(this,              &MainWindow::setSwitchMmfDelay,    stl,     &Dll_usb_mmf01stl::setSwitchMmfDelay  );
+    connect(this,              &MainWindow::check_bat,            stl,     &Dll_usb_mmf01stl::check_bat          );
+    connect(this,              &MainWindow::setBMmfName,          stl,     &Dll_usb_mmf01stl::setBMmfName        );
 
 
     connect(stl,               &Dll_usb_mmf01stl::showOffset,     this,    &MainWindow::onShowOffset       );
@@ -113,9 +120,11 @@ vo::t MainWindow::makeConnection(){
     connect(stl,               &Dll_usb_mmf01stl::thsri_qai36End, this,    &MainWindow::thsri_qai36End     );
     connect(stl,               &Dll_usb_mmf01stl::timeTaken,      this,    &MainWindow::timeTaken          );
     connect(stl,               &Dll_usb_mmf01stl::setHomeSet,     this,    &MainWindow::setHomeSet         );
+    connect(stl,               &Dll_usb_mmf01stl::showSval,       this,    &MainWindow::onShowSval         );
     connect(srl_fileTimer,     &QTimer::timeout,                  this,    &MainWindow::fileTimerTimeOut   );
     connect(sendTimer,         &QTimer::timeout,                  this,    &MainWindow::srl_ai3            );
     connect(cdsTimer,          &QTimer::timeout,                  this,    &MainWindow::sendCds            );
+    connect(bMmfTimer,         &QTimer::timeout,                  this,    &MainWindow::check_bat          );
 
 }
 
@@ -200,28 +209,6 @@ vo::t MainWindow::onErrorSetText(qt::s::t _text){
 
 
 
-pai6::p pai6_msg(vo::p _message){
-
-    MSG* msg = reinterpret_cast<MSG*>(_message);
-
-    if((msg)->message == WM_COPYDATA){
-
-        pai6::p pai6 = new i::a6[6]{{0,},{0,},{0,},{0,},{0,},{0,}};
-
-        HWND reciverhwnd = (HWND)msg->wParam;
-        PCOPYDATASTRUCT pcds = (PCOPYDATASTRUCT)msg->lParam;
-        UNUSED(reciverhwnd);
-
-        y::p yHdr = (y::p) pcds ->lpData;
-
-        pai6_yHdr(pai6, yHdr);
-
-        return pai6;
-
-    }
-
-    return nil;
-}
 
 
 
@@ -249,29 +236,103 @@ vo::t MainWindow::sendCds(){
 
 }
 
-b::t MainWindow::nativeEvent(const qt::yar::t &eventType, vo::p message, long *resultMSG){
 
+pai6::p pai6_msg(vo::p _message){
 
-    pai6::p command = pai6_msg(message);
+    MSG* msg = reinterpret_cast<MSG*>(_message);
 
-    if(command != nil){
+    if((msg)->message == WM_COPYDATA){
 
-        if(ui->cb_cdsListen->isChecked()){
+        pai6::p pai6 = new i::a6[6]{{0,},{0,},{0,},{0,},{0,},{0,}};
 
-            log(qs_pai6(command));
-            cmds.push_back(command);
-            ui->edit_cdsQue->setNum(++cdsQueSize);
+        hnd::t reciverhwnd = (hnd::t)msg->wParam;
+        cds::p pcds = (cds::p)msg->lParam;
 
+        y::p yHdr = (y::p) pcds ->lpData;
 
-            if(!isCdsTimerStarted){ cdsTimer->start(); isCdsTimerStarted = true; }
+        y::p yRaw = nil;
+        head::u head;
+        head =  headRaw_yHdr(yRaw, yHdr);
 
-        }else{
+        switch (head.y0) {
+            case byt::aai6:
 
-            log("cds receved..but cds listen is not checked..!");
+//                pai6_yHdr(pai6, yHdr);
+                  pai6_headRaw(pai6,yRaw,head);
+                return pai6;
+
+            break;
+
+//            case byt::pchr:
+
         }
+
+
+
     }
 
-    else    delete[] command;
+    return nil;
+}
+
+
+byt::E type_cds(vo::p _message){
+
+    MSG* msg = reinterpret_cast<MSG*>(_message);
+    if((msg)->message == WM_COPYDATA){
+        hnd::t reciverhwnd  = (hnd::t)msg->wParam;
+        cds::P pcds = (cds::p)msg->lParam;
+
+
+        y::p yHdr = (y::p) pcds ->lpData;
+
+
+        y::p yRaw = nil;
+        head::u head;
+        head =  headRaw_yHdr(yRaw, yHdr);
+
+        return head.y0;
+
+    }
+
+
+}
+
+
+
+
+
+
+
+b::t MainWindow::nativeEvent(const qt::yar::t &eventType, vo::p message, long *resultMSG){
+
+    byt::E cdsType = type_cds(message);
+
+    switch (cdsType) {
+        case byt::aai6:{
+
+            pai6::p command = pai6_msg(message);
+
+            if(command != nil){
+
+                if(ui->cb_cdsListen->isChecked()){
+
+                    log(qs_pai6(command));
+                    cmds.push_back(command);
+                    ui->edit_cdsQue->setNum(++cdsQueSize);
+
+
+                    if(!isCdsTimerStarted){ cdsTimer->start(); isCdsTimerStarted = true; }
+
+                }else{
+
+                    log("cds receved..but cds listen is not checked..!");
+                }
+            }
+
+            else    delete[] command;
+
+        }break;
+    }
 
     *resultMSG = 0;
     UNUSED(eventType);
@@ -288,9 +349,13 @@ vo::t MainWindow::onShowOffset(){
 
     hnd::t handle = open_mmf("mmftest_pchr");
 
-
     pai3::p pai;
+
+
+
     pai3_mmf(pai, handle);
+
+
 
     write_log(qs_pai3(pai));
 
@@ -325,6 +390,46 @@ vo::t MainWindow::setHomeSet(qt::s::t _homeSet){
     ui->edit_homeSet->setText(_homeSet);
 
 }
+
+vo::t MainWindow::onShowSval(qt::s::t _sVal){
+    qDebug() << __func__;
+    qDebug() << _sVal;
+
+    s::v _vsVal = vs_s(qt::s_qs(_sVal),' ');
+
+    qDebug() << "size of _vsVal : " << _vsVal.size();
+
+    ui->edit_switchNo1->setText(qt::qs_s(_vsVal[0]));
+    ui->edit_switchNo2->setText(qt::qs_s(_vsVal[1]));
+    ui->edit_switchNo3->setText(qt::qs_s(_vsVal[2]));
+    ui->edit_switchNo4->setText(qt::qs_s(_vsVal[3]));
+    ui->edit_switchNo5->setText(qt::qs_s(_vsVal[4]));
+    ui->edit_switchNo6->setText(qt::qs_s(_vsVal[5]));
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
@@ -384,10 +489,7 @@ Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
 
 
 
-        connect(this,    &Dll_usb_mmf01stl::mmfClicked,         sWorker, &SerialWorker::onMmfCheck_clicked  );
         connect(this,    &Dll_usb_mmf01stl::tempSave,           sWorker, &SerialWorker::tempSave            );
-
-
         connect(this,    &Dll_usb_mmf01stl::readOffset,         oWorker, &OffsetWorker::onReadOffset        );
         connect(this,    &Dll_usb_mmf01stl::openSecondSerial,   oWorker, &OffsetWorker::setSerialPort       );
         connect(this,    &Dll_usb_mmf01stl::saveHomeSet,        oWorker, &OffsetWorker::saveHomeSet         );
@@ -397,7 +499,8 @@ Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
         connect(this,    &Dll_usb_mmf01stl::ftSwitchStart,      oWorker, &OffsetWorker::onFtSwitchStart     );
         connect(this,    &Dll_usb_mmf01stl::ftSwitchStop,       oWorker, &OffsetWorker::onFtSwitchStop      );
         connect(this,    &Dll_usb_mmf01stl::setSwitchMmfDelay,  oWorker, &OffsetWorker::onSetSwitchMmfDelay );
-
+        connect(this,    &Dll_usb_mmf01stl::check_bat,          oWorker, &OffsetWorker::onCheck_bat         );
+        connect(this,    &Dll_usb_mmf01stl::setBMmfName,        oWorker, &OffsetWorker::onSetBMmfName       );
 
         connect(sWorkerLeg1, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log             );
         connect(sWorkerLeg2, &SerialWorker::log,                 this, &Dll_usb_mmf01stl::log             );
@@ -410,6 +513,7 @@ Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
 
         connect(sWorker, &SerialWorker::showOffset,              this, &Dll_usb_mmf01stl::showOffset      );
         connect(oWorker, &OffsetWorker::setHomeSet,              this, &Dll_usb_mmf01stl::setHomeSet      );
+        connect(oWorker, &OffsetWorker::showSval,                this, &Dll_usb_mmf01stl::showSval        );
 
 
 
@@ -422,6 +526,10 @@ Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
         sThreadLeg4->start();
         sThreadLeg5->start();
         sThreadLeg6->start();
+
+        pai3::p pai3;
+        mmfWriter = new mmf_cp::writer::l("mmftest_pchr", pai3, 6);
+
 }
 
 
@@ -433,6 +541,7 @@ Dll_usb_mmf01stl::~Dll_usb_mmf01stl(){
     sThread->wait();
 
 };
+
 
 
 
@@ -848,7 +957,7 @@ vo::t Dll_usb_mmf01stl::onMmfClicked(){
     if(!isIsrlFinished) return;
     QFuture<void> mmfResult = QtConcurrent::run([this](){
 
-        QList<int> ids = {11, 12, 13, 21, 22, 23, 31, 32, 33, 41, 42, 43, 51, 52, 53, 61, 62, 63 };
+        QList<int> ids = { 11, 12, 13, 21, 22, 23, 31, 32, 33, 41, 42, 43, 51, 52, 53, 61, 62, 63 };
         i::t tempArr[6][3] = { {0,},{0,},{0,},{0,},{0,},{0,} };
         pai3::p encVal = tempArr;
 
@@ -864,7 +973,7 @@ vo::t Dll_usb_mmf01stl::onMmfClicked(){
 
         if(checkValid_pai3(encVal)){
 
-            mmf_pai3Val(encVal);
+            mmf_pai3Val(mmfWriter,encVal);
 
         }else{
 
@@ -1359,6 +1468,9 @@ SerialWorker::SerialWorker(QObject *parent ){
     port = CreateSrl(this,0);
     setIds();
 
+    pai3::p pai3;
+    mmfWriter = new mmf_cp::writer::l("mmftest_pchr", pai3, 6);
+
 }
 
 SerialWorker::~SerialWorker(){
@@ -1414,26 +1526,6 @@ vo::t SerialWorker::setIds(){
 
     i::t id[18] = {11, 12, 13, 21, 22, 23, 31, 32, 33, 41, 42, 43, 51, 52, 53, 61, 62, 63 };
     for(i::t i : id){ ids.push_back(i); }
-
-}
-
-vo::t SerialWorker::onMmfCheck_clicked(){
-
-    isSrlFinished = !isSrlFinished;
-
-    if(port->isOpen()){
-
-        mmf_srl(port, ids, OFFSET);
-
-    }else{
-
-        qDebug() << "Serial not opened...!" << endl;
-        emit    log("Serial not opened...!");
-
-    }
-
-    isSrlFinished = !isSrlFinished;
-    emit showOffset();
 
 }
 
@@ -1557,6 +1649,7 @@ OffsetWorker::OffsetWorker(QObject *parent){
     mmfTimer = new QTimer(this);
     mmfTimer->setInterval(333);
 
+
     connect(mmfTimer, &QTimer::timeout,  this, &OffsetWorker::onMmf_SwitchVal);
 
 
@@ -1565,6 +1658,7 @@ OffsetWorker::OffsetWorker(QObject *parent){
 OffsetWorker::~OffsetWorker(){
 
     srl->close();
+    delete pMmfWritAi6;
 
 }
 
@@ -1593,12 +1687,14 @@ vo::t OffsetWorker::onReadOffset(){
 }
 
 vo::t OffsetWorker::setMMFName(qt::s::t _mmfName){
+
     qDebug() << __func__;
     qDebug() << _mmfName << endl;
 
-    i::a6 sus = {1, 2, 3, 4, 5 ,6};
+    i::A6 sus = {1, 2, 3, 4, 5 ,6};
 
-    handle = create_mmf(qt::s_qs(_mmfName), 1024);
+    pMmfWritAi6 = new rv2::mmf_cp::writer::l( cp_s(qt::s_qs(_mmfName)), sus);
+
 }
 
 
@@ -1616,7 +1712,9 @@ b::t OffsetWorker::onPingCheck(){
 
 
 vo::t OffsetWorker::saveHomeSet(){
+
     save_pai3(homeSet,6, "homeSet.ini");
+
 }
 
 vo::t OffsetWorker::loadHomeset(qt::s::t _path){
@@ -1737,8 +1835,11 @@ vo::t OffsetWorker::onMmf_SwitchVal(){
     if(ai6_srl(ai6_, srl)){
 
         qDebug() << "ai6 To mmf : " << qs_ai6(ai6_);
+        qt::s::t sVal = qs_ai6(ai6_);
+        log("ai6 To mmf : " + sVal );
 
-        mmf_ai6(handle, ai6_);
+        emit showSval(sVal);
+        pMmfWritAi6->writ_ai6(ai6_);
 
     }else{
         qDebug() << "onMmf_SwitchVal Serial error..!";
@@ -1771,10 +1872,27 @@ vo::t OffsetWorker::onSetSwitchMmfDelay(i::T _interval){
     mmfTimer->setInterval(_interval);
 }
 
+vo::t OffsetWorker::onCheck_bat(){
+    qDebug() << __func__;
+
+
+    QString Bvalue = qsBattery_srl(srl);
+
+    qDebug() << "Bvalue : " << Bvalue;
+    pMmfWritCp->writ_cP(cp_s(qt::s_qs(Bvalue)),3);
+
+
+
+}
 
 
 
 
+vo::t OffsetWorker::onSetBMmfName(QString _Nmmf){
+    qDebug() << __func__ << _Nmmf;
+    pMmfWritCp = new mmf_cp::writer::l( cp_s(qt::s_qs(_Nmmf)),"00",2);
+
+}
 
 
 
@@ -2637,4 +2755,29 @@ void MainWindow::on_cb_switchTimer_stateChanged(int arg1)
     }else{
         emit ftSwitchStop();
     }
+}
+
+void MainWindow::on_btn_batterySend_clicked()
+{
+    emit check_bat();
+}
+
+void MainWindow::on_edit_batteryMMfName_returnPressed()
+{
+    emit setBMmfName(ui->edit_batteryMMfName->text());
+}
+
+void MainWindow::on_cb_batteryTimer_toggled(bool checked)
+{
+    if(checked){
+        bMmfTimer->start();
+    }else{
+        bMmfTimer->stop();
+    }
+}
+
+void MainWindow::on_tbr_batteryTimer_sliderReleased()
+{
+    bMmfTimer->setInterval(ui->tbr_batteryTimer->value());
+    ui->edit_batterySwitchDelay->setNum(ui->tbr_batteryTimer->value());
 }
