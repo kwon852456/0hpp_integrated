@@ -254,7 +254,7 @@ pai6::p pai6_msg(vo::p _message){
         head::u head;
         head =  headRaw_yHdr(yRaw, yHdr);
 
-        switch (head.y0) {
+        switch (head.y0){
             case byt::aai6:
 
 //                pai6_yHdr(pai6, yHdr);
@@ -279,6 +279,7 @@ byt::E type_cds(vo::p _message){
 
     MSG* msg = reinterpret_cast<MSG*>(_message);
     if((msg)->message == WM_COPYDATA){
+
         hnd::t reciverhwnd  = (hnd::t)msg->wParam;
         cds::P pcds = (cds::p)msg->lParam;
 
@@ -325,7 +326,7 @@ b::t MainWindow::nativeEvent(const qt::yar::t &eventType, vo::p message, long *r
 
                 }else{
 
-                    log("cds receved..but cds listen is not checked..!");
+                    log("cds recieved..but cds listen is not checked..!");
                 }
             }
 
@@ -348,13 +349,8 @@ vo::t MainWindow::onShowOffset(){
     write_log("offset read result : ");
 
     hnd::t handle = open_mmf("mmftest_pchr");
-
     pai3::p pai;
-
-
-
     pai3_mmf(pai, handle);
-
 
 
     write_log(qs_pai3(pai));
@@ -399,12 +395,12 @@ vo::t MainWindow::onShowSval(qt::s::t _sVal){
 
     qDebug() << "size of _vsVal : " << _vsVal.size();
 
-    ui->edit_switchNo1->setText(qt::qs_s(_vsVal[0]));
-    ui->edit_switchNo2->setText(qt::qs_s(_vsVal[1]));
-    ui->edit_switchNo3->setText(qt::qs_s(_vsVal[2]));
-    ui->edit_switchNo4->setText(qt::qs_s(_vsVal[3]));
-    ui->edit_switchNo5->setText(qt::qs_s(_vsVal[4]));
-    ui->edit_switchNo6->setText(qt::qs_s(_vsVal[5]));
+    ui->edit_switchNo1->setText(qt::qs_s(_vsVal[1]));
+    ui->edit_switchNo2->setText(qt::qs_s(_vsVal[2]));
+    ui->edit_switchNo3->setText(qt::qs_s(_vsVal[3]));
+    ui->edit_switchNo4->setText(qt::qs_s(_vsVal[4]));
+    ui->edit_switchNo5->setText(qt::qs_s(_vsVal[5]));
+    ui->edit_switchNo6->setText(qt::qs_s(_vsVal[6]));
 
 
 
@@ -478,7 +474,6 @@ Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
         connect(this,    &Dll_usb_mmf01stl::write_cmdToFifthLeg  ,   sWorkerLeg5, &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
         connect(this,    &Dll_usb_mmf01stl::write_cmdToSixthLeg  ,   sWorkerLeg6, &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
 
-        connect(this,    &Dll_usb_mmf01stl::openFirstSerial  , sWorker    , &SerialWorker::setSerialPort  );
 
         connect(this,    &Dll_usb_mmf01stl::openFirstLegPort , sWorkerLeg1, &SerialWorker::setSerialPort, Qt::BlockingQueuedConnection  );
         connect(this,    &Dll_usb_mmf01stl::openSecondLegPort, sWorkerLeg2, &SerialWorker::setSerialPort, Qt::BlockingQueuedConnection  );
@@ -489,6 +484,7 @@ Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
 
 
 
+        connect(this,    &Dll_usb_mmf01stl::openFirstSerial  ,  sWorker, &SerialWorker::setSerialPort       );
         connect(this,    &Dll_usb_mmf01stl::tempSave,           sWorker, &SerialWorker::tempSave            );
         connect(this,    &Dll_usb_mmf01stl::readOffset,         oWorker, &OffsetWorker::onReadOffset        );
         connect(this,    &Dll_usb_mmf01stl::openSecondSerial,   oWorker, &OffsetWorker::setSerialPort       );
@@ -950,7 +946,6 @@ bool checkValid_pai3(pai3::p _pai6){
     }
 
     return true;
-
 }
 
 vo::t Dll_usb_mmf01stl::onMmfClicked(){
@@ -1107,6 +1102,7 @@ i::t Dll_usb_mmf01stl::checkEncIsZero(i::t _id){
     qDebug() << "i_srl" << " _id " << _id << " Thread " << QThread::currentThread();
 
     isIsrlFinished = false;
+
     int recvEncVal;
     qt::yar::t arr = yar_req(_id);
 
@@ -1246,13 +1242,13 @@ void Dll_usb_mmf01stl::discon_srls(){
 
     qDebug() << __func__;
 
-    QMetaObject::invokeMethod(sWorkerLeg1,"closeSrl",Qt::BlockingQueuedConnection);
-    QMetaObject::invokeMethod(sWorkerLeg2,"closeSrl",Qt::BlockingQueuedConnection);
-    QMetaObject::invokeMethod(sWorkerLeg3,"closeSrl",Qt::BlockingQueuedConnection);
-    QMetaObject::invokeMethod(sWorkerLeg4,"closeSrl",Qt::BlockingQueuedConnection);
-    QMetaObject::invokeMethod(sWorkerLeg5,"closeSrl",Qt::BlockingQueuedConnection);
-    QMetaObject::invokeMethod(sWorkerLeg6,"closeSrl",Qt::BlockingQueuedConnection);
-    QMetaObject::invokeMethod(oWorker    ,"closeSrl",Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg1,   "closeSrl",Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg2,   "closeSrl",Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg3,   "closeSrl",Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg4,   "closeSrl",Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg5,   "closeSrl",Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg6,   "closeSrl",Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(oWorker    ,   "closeSrl",Qt::BlockingQueuedConnection);
 
 }
 
@@ -1651,8 +1647,6 @@ OffsetWorker::OffsetWorker(QObject *parent){
 
 
     connect(mmfTimer, &QTimer::timeout,  this, &OffsetWorker::onMmf_SwitchVal);
-
-
 }
 
 OffsetWorker::~OffsetWorker(){
@@ -1684,6 +1678,7 @@ vo::t OffsetWorker::onReadOffset(){
 
         emit log("Serial read failed");
     }
+
 }
 
 vo::t OffsetWorker::setMMFName(qt::s::t _mmfName){
@@ -1727,7 +1722,6 @@ vo::t OffsetWorker::loadHomeset(qt::s::t _path){
     emit setHomeSet(qs_pai3H(homeSet));
 
 }
-
 
 vo::t OffsetWorker::setSerialPort(QString _comPort){
 
@@ -1806,6 +1800,7 @@ qt::s::t OffsetWorker::calc_diff(){
 }
 
 
+
 qt::s::t OffsetWorker::qs_diff(){
 
     return qs_pai3H(diff);
@@ -1816,7 +1811,9 @@ vo::t OffsetWorker::closeSrl(){
     srl->close();
 
 }
+
 QString qs_ai6(i::A6 _ai6){
+
     QString result_;
 
     for(z::t i(0) ; i < 6 ; ++i){
@@ -1835,6 +1832,7 @@ vo::t OffsetWorker::onMmf_SwitchVal(){
     if(ai6_srl(ai6_, srl)){
 
         qDebug() << "ai6 To mmf : " << qs_ai6(ai6_);
+
         qt::s::t sVal = qs_ai6(ai6_);
         log("ai6 To mmf : " + sVal );
 
@@ -1845,7 +1843,6 @@ vo::t OffsetWorker::onMmf_SwitchVal(){
         qDebug() << "onMmf_SwitchVal Serial error..!";
         return;
     }
-
 
 }
 
@@ -1881,8 +1878,6 @@ vo::t OffsetWorker::onCheck_bat(){
     qDebug() << "Bvalue : " << Bvalue;
     pMmfWritCp->writ_cP(cp_s(qt::s_qs(Bvalue)),3);
 
-
-
 }
 
 
@@ -1890,6 +1885,7 @@ vo::t OffsetWorker::onCheck_bat(){
 
 vo::t OffsetWorker::onSetBMmfName(QString _Nmmf){
     qDebug() << __func__ << _Nmmf;
+
     pMmfWritCp = new mmf_cp::writer::l( cp_s(qt::s_qs(_Nmmf)),"00",2);
 
 }
@@ -2359,8 +2355,10 @@ vo::t MainWindow::on_actionE_xit_triggered()
 
 vo::t MainWindow::on_actionOpen_App_Folder_triggered()
 {
+
     qDebug() << "open app folder";
     QDesktopServices::openUrl( QUrl::fromLocalFile(QDir::currentPath()) );
+
 }
 
 vo::t MainWindow::on_btn_tempSave_clicked()
@@ -2431,11 +2429,14 @@ void MainWindow::on_btn_CalcDiff_clicked()
 
 void MainWindow::on_btn_setLegsToZero_clicked()
 {
+
     emit legsToOrigin();
+
 }
 
 void MainWindow::on_btn_legCon_clicked()
 {
+
     if( liPorts.size() < 7 ){ emit errorSetText("connectable ports number < 7 "); return; }
 
     QList<int> srlNo;
@@ -2559,6 +2560,7 @@ void MainWindow::on_btn_serialSearch_clicked()
             liPorts.append(i);
 
         }
+
         srl->close();
 
     }
@@ -2577,17 +2579,6 @@ void MainWindow::on_btn_serialSearch_clicked()
 
     ////////////////포트 자동 잡기 시작 ////////////////////////
 
-    ///////////////////  디버그 코드 ////////////////////
-
-    liPorts.append(8);
-    liPorts.append(8);
-    liPorts.append(8);
-    liPorts.append(8);
-    liPorts.append(8);
-    liPorts.append(8);
-
-
-    //////////////////// 디버그 코드 끝 ////////////////////
 
 
 
@@ -2613,20 +2604,7 @@ void MainWindow::on_btn_serialSearch_clicked()
 
         liPorts.swap(sortedPortLi);
 
-    ///////////////////  디버그 코드 ////////////////////
-
-    liPorts.clear();
-    liPorts.append(1);
-    liPorts.append(1);
-    liPorts.append(1);
-    liPorts.append(1);
-    liPorts.append(1);
-    liPorts.append(1);
-    liPorts.append(8);
-
-    ///////////////////  디버그 코드 ////////////////////
-
-    on_btn_legCon_clicked();
+        on_btn_legCon_clicked();
 
     }else{
 
@@ -2647,7 +2625,6 @@ void MainWindow::on_btn_logClear_clicked()
 {
     ui->Edit_log->clear();
     ui->edit_error->clear();
-    log("log clear");
 }
 
 void MainWindow::on_edit_serialPorts_returnPressed()
@@ -2740,7 +2717,6 @@ void MainWindow::on_edit_switchMMfName_returnPressed()
 void MainWindow::on_tbr_switchTimer_sliderReleased()
 {
     emit setSwitchMmfDelay(ui->tbr_switchTimer->value());
-
 }
 
 void MainWindow::on_tbr_switchTimer_sliderMoved(int position)
