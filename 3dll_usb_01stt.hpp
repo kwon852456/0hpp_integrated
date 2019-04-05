@@ -180,6 +180,7 @@ void con_pai3(pai3::p _pai3){
 
     for(z::t i(0) ; i < 6 ; ++i){
         temp.clear(); msg.clear();
+
         for(z::t j(0) ; j < 3 ; ++j){
             temp.sprintf("%d ", _pai3[i][j]);
             msg += temp;
@@ -220,6 +221,21 @@ QString qs_pai3(pai3::p _pai3){
     }
     return msg;
 }
+
+qt::s::t s_pai3(pai3::p _pai3, h::T _h){
+
+     qt::s::t text = qt::s::T0;
+     qt::s::t temp = qt::s::T0;
+
+     for(z::t i(0) ; i < 6 ; ++i){
+         for(z::t j(0) ; j < 3 ; ++j){
+            text += temp.sprintf("%d ", _pai3[i][j]);
+         }
+     }
+
+     return text;
+}
+
 
 QString qs_pai6(pai6::p _pai6){
     qt::s::t temp = qt::s::T0;
@@ -298,21 +314,25 @@ i::t (*pai3_fn(qt::s::t _path, QObject* _parent))[3] {
 
 
 void mmf_pai3Val(mmf_cp::writer::l* _writer ,pai3::p _pai3Val){
-    debugMsg(__func__);
 
+    debugMsg(__func__);
 
     _writer->writ_pai3(_pai3Val,6);
 
     qDebug() << "mmf write result :" << endl;
     con_pai3(_pai3Val);
+
 }
 
 
 void OFFSET_pai3Val(pai3::p OFFSET_, pai3::p _pai3){
+
     for(z::t i(0) ; i < 6 ; ++i){
+
         for(z::t j(0) ; j < 3 ; j++){
             OFFSET_[i][j] = _pai3[i][j];
         }
+
     }
 }
 
@@ -351,9 +371,11 @@ s::v del_basket(s::t _String){
 }
 
 void pai3_vs(pai3::p _pai, std::vector<std::string>& _vs, i::T _row){
+
     for( z::t i(0) ; i < 3 ; ++i){
         _pai[_row][i] = (i::t)(d_s(_vs.at(i + 3)) * 100);
     }
+
 }
 
 void pai3_yarl(pai3::p pai3_,qt::yar::li _yarl){
@@ -372,9 +394,14 @@ void pai3_yarl(pai3::p pai3_,qt::yar::li _yarl){
 void ai6_vs(i::a6& _ai6 , std::vector<std::string>& _vs){
 
     if(_vs.size() == 0 ){ qDebug() << "_vs.size() == 0"; return; }
+
     for(z::t i(0) ; i < 6 ; ++i){
-        _ai6[i] = i_s(_vs[i + 2]);
+
+        c::t ct = _vs[2][i];
+        _ai6[i] = ct - '0';
     }
+
+
 
 }
 
@@ -389,11 +416,15 @@ qt::yar::t yarl_srl(qt::srl::p _srl){
     qt::yar::t temp;
 
     do{ temp.append(_srl->readAll());  con_yar(temp); if( temp.size() > 30 ){ break; } }
+
     while(_srl->waitForReadyRead(100));
+
     qt::yar::li yarl = yarl_yar(temp);
 
     for(auto i : yarl){
+
         qDebug() << (i);
+
     }
 
     if(yarl.size() > 0)
@@ -408,12 +439,9 @@ qt::yar::t yarl_srl(qt::srl::p _srl){
 void ai6_yar(i::a6& _ai6 ,qt::yar::t _yar){
 
     debugMsg(__func__);
-qDebug() << __LINE__;
     s::v vTemp = del_basket(qs_yar(_yar));
-qDebug() << __LINE__;
     ai6_vs(_ai6, vTemp);
 
-    qDebug() << __LINE__;
 }
 
 
@@ -434,7 +462,6 @@ b::T ai6_srl(i::a6& _ai6, qt::srl::p _srl){
 }
 
 b::T pai3_srl(pai3::p pai3_,qt::srl::p _srl){
-
 
     debugMsg(__func__);
 
@@ -469,7 +496,7 @@ int (*pai3_srl(qt::srl::p _srl))[3]{
     if(!_srl->isOpen()){ qDebug() << "offset Serial is closed.." ; return nil; }
 
 
-    while(true){ qDebug() << "asd ";
+    while(true){ qDebug() << "clearing buffer in pai3_srl";
 
         if(!_srl->write("S",1)){ qDebug() << "write failed....! on pai3_srl "; break;}
         if(_srl->waitForReadyRead(1000)){  _srl->readAll();  }
@@ -477,6 +504,8 @@ int (*pai3_srl(qt::srl::p _srl))[3]{
         else{ break; }
 
     }
+
+    _srl->readAll();
 
     if(_srl->write("e",1)){
 
@@ -563,16 +592,14 @@ QString qs_BValue( qt::srl::p _srl ){
     debugMsg(__func__);
 
     qDebug() << __func__;
-
     qt::s::t qsBattery_;
 
 
 
     if(qs_srl(qsBattery_, _srl)){ return qsBattery_; }
 
-
-
     return nullptr;
+
 }
 
 
@@ -595,15 +622,17 @@ QString qsBattery_srl(qt::srl::p _srl){
     if(_srl->write("b",1)){
 
         if(_srl->waitForReadyRead(3000)){
-            qt::s::t BValue = qs_BValue(_srl);
 
+            qt::s::t BValue = qs_BValue(_srl);
             _srl->write("s",1); // 멈춘 스위치 신호 다시시작
 
             return BValue;
+
         }else{
 
             _srl->write("s",1); // 멈춘 스위치 신호 다시시작
             qDebug() << "Serial not respond.."; return nullptr;
+
         }
 
 
@@ -637,9 +666,10 @@ bool isResponded(qt::srl::p _srl){
 bool ping_srl(qt::srl::p _srl){
     qDebug() << __func__;
 
-    if(!_srl->isOpen()){ qDebug() << "second srl is closed.. "; return b::T0 ; }
+    if( !_srl->isOpen() ){ qDebug() << "second srl is closed.. "; return b::T0 ; }
 
     _srl->readAll();
+
     if(_srl->write("s",1)){
 
         return isResponded(_srl);
@@ -654,24 +684,12 @@ bool ping_srl(qt::srl::p _srl){
 
 
 
-qt::s::t s_pai3(pai3::p _pai3, h::T _h){
-     qt::s::t text = qt::s::T0;
-     qt::s::t temp = qt::s::T0;
-
-     for(z::t i(0) ; i < 6 ; ++i){
-         for(z::t j(0) ; j < 3 ; ++j){
-            text += temp.sprintf("%d ", _pai3[i][j]);
-         }
-     }
-
-     return text;
-}
 
 
 
 i::t (*pai6_pai3( pai3::p _pai3))[6]{
 
-    pai6::p pai6_ = new i::t[6][6]{  {0},{0},{0},{0},{0},{0},  };
+    pai6::p pai6_ = new i::t[6][6]{  {0},{0},{0},{0},{0},{0}  };
 
     for(z::t i(0) ; i < 6 ; ++i){
         for(z::t j(0) ; j < 6 ; ++j){
@@ -703,6 +721,7 @@ qt::s::t save_pai3(pai3::p _pai3, h::T _h, qt::s::T _fn = "OFFSET.txt"){
     return s_pai3(_pai3,_h);
 
 }
+
 
 bool load_pai3(pai3::p _offset_,h::t _h ,QWidget*parent = nullptr){
 
@@ -738,7 +757,9 @@ void con_12bytes(y::p yData) {
 
         temp.sprintf("0x%02x ", yData[i]);
         msg += temp;
+
     }
+
     qDebug() << msg;
 }
 
@@ -792,6 +813,7 @@ vo::t req_id(req::t& req_,i::R _id ){
     req_[4] = checkSum;
     req_[5] = 0xA1;
 
+
 }
 
 
@@ -843,14 +865,11 @@ b::t srl_i(qt::srl::p srl_ ,i::R _iDegree, i::R _id){
 
     cmd::t command;  cmd_id(command, _iDegree,  _id);
 
-
     qt::yar::t send_Data_Bytes = qt::yar::t::fromRawData(reinterpret_cast<c::p>(command), cmd::Z);
 
-
-
     srl_->write(send_Data_Bytes);
-    return true;
 
+    return true;
 }
 
 
@@ -1027,7 +1046,7 @@ i::t i_srl_mmf(qt::srl::p _srl ,i::t _id){
 
 
 
-void mmf_srl(rv2::mmf_cp::writer::l* _mmfwriter, qt::srl::p _srl,QList<int> _ids, pai3::p _offset){
+void mmf_srl(rv2::mmf_cp::writer::l* _mmfwriter, qt::srl::p _srl, QList<int> _ids, pai3::p _offset){
 
     qDebug() << __func__ << endl;
 
@@ -1063,6 +1082,7 @@ void save_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset, qt::s::t _fn = "
     }
 
     save_pai3(encVal,6, _fn + ".txt");
+
 }
 
 

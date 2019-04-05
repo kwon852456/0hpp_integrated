@@ -111,14 +111,12 @@ vo::t MainWindow::doAutoStart(){
 
     on_btn_serialSearch_clicked();
 
-
 }
 
 vo::t MainWindow::init_lw(){
 
     lw_cb(ui->lw_legs,   1, 6);
     lw_cb(ui->lw_motors, 1, 3);
-
 
 }
 
@@ -157,6 +155,7 @@ vo::t MainWindow::makeConnection(){
     connect(stl,               &Dll_usb_mmf01stl::setHomeSet,     this,    &MainWindow::setHomeSet         );
     connect(stl,               &Dll_usb_mmf01stl::showSval,       this,    &MainWindow::onShowSval         );
     connect(stl,               &Dll_usb_mmf01stl::updateBvalue,   this,    &MainWindow::onUpdateBvalue     );
+
     connect(srl_fileTimer,     &QTimer::timeout,                  this,    &MainWindow::fileTimerTimeOut   );
     connect(sendTimer,         &QTimer::timeout,                  this,    &MainWindow::srl_ai3            );
     connect(cdsTimer,          &QTimer::timeout,                  this,    &MainWindow::sendCds            );
@@ -424,6 +423,7 @@ vo::t MainWindow::setHomeSet(qt::s::t _homeSet){
 }
 
 vo::t MainWindow::onShowSval(qt::s::t _sVal){
+
     qDebug() << __func__;
     qDebug() << _sVal;
 
@@ -507,8 +507,8 @@ Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
 
 
 
-        connect(this,    &Dll_usb_mmf01stl::write_cmd ,              sWorker,     &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
 
+        connect(this,    &Dll_usb_mmf01stl::write_cmd            ,   sWorker,     &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
         connect(this,    &Dll_usb_mmf01stl::write_cmdToFirstLeg  ,   sWorkerLeg1, &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
         connect(this,    &Dll_usb_mmf01stl::write_cmdToSecondLeg ,   sWorkerLeg2, &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
         connect(this,    &Dll_usb_mmf01stl::write_cmdToThirdLeg  ,   sWorkerLeg3, &SerialWorker::onWrite_cmd, Qt::BlockingQueuedConnection);
@@ -635,7 +635,7 @@ vo::t Dll_usb_mmf01stl::srl_i(i::T _iDegree, i::T _id, i::T _velocity = 32){
 }
 
 
-i::t Dll_usb_mmf01stl::i_srl(i::T _id){
+inline i::t Dll_usb_mmf01stl::i_srl(i::T _id){
 
 
     isIsrlFinished = false;
@@ -923,7 +923,9 @@ b::t Dll_usb_mmf01stl::check_motorArrived(pai6::p _commands){
     }
 
     return b::T1;
+
 }
+
 
 b::t Dll_usb_mmf01stl::isSpeedZero_cmd(pai6::p _pai6){
 
@@ -1054,7 +1056,7 @@ qt::yar::t yar_reset(i::t _id){
     req::t resetRequest; reset_id(resetRequest, _id);
     c::p pReq = reinterpret_cast<c::p>(resetRequest);
 
-    return qt::yar::t::fromRawData(pReq,req::Z);
+    return qt::yar::t::fromRawData(pReq, req::Z);
 
 }
 
@@ -1285,13 +1287,13 @@ void Dll_usb_mmf01stl::discon_srls(){
 
     qDebug() << __func__;
 
-    QMetaObject::invokeMethod(sWorkerLeg1,   "closeSrl",Qt::BlockingQueuedConnection);
-    QMetaObject::invokeMethod(sWorkerLeg2,   "closeSrl",Qt::BlockingQueuedConnection);
-    QMetaObject::invokeMethod(sWorkerLeg3,   "closeSrl",Qt::BlockingQueuedConnection);
-    QMetaObject::invokeMethod(sWorkerLeg4,   "closeSrl",Qt::BlockingQueuedConnection);
-    QMetaObject::invokeMethod(sWorkerLeg5,   "closeSrl",Qt::BlockingQueuedConnection);
-    QMetaObject::invokeMethod(sWorkerLeg6,   "closeSrl",Qt::BlockingQueuedConnection);
-    QMetaObject::invokeMethod(oWorker    ,   "closeSrl",Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg1,   "closeSrl",  Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg2,   "closeSrl",  Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg3,   "closeSrl",  Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg4,   "closeSrl",  Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg5,   "closeSrl",  Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(sWorkerLeg6,   "closeSrl",  Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(oWorker    ,   "closeSrl",  Qt::BlockingQueuedConnection);
 
 }
 
@@ -1491,7 +1493,6 @@ void Dll_usb_mmf01stl::onChangeEncMmfName(qt::s::t _nMmf){
     pai3::p pai3;
     mmfWriter = new mmf_cp::writer::l(cp_s(qt::s_qs(_nMmf)) , pai3, 6);
 
-
 }
 
 
@@ -1543,6 +1544,7 @@ int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
 
     if(!port->isOpen()) return 99997;
     port->readAll(); // 버퍼 비우기
+
     if(port->write(_req)){
 
         if(!port->waitForReadyRead(500)){
@@ -1859,6 +1861,7 @@ qt::s::t OffsetWorker::qs_diff(){
 }
 
 vo::t OffsetWorker::closeSrl(){
+
     srl->close();
 
 }
@@ -1875,6 +1878,15 @@ QString qs_ai6(i::A6 _ai6){
 
 }
 
+void rAi6(i::a6& _ai6){
+
+    for(z::t i(0) ; i < 6 ; ++i){
+        if( _ai6[i] == 0 ) _ai6[i] = 1;
+        if( _ai6[i] == 1 ) _ai6[i] = 0;
+    }
+
+}
+
 vo::t OffsetWorker::onMmf_SwitchVal(){
     qDebug() << __func__ << endl;
 
@@ -1882,7 +1894,9 @@ vo::t OffsetWorker::onMmf_SwitchVal(){
     i::a6 ai6_ = { 0, };
     if(ai6_srl(ai6_, srl)){
 
+        rAi6(ai6_);
         qDebug() << "ai6 To mmf : " << qs_ai6(ai6_);
+
 
         qt::s::t sVal = qs_ai6(ai6_);
         log("ai6 To mmf : " + sVal );
@@ -2021,9 +2035,11 @@ vo::t MainWindow::on_tbr_secondLeg_valueChanged(int value)
 
 vo::t MainWindow::on_tbr_thirdLeg_valueChanged(int value)
 {
+
     ui->edit_thirdLeg->setText(qt::s_i(value));
     if(ui->cb_send->checkState() && tbrEnded)
         srl_ai3();
+
 }
 
 vo::t MainWindow::srl_ai3(){
@@ -2072,9 +2088,11 @@ b::t MainWindow::offset_fn(qt::s::t _path){
     s::v vs = vs_s(sOffset.toStdString(), ' ');
 
     for (z::t i(0) ; i < 6 ; ++i){
+
         for(z::t j(0) ; j < 3 ; ++j){
             OFFSET[i][j] = i_s(vs.at( (i * 3) + j ));
         }
+
     }
 
     return true;
@@ -2085,6 +2103,7 @@ vo::t MainWindow::on_btn_load_clicked()
 
     QString path = QFileDialog::getOpenFileName(this,"Find Files",QDir::currentPath());
     if(path == qt::s::T0){ return; }
+
     emit loadHomeset(path);
 
 }
@@ -2150,6 +2169,7 @@ vo::t MainWindow::tbrs_legNo(i::T _legNo){
         ui->tbr_thirdLeg ->setValue (recvEncVal.at(2)  / 100 + OFFSET[row][2] / 100 );
 
     }
+
 }
 
 vo::t MainWindow::on_lv_legs_itemClicked(QListWidgetItem *item)
@@ -2238,7 +2258,6 @@ vo::t MainWindow::load_commands(const QString& _sSec)  //
     ui->lv_commands->clear();
 
     ks::m commands = kmsmCommands.find(qt::s_qs(_sSec))->second;
-
     for(z::t i(0) ; i < commands.size() ; ++i){
 
         ui->lv_commands->addItem(qt::qs_s( commands.find(s_i(i))->second ));
@@ -2324,7 +2343,6 @@ vo::t MainWindow::on_edPath_returnPressed()
 {
 
     log(__func__);
-
     cb_fn(ui->edPath->text());
 
 }
@@ -2360,7 +2378,6 @@ vo::t MainWindow::on_usb_mmf_mmfClicked()
 vo::t MainWindow::i_cb(QList<int>& ids_ ,QListWidget* _lw, i::t endNo, i::t startNo = 0){
 
     if(startNo == endNo) return;
-
     if(_lw->item(startNo)->checkState() == Qt::Checked)    ids_.push_back(startNo);
 
     return i_cb(ids_, _lw, endNo, ++startNo);
@@ -2373,6 +2390,7 @@ vo::t MainWindow::ids_lili(QList<int>& ids_ ,QList<int> _ilLeg, QList<int> _ilMo
             ids_.push_back(i * 3 + j);
         }
     }
+
 }
 
 vo::t MainWindow::on_pushButton_clicked()
@@ -2401,6 +2419,7 @@ vo::t MainWindow::on_btn_reset_clicked()
 
         emit send_clicked( qai3,i );
    }
+
 }
 
 vo::t MainWindow::on_actionE_xit_triggered()
@@ -2533,9 +2552,7 @@ void MainWindow::on_btn_portSave_clicked()
 }
 
 void clearComboBox(QComboBox* _box){
-
     _box->clear();
-
 }
 
 void setComboBox(QComboBox* _box, qt::s::T _text){

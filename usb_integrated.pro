@@ -32,7 +32,8 @@ SOURCES += \
 
 HEADERS += \
         mainwindow.hpp \
-    3dll_usb_01stt.hpp
+    3dll_usb_01stt.hpp \
+    5qtc8con.hpp
 
 FORMS += \
         mainwindow.ui
