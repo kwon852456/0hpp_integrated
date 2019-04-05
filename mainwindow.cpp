@@ -1882,9 +1882,8 @@ void rAi6(i::a6& _ai6){
 
     for(z::t i(0) ; i < 6 ; ++i){
         if( _ai6[i] == 0 ) _ai6[i] = 1;
-        if( _ai6[i] == 1 ) _ai6[i] = 0;
+        else if( _ai6[i] == 1 ) _ai6[i] = 0;
     }
-
 }
 
 vo::t OffsetWorker::onMmf_SwitchVal(){

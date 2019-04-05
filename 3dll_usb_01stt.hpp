@@ -395,6 +395,7 @@ void ai6_vs(i::a6& _ai6 , std::vector<std::string>& _vs){
 
     if(_vs.size() == 0 ){ qDebug() << "_vs.size() == 0"; return; }
 
+
     for(z::t i(0) ; i < 6 ; ++i){
 
         c::t ct = _vs[2][i];
