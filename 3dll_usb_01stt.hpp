@@ -23,6 +23,7 @@ namespace qt {///
     //    typedef std::queue <t> qu; typedef const qu QU; typedef std::queue <qu> ququ; typedef const ququ QUQU; //typedef std::map<t,v> vm; typedef std::map<std::string,std::vector<std::string> > vm;
         T T0("");
     }///
+    ///
     namespace yar {///
         typedef QByteArray t;
         typedef const t T; typedef t(&r); typedef T(&R); typedef t(*p); typedef T(*const P); typedef T(*Tp); typedef t(*const tP); z::T Z(sizeof(t));
@@ -131,6 +132,7 @@ qt::yar::li yarl_yar(qt::yar::t _yar){
     qt::yar::li li_;
     qt::yar::t temp;
     i::t count = 0;
+
     for(auto i = _yar.cbegin() ; i != _yar.cend() ; ++i ){
         temp.clear();
         if(*i == '['){
@@ -269,6 +271,7 @@ QString qs_pai3H(pai3::p _pai3){
 }
 
 
+
 i::t (*pai3_fn(qt::s::t _path, QObject* _parent))[3] {
 
     pai3::p pai3_ = new i::t[6][3]{ {0},{0},{0},{0},{0},{0} };
@@ -385,8 +388,8 @@ qt::yar::t yarl_srl(qt::srl::p _srl){
 
     qt::yar::t temp;
 
-
-    while(_srl->waitForReadyRead(100)){ temp.append(_srl->readAll());  if( temp.size() > 30 ){ break; } }  con_yar(temp);
+    do{ temp.append(_srl->readAll());  con_yar(temp); if( temp.size() > 30 ){ break; } }
+    while(_srl->waitForReadyRead(100));
     qt::yar::li yarl = yarl_yar(temp);
 
     for(auto i : yarl){
@@ -417,12 +420,9 @@ qDebug() << __LINE__;
 b::T ai6_srl(i::a6& _ai6, qt::srl::p _srl){
     qDebug() << __func__;
 
-    _srl->open(QIODevice::ReadWrite);
-
-    _srl->readAll();
     if(!_srl->isOpen()){ qDebug() << "srl closed..!"; return b::T0; }
 
-    if(_srl->waitForReadyRead(500)){
+    if(_srl->waitForReadyRead(1000)){
 
         qt::yar::t yar = yarl_srl(_srl);
         ai6_yar(_ai6, yar);
@@ -431,17 +431,12 @@ b::T ai6_srl(i::a6& _ai6, qt::srl::p _srl){
 
     return b::T1;
 
-
-
-
 }
 
 b::T pai3_srl(pai3::p pai3_,qt::srl::p _srl){
 
 
     debugMsg(__func__);
-
-
 
     qt::yar::li yarl = yarl_proc(_srl);
 
@@ -471,14 +466,16 @@ int (*pai3_encVal(qt::srl::p _srl))[3]{
 
 int (*pai3_srl(qt::srl::p _srl))[3]{
 
-
     if(!_srl->isOpen()){ qDebug() << "offset Serial is closed.." ; return nil; }
 
 
     while(true){ qDebug() << "asd ";
+
         if(!_srl->write("S",1)){ qDebug() << "write failed....! on pai3_srl "; break;}
         if(_srl->waitForReadyRead(1000)){  _srl->readAll();  }
+
         else{ break; }
+
     }
 
     if(_srl->write("e",1)){
@@ -507,9 +504,13 @@ qt::yar::li qsBattery_proc(qt::srl::p _srl){
 
     qt::yar::t temp;
 
+    do{
+        temp.append(_srl->readAll());  con_yar(temp);  qDebug() << temp;
+    }
 
-    while(_srl->waitForReadyRead(1000)){ temp.append(_srl->readAll());  con_yar(temp);  qDebug() << temp; }
+    while(_srl->waitForReadyRead(1000));
     qDebug() << "total data from second serial";
+
     con_yar(temp);
     qt::yar::li yarl = yarl_yar(temp);
 
@@ -540,8 +541,8 @@ void qsBattery_yarl(qt::s::r qsBattery_ ,qt::yar::li _yarl){
         qsBettary_vs(qsBattery_ , vTemp);
 
     }
-
 }
+
 
 b::T qs_srl(qt::s::r qsBattery_,qt::srl::p _srl){
 
@@ -565,11 +566,11 @@ QString qs_BValue( qt::srl::p _srl ){
 
     qt::s::t qsBattery_;
 
-    if(_srl->waitForReadyRead(3000)){  // 2번 엔코더 읽는 대기시간
 
-        if(qs_srl(qsBattery_, _srl)){ return qsBattery_; }
 
-    }else{ qDebug() << "read Failed"; return nullptr; }
+    if(qs_srl(qsBattery_, _srl)){ return qsBattery_; }
+
+
 
     return nullptr;
 }
@@ -578,22 +579,33 @@ QString qs_BValue( qt::srl::p _srl ){
 QString qsBattery_srl(qt::srl::p _srl){
     if(!_srl->isOpen()){ qDebug() << "offset Serial is closed.." ; return nil; }
 
+    _srl->write("S",1);
+    _srl->write("b",1);
 
     while(true){
-        qDebug() << "clearing buffer.. ";
-        if(!_srl->write("S",1)){ qDebug() << "write failed....! on pai3_srl "; break;  }
-        if(_srl->waitForReadyRead(1000)){ qt::yar::t yar = _srl->readAll();  qDebug() << yar;}
-        else{  break; }
+
+        _srl->write("S",1);
+        if(!_srl->waitForReadyRead(1000)){ break; };
+
     }
+
+    qt::yar::t yar = _srl->readAll();  qDebug() << "first : " << yar;
+    _srl->write("b",1);
 
     if(_srl->write("b",1)){
 
-        qt::s::t BValue = qs_BValue(_srl);
+        if(_srl->waitForReadyRead(3000)){
+            qt::s::t BValue = qs_BValue(_srl);
 
-        _srl->write("s",1); // 멈춘 스위치 신호 다시시작
-        _srl->write("s",1);
+            _srl->write("s",1); // 멈춘 스위치 신호 다시시작
 
-        return BValue;
+            return BValue;
+        }else{
+
+            _srl->write("s",1); // 멈춘 스위치 신호 다시시작
+            qDebug() << "Serial not respond.."; return nullptr;
+        }
+
 
     }else{
 
@@ -655,6 +667,8 @@ qt::s::t s_pai3(pai3::p _pai3, h::T _h){
      return text;
 }
 
+
+
 i::t (*pai6_pai3( pai3::p _pai3))[6]{
 
     pai6::p pai6_ = new i::t[6][6]{  {0},{0},{0},{0},{0},{0},  };
@@ -712,6 +726,8 @@ bool load_pai3(pai3::p _offset_,h::t _h ,QWidget*parent = nullptr){
 
     return true;
 }
+
+
 
 void con_12bytes(y::p yData) {
 
@@ -831,9 +847,8 @@ b::t srl_i(qt::srl::p srl_ ,i::R _iDegree, i::R _id){
     qt::yar::t send_Data_Bytes = qt::yar::t::fromRawData(reinterpret_cast<c::p>(command), cmd::Z);
 
 
+
     srl_->write(send_Data_Bytes);
-
-
     return true;
 
 }
@@ -1052,6 +1067,7 @@ void save_srl(qt::srl::p _srl,QList<int> _ids, pai3::p _offset, qt::s::t _fn = "
 
 
 void lv_no(QListWidget*_lv, i::t startNo, i::t endNo){
+
     for(z::t i(startNo) ; i < endNo ; ++i){
         _lv->addItem(qt::s_i(i));
     }
@@ -1088,6 +1104,7 @@ void sub_pai36(pai6::p pai_, pai3::p _pai3){
             pai_[i][j] -= _pai3[i][j];
         }
     }
+
 
 }
 
@@ -1126,6 +1143,7 @@ void lw_cb(QListWidget* lv_, i::t startNo, i::t endNo){
 
 
         return lw_cb(lv_, ++startNo, endNo);
+
 }
 
 
@@ -1136,7 +1154,9 @@ void sub_pai36(pai3::p pai_, pai3::p _pai3){
             pai_[i][j] -= _pai3[i][j];
         }
     }
+
 }
+
 
 
 qt::s::t qs_li(QList<int> _li){
@@ -1243,8 +1263,10 @@ b::t check_commandValid(pai6::p _command, i::t _first_max , i::t _first_min, i::
 
 
 namespace m_to {
-            void vs(ks::M& _mks, s::w vs_) { ; vs_ = ks::vs_m(_mks); }
-            void fn(ks::M& _mks, s::R fn_) { ; rv2::vs_to::fn(ks::vs_m(_mks), fn_); }
+
+    void vs(ks::M& _mks, s::w vs_) { ; vs_ = ks::vs_m(_mks); }
+    void fn(ks::M& _mks, s::R fn_) { ; rv2::vs_to::fn(ks::vs_m(_mks), fn_); }
+
 }///
 
 
@@ -1436,7 +1458,6 @@ pai3::p pai3_msg(vo::p _message){
     }
 
     return nil;
-
 }
 
 
@@ -1463,6 +1484,7 @@ void pai3_pai6(pai3::p pai3_, pai6::p _pai6){
 
 }
 
+
 qt::yar::t yar_req(i::t _id){
 
     req::t request; req_id(request, _id);
@@ -1479,6 +1501,7 @@ b::t check_cds(pai6::p _cdsCmd){
             if(_cdsCmd[i][j] > 10000 || _cdsCmd[i][j] < -10000) return false;
         }
     }
+
     return true;
 }
 

@@ -6,8 +6,11 @@
 pai3::p OFFSET     = new i::t[6][3]{  {0, },{0, },{0, },{0, },{0, },{0, }  };
 pai3::p OFFSETTEMP = new i::t[6][3]{  {0, },{0, },{0, },{0, },{0, },{0, }  };
 
+ini::l ini_usb;
 QMutex mutForOffset;
 QElapsedTimer timer;
+
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -56,10 +59,13 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->pushButton->click();
         emit setSwitchMMfName(ui->edit_switchMMfName->text());
         emit setBMmfName(ui->edit_batteryMMfName->text());
+        emit changeEncMmfName(ui->edit_encMmfName->text());
 
         doAutoStart();
 
     }
+
+    setUiFromIni();
 
 }
 
@@ -71,6 +77,34 @@ MainWindow::~MainWindow()
 
     wThread->quit();
     wThread->wait();
+
+    ini_usb.write_s(  qt::s_qs(ui->edit_switchMMfName->text()   ),   "switchMMfName"   );
+    ini_usb.write_s(  qt::s_qs(ui->edit_batteryMMfName->text()  ),   "batteryMMfName"  );
+    ini_usb.write_s(  qt::s_qs(ui->edit_encMmfName->text()      ),   "encMmfName"      );
+
+    ini_usb.save();
+
+}
+
+vo::t MainWindow::setUiFromIni(){
+
+    if(ini_usb.load()){
+
+        ui->edit_switchMMfName  -> setText(qt::qs_s(ini_usb.s_ready("switchMMfName" )));
+        ui->edit_batteryMMfName -> setText(qt::qs_s(ini_usb.s_ready("batteryMMfName")));
+        ui->edit_encMmfName     -> setText(qt::qs_s(ini_usb.s_ready("encMmfName"    )));
+
+        qDebug() << "qs_s(ini_usb.s_ready('switchMMfName' )" << qt::qs_s(ini_usb.s_ready("switchMMfName" ));
+        qDebug() << "qs_s(ini_usb.s_ready('batteryMMfName' )" << qt::qs_s(ini_usb.s_ready("batteryMMfName" ));
+        qDebug() << "qs_s(ini_usb.s_ready('encMmfName' )" << qt::qs_s(ini_usb.s_ready("encMmfName" ));
+
+        emit setSwitchMMfName(ui->edit_switchMMfName->text());
+        emit setBMmfName(ui->edit_batteryMMfName->text());
+        emit changeEncMmfName(ui->edit_encMmfName->text());
+
+    }
+
+
 }
 
 vo::t MainWindow::doAutoStart(){
@@ -113,6 +147,7 @@ vo::t MainWindow::makeConnection(){
     connect(this,              &MainWindow::setSwitchMmfDelay,    stl,     &Dll_usb_mmf01stl::setSwitchMmfDelay  );
     connect(this,              &MainWindow::check_bat,            stl,     &Dll_usb_mmf01stl::check_bat          );
     connect(this,              &MainWindow::setBMmfName,          stl,     &Dll_usb_mmf01stl::setBMmfName        );
+    connect(this,              &MainWindow::changeEncMmfName,     stl,     &Dll_usb_mmf01stl::onChangeEncMmfName );
 
 
     connect(stl,               &Dll_usb_mmf01stl::showOffset,     this,    &MainWindow::onShowOffset       );
@@ -121,6 +156,7 @@ vo::t MainWindow::makeConnection(){
     connect(stl,               &Dll_usb_mmf01stl::timeTaken,      this,    &MainWindow::timeTaken          );
     connect(stl,               &Dll_usb_mmf01stl::setHomeSet,     this,    &MainWindow::setHomeSet         );
     connect(stl,               &Dll_usb_mmf01stl::showSval,       this,    &MainWindow::onShowSval         );
+    connect(stl,               &Dll_usb_mmf01stl::updateBvalue,   this,    &MainWindow::onUpdateBvalue     );
     connect(srl_fileTimer,     &QTimer::timeout,                  this,    &MainWindow::fileTimerTimeOut   );
     connect(sendTimer,         &QTimer::timeout,                  this,    &MainWindow::srl_ai3            );
     connect(cdsTimer,          &QTimer::timeout,                  this,    &MainWindow::sendCds            );
@@ -406,7 +442,13 @@ vo::t MainWindow::onShowSval(qt::s::t _sVal){
 
 }
 
+vo::t MainWindow::onUpdateBvalue(qt::s::t _bVal){
 
+    qDebug() << __func__;
+
+    ui->edit_bValue->setText(_bVal);
+
+}
 
 
 
@@ -510,6 +552,7 @@ Dll_usb_mmf01stl::Dll_usb_mmf01stl(QObject *parent){
         connect(sWorker, &SerialWorker::showOffset,              this, &Dll_usb_mmf01stl::showOffset      );
         connect(oWorker, &OffsetWorker::setHomeSet,              this, &Dll_usb_mmf01stl::setHomeSet      );
         connect(oWorker, &OffsetWorker::showSval,                this, &Dll_usb_mmf01stl::showSval        );
+        connect(oWorker, &OffsetWorker::updateBvalue,            this, &Dll_usb_mmf01stl::updateBvalue    );
 
 
 
@@ -1442,7 +1485,14 @@ QList<int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
 }
 
 
+void Dll_usb_mmf01stl::onChangeEncMmfName(qt::s::t _nMmf){
+    qDebug() << __func__ << _nMmf;
 
+    pai3::p pai3;
+    mmfWriter = new mmf_cp::writer::l(cp_s(qt::s_qs(_nMmf)) , pai3, 6);
+
+
+}
 
 
 
@@ -1647,6 +1697,7 @@ OffsetWorker::OffsetWorker(QObject *parent){
 
 
     connect(mmfTimer, &QTimer::timeout,  this, &OffsetWorker::onMmf_SwitchVal);
+
 }
 
 OffsetWorker::~OffsetWorker(){
@@ -1876,7 +1927,11 @@ vo::t OffsetWorker::onCheck_bat(){
     QString Bvalue = qsBattery_srl(srl);
 
     qDebug() << "Bvalue : " << Bvalue;
-    pMmfWritCp->writ_cP(cp_s(qt::s_qs(Bvalue)),3);
+
+    emit updateBvalue(Bvalue);
+
+    pMmfWritS->writ_s(qt::s_qs(Bvalue));
+
 
 }
 
@@ -1886,7 +1941,7 @@ vo::t OffsetWorker::onCheck_bat(){
 vo::t OffsetWorker::onSetBMmfName(QString _Nmmf){
     qDebug() << __func__ << _Nmmf;
 
-    pMmfWritCp = new mmf_cp::writer::l( cp_s(qt::s_qs(_Nmmf)),"00",2);
+    pMmfWritS = new mmf::writer::l(qt::s_qs(_Nmmf),"");
 
 }
 
@@ -2394,16 +2449,19 @@ void MainWindow::on_cb_release_clicked(bool checked)
         }
 
     }else{
+
         for(z::t i(0) ; i < ui->lw_legs->count() ; ++i){
 
             ui->lw_legs->item(i)->setCheckState(Qt::CheckState::Unchecked);
             qDebug() << "unchecked..!" << endl;
         }
+
         for(z::t i(0) ;  i < ui->lw_motors->count() ; ++i){
 
             ui->lw_motors->item(i)->setCheckState(Qt::CheckState::Unchecked);
             qDebug() << "unchecked..!" << endl;
         }
+
     }
 
     qDebug() << __func__ << "end" ;
@@ -2502,10 +2560,6 @@ void MainWindow::on_btn_portLoad_clicked()
         qDebug() << QString::fromStdString(s);
     }
 
-
-
-
-
     clearComboBox(ui->cb_leg1);
     clearComboBox(ui->cb_leg2);
     clearComboBox(ui->cb_leg3);
@@ -2551,6 +2605,7 @@ void MainWindow::on_btn_serialSearch_clicked()
     for(z::t i(0) ; i < 50 ; ++i){
 
         srl->setPortName    ("COM" +  qt::s_i(i));
+
         if(!srl->open       (QIODevice  ::ReadWrite)){
 
 
@@ -2580,6 +2635,16 @@ void MainWindow::on_btn_serialSearch_clicked()
     ////////////////포트 자동 잡기 시작 ////////////////////////
 
 
+    /////////////////////////////////////////////////////////디버그 코드
+
+    liPorts.append(8);
+    liPorts.append(8);
+    liPorts.append(8);
+    liPorts.append(8);
+    liPorts.append(8);
+    liPorts.append(8);
+
+    ////////////////////////////////////////////////////////디버그 코드
 
 
     QList<int> sortedPortLi;
@@ -2603,6 +2668,13 @@ void MainWindow::on_btn_serialSearch_clicked()
         ui->edit_serialPorts->setText(qs_li(sortedPortLi));
 
         liPorts.swap(sortedPortLi);
+
+        //////////////////////////////////디버그 코드 ///////////////////////////////
+
+        liPorts.clear();
+        liPorts.append(1); liPorts.append(1); liPorts.append(1); liPorts.append(1); liPorts.append(1); liPorts.append(1); liPorts.append(8);
+
+        //////////////////////////////////디버그 코드 ///////////////////////////////
 
         on_btn_legCon_clicked();
 
@@ -2636,7 +2708,9 @@ void MainWindow::on_edit_serialPorts_returnPressed()
     std::vector<std::string> vs = vs_s(qt::s_qs(serialPorts), ' ');
 
     for(std::string s : vs ){
+
         qDebug() << QString::fromStdString(s);
+
     }
 
     if(vs.size() >= 6 ){
@@ -2659,13 +2733,13 @@ void MainWindow::on_edit_serialPorts_returnPressed()
         ui->cb_leg6->addItem(qt::qs_s(vs[5]));
         ui->cb_enc2->addItem(qt::qs_s(vs[6]));
 
+
     }else{
 
         log("serial port names != 7 ");
         emit errorSetText( "serial port names < 6 " );
 
     }
-
 
 }
 
@@ -2689,6 +2763,7 @@ void MainWindow::on_btn_queueClear_clicked()
 
 void MainWindow::on_btn_cds_send_clicked()
 {
+
     i::A6 ia6 = {1, 1, 1, 0, 1, 1};
     cdsClass_ai6("TfmCds",ia6);
 
@@ -2756,4 +2831,9 @@ void MainWindow::on_tbr_batteryTimer_sliderReleased()
 {
     bMmfTimer->setInterval(ui->tbr_batteryTimer->value());
     ui->edit_batterySwitchDelay->setNum(ui->tbr_batteryTimer->value());
+}
+
+void MainWindow::on_edit_encMmfName_returnPressed()
+{
+    emit changeEncMmfName(ui->edit_encMmfName->text());
 }

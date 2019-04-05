@@ -20,6 +20,14 @@ namespace mmf_cp {
     }
 }
 
+
+namespace mmf {
+    namespace writer {
+        class l;
+        typedef const l L; typedef l(&r); typedef L(&R); typedef l(*p); typedef L(*Tp); typedef std::vector<l> v; typedef const v V; typedef v(&w); typedef const v(&W);
+    }
+}
+
 }
 
 
@@ -44,6 +52,7 @@ public:
 
 
     bool nativeEvent(const QByteArray &eventType, void *message, long *resultMSG);
+    void setUiFromIni();
     void set_tbrs();
     bool init_tbrs();
     bool init_lv();
@@ -60,6 +69,7 @@ public:
     QList<int> li_legsVal();
     void thsrl_pai6(int (*_commands)[6]);
     void doAutoStart();
+
 
 
     QThread* wThread;
@@ -113,6 +123,7 @@ signals:
     void setSwitchMmfDelay(int _tbrValue);
     void check_bat();
     void setBMmfName(QString _text);
+    void changeEncMmfName(QString _nMmf);
 
 private slots:
 
@@ -242,6 +253,10 @@ private slots:
 
     void onShowSval(QString _sVal);
 
+    void on_edit_encMmfName_returnPressed();
+
+    void onUpdateBvalue(QString _bVal);
+
 private:
     Ui::MainWindow *ui;
 };
@@ -370,6 +385,7 @@ signals:
     void check_bat();
     void setBMmfName(QString _text);
     void showSval(QString _sVal);
+    void updateBvalue(QString _bVal);
 
 
 public slots:
@@ -382,6 +398,7 @@ public slots:
     void legsToOrigin();
     void connectSixSrlNo(QList<int> _legsPortNo);
     QList<int> findPorts(QList<int> _liPorts);
+    void onChangeEncMmfName(QString _nMmf);
 
 
 };
@@ -453,7 +470,7 @@ class OffsetWorker : public QObject{
     QTimer* mmfTimer;
 
     rv2::mmf_cp::writer::p pMmfWritAi6;
-    rv2::mmf_cp::writer::p pMmfWritCp;
+    rv2::mmf::writer::p    pMmfWritS;
 
 
 
@@ -461,6 +478,7 @@ signals:
     void log(QString _text);
     void setHomeSet(QString _text);
     void showSval(QString _sVal);
+    void updateBvalue(QString _bVal);
 
 public slots:
     void onReadOffset();
