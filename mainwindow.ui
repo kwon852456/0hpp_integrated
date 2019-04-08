@@ -43,7 +43,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_9">
        <attribute name="title">
@@ -447,6 +447,19 @@
           </layout>
          </widget>
         </widget>
+       </widget>
+       <widget class="QCheckBox" name="cb_auto">
+        <property name="geometry">
+         <rect>
+          <x>350</x>
+          <y>30</y>
+          <width>111</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Auto</string>
+        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="tab_10">

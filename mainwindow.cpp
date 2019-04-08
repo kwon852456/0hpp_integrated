@@ -52,8 +52,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setUiFromIni();
 
-    QTimer::singleShot(1000,this, SLOT(setupStart()));
+    if(ini_usb.s_ready("Auto") == "1"){
 
+        qDebug() << "Auto" << qt::qs_s(ini_usb.s_ready("Auto"));
+        isAutoMode = true;
+        ui->cb_auto->setCheckState(Qt::CheckState::Checked);
+
+    }
+
+    QTimer::singleShot(1000, this, SLOT(setupStart()));
 
 }
 
@@ -69,6 +76,8 @@ MainWindow::~MainWindow()
     ini_usb.write_s(  qt::s_qs(ui->edit_switchMMfName->text()   ),   "switchMMfName"   );
     ini_usb.write_s(  qt::s_qs(ui->edit_batteryMMfName->text()  ),   "batteryMMfName"  );
     ini_usb.write_s(  qt::s_qs(ui->edit_encMmfName->text()      ),   "encMmfName"      );
+    ini_usb.write_s(  s_b(ui->cb_auto->isChecked()              ),   "Auto"            );
+
 
     ini_usb.save();
 
@@ -77,8 +86,6 @@ MainWindow::~MainWindow()
 vo::t MainWindow::setupStart(){
 
     qDebug() << __func__ ;
-
-    isAutoMode = true; //테스트용..! 삭제하세요!
 
     if(isAutoMode){
 
@@ -2677,6 +2684,7 @@ void MainWindow::on_btn_serialSearch_clicked()
 
 
 
+
     ////////////////포트 자동 잡기 끝 ////////////////////////
 
     if(sortedPortLi.size() > 6){ qDebug() << "size of sortedPortLi : " << sortedPortLi.size();
@@ -2686,6 +2694,7 @@ void MainWindow::on_btn_serialSearch_clicked()
         liPorts.swap(sortedPortLi);
         on_btn_legCon_clicked();
 
+
     }else{
 
         qDebug() << "Serial port init error...!";
@@ -2693,7 +2702,7 @@ void MainWindow::on_btn_serialSearch_clicked()
         emit errorSetText("Serial port init error...!");
         emit errorSetText("connectable ports number : "+ qt::s_i(sortedPortLi.size()) +" ,  sorted Port No : " + qs_li(sortedPortLi));
 
-        ui->edit_serialPorts->setText(qs_li(liPorts));
+        ui->edit_serialPorts->setText(   qs_li(liPorts)  );
 
     }
 
