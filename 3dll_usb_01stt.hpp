@@ -613,11 +613,10 @@ QString qsBattery_srl(qt::srl::p _srl){
     if(!_srl->isOpen()){ qDebug() << "offset Serial is closed.." ; return nil; }
 
     _srl->write("S",1);
+    _srl->write("S",1);
+
     _srl->write("b",1);
-
-
-        _srl->write("S",1);
-        if(!_srl->waitForReadyRead(1000)){ };
+    if(!_srl->waitForReadyRead(1000)){ };
 
     qt::yar::t yar = _srl->readAll();  qDebug() << "first : " << yar;
     _srl->write("b",1);

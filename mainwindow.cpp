@@ -54,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QTimer::singleShot(1000,this, SLOT(setupStart()));
 
+
 }
 
 
@@ -114,8 +115,9 @@ vo::t MainWindow::setUiFromIni(){
 
 vo::t MainWindow::doAutoStart(){
 
-    QFuture<void> future = QtConcurrent::run([this](){ on_btn_serialSearch_clicked(); });
-
+    setEnabled(false);
+    on_btn_serialSearch_clicked();
+    setEnabled(true);
 
 }
 
@@ -1554,7 +1556,7 @@ int SerialWorker::onWrite_req(qt::yar::t _req, i::t _id){
 
     if(port->write(_req)){
 
-        if(!port->waitForReadyRead(500)){
+        if(!port->waitForReadyRead(1000)){
 
             qDebug() << " response time out from id : "   + qt::s_i(_id)  +    "..! try again..!"   ;
             emit log   (" response time out from id : "   + qt::s_i(_id)  +    "..! try again..!"   );
