@@ -50,21 +50,6 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     }
 
-    isAutoMode = true; //테스트용..! 삭제하세요!
-
-    if(isAutoMode){
-
-        ui->cb_cdsListen->setCheckState(Qt::CheckState::Checked);
-        ui->cb_release->click();
-        ui->pushButton->click();
-        emit setSwitchMMfName(ui->edit_switchMMfName->text());
-        emit setBMmfName(ui->edit_batteryMMfName->text());
-        emit changeEncMmfName(ui->edit_encMmfName->text());
-
-        doAutoStart();
-
-    }
-
     setUiFromIni();
 
 }
@@ -86,6 +71,29 @@ MainWindow::~MainWindow()
 
 }
 
+void MainWindow::showEvent( QShowEvent* event ) {
+    QMainWindow::showEvent( event );
+
+    qDebug() << "showEvent" ;
+
+    isAutoMode = true; //테스트용..! 삭제하세요!
+
+    if(isAutoMode){
+
+        ui->cb_cdsListen->setCheckState(Qt::CheckState::Checked);
+        ui->cb_release->click();
+        ui->pushButton->click();
+        emit setSwitchMMfName(ui->edit_switchMMfName->text());
+        emit setBMmfName(ui->edit_batteryMMfName->text());
+        emit changeEncMmfName(ui->edit_encMmfName->text());
+
+        doAutoStart();
+
+    }
+
+}
+
+
 vo::t MainWindow::setUiFromIni(){
 
     if(ini_usb.load()){
@@ -93,10 +101,6 @@ vo::t MainWindow::setUiFromIni(){
         ui->edit_switchMMfName  -> setText(qt::qs_s(ini_usb.s_ready("switchMMfName" )));
         ui->edit_batteryMMfName -> setText(qt::qs_s(ini_usb.s_ready("batteryMMfName")));
         ui->edit_encMmfName     -> setText(qt::qs_s(ini_usb.s_ready("encMmfName"    )));
-
-        qDebug() << "qs_s(ini_usb.s_ready('switchMMfName' )" << qt::qs_s(ini_usb.s_ready("switchMMfName" ));
-        qDebug() << "qs_s(ini_usb.s_ready('batteryMMfName' )" << qt::qs_s(ini_usb.s_ready("batteryMMfName" ));
-        qDebug() << "qs_s(ini_usb.s_ready('encMmfName' )" << qt::qs_s(ini_usb.s_ready("encMmfName" ));
 
         emit setSwitchMMfName(ui->edit_switchMMfName->text());
         emit setBMmfName(ui->edit_batteryMMfName->text());
@@ -1295,6 +1299,7 @@ void Dll_usb_mmf01stl::discon_srls(){
     QMetaObject::invokeMethod(sWorkerLeg6,   "closeSrl",  Qt::BlockingQueuedConnection);
     QMetaObject::invokeMethod(oWorker    ,   "closeSrl",  Qt::BlockingQueuedConnection);
 
+    qDebug() << __func__;
 }
 
 bool Dll_usb_mmf01stl::ping_secondEnc(){
@@ -2523,6 +2528,8 @@ void MainWindow::on_btn_legCon_clicked()
     emit openSecondSerial( "COM" + qt::s_i(srlNo[6]) );
     emit connectSixSrlNo ( srlNo );
 
+    emit errorSetText("All serial ports are detected..! ");
+
 }
 
 void MainWindow::on_btn_portSave_clicked()
@@ -2651,17 +2658,6 @@ void MainWindow::on_btn_serialSearch_clicked()
     ////////////////포트 자동 잡기 시작 ////////////////////////
 
 
-    /////////////////////////////////////////////////////////디버그 코드
-
-    liPorts.append(8);
-    liPorts.append(8);
-    liPorts.append(8);
-    liPorts.append(8);
-    liPorts.append(8);
-    liPorts.append(8);
-
-    ////////////////////////////////////////////////////////디버그 코드
-
 
     QList<int> sortedPortLi;
 
@@ -2684,14 +2680,6 @@ void MainWindow::on_btn_serialSearch_clicked()
         ui->edit_serialPorts->setText(qs_li(sortedPortLi));
 
         liPorts.swap(sortedPortLi);
-
-        //////////////////////////////////디버그 코드 ///////////////////////////////
-
-        liPorts.clear();
-        liPorts.append(1); liPorts.append(1); liPorts.append(1); liPorts.append(1); liPorts.append(1); liPorts.append(1); liPorts.append(8);
-
-        //////////////////////////////////디버그 코드 ///////////////////////////////
-
         on_btn_legCon_clicked();
 
     }else{

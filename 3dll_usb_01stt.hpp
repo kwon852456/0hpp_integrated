@@ -129,6 +129,8 @@ qt::thr::p thr_Srl(qt::srl::p _Srl, QObject *parent = nullptr){
 
 qt::yar::li yarl_yar(qt::yar::t _yar){
 
+    qDebug() << __func__;
+
     qt::yar::li li_;
     qt::yar::t temp;
     i::t count = 0;
@@ -138,8 +140,9 @@ qt::yar::li yarl_yar(qt::yar::t _yar){
         if(*i == '['){
             do{
                 temp.append(*i);
-                ++i;
-                if(i == _yar.cend() - 1) break;
+                if(i != _yar.cend() - 1) ++i;
+                else break;
+
             }while(*i != ']' );
 
             if(*i == ']'){
@@ -396,13 +399,12 @@ void ai6_vs(i::a6& _ai6 , std::vector<std::string>& _vs){
     if(_vs.size() == 0 ){ qDebug() << "_vs.size() == 0"; return; }
 
 
+
     for(z::t i(0) ; i < 6 ; ++i){
 
         c::t ct = _vs[2][i];
         _ai6[i] = ct - '0';
     }
-
-
 
 }
 
@@ -497,18 +499,18 @@ int (*pai3_srl(qt::srl::p _srl))[3]{
     if(!_srl->isOpen()){ qDebug() << "offset Serial is closed.." ; return nil; }
 
 
-    while(true){ qDebug() << "clearing buffer in pai3_srl";
-
-        if(!_srl->write("S",1)){ qDebug() << "write failed....! on pai3_srl "; break;}
-        if(_srl->waitForReadyRead(1000)){  _srl->readAll();  }
-
-        else{ break; }
-
-    }
-
+    !_srl->write("S",1);
     _srl->readAll();
 
     if(_srl->write("e",1)){
+
+        while(true)
+            if(!_srl->waitForReadyRead(500))
+            {
+                break;
+            }
+
+            else{ qt::yar::t yar=  _srl->readAll(); qDebug() << yar; }
 
         pai3::p pai3_ = pai3_encVal(_srl);
 
@@ -605,17 +607,17 @@ QString qs_BValue( qt::srl::p _srl ){
 
 
 QString qsBattery_srl(qt::srl::p _srl){
+
+    qDebug() << __func__;
+
     if(!_srl->isOpen()){ qDebug() << "offset Serial is closed.." ; return nil; }
 
     _srl->write("S",1);
     _srl->write("b",1);
 
-    while(true){
 
         _srl->write("S",1);
-        if(!_srl->waitForReadyRead(1000)){ break; };
-
-    }
+        if(!_srl->waitForReadyRead(1000)){ };
 
     qt::yar::t yar = _srl->readAll();  qDebug() << "first : " << yar;
     _srl->write("b",1);
