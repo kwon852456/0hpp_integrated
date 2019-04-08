@@ -69,7 +69,6 @@ public:
     QList<int> li_legsVal();
     void thsrl_pai6(int (*_commands)[6]);
     void doAutoStart();
-    void showEvent( QShowEvent* event );
 
 
 
@@ -127,6 +126,8 @@ signals:
     void changeEncMmfName(QString _nMmf);
 
 private slots:
+
+    void setupStart();
 
     void sendCds();
 

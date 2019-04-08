@@ -52,6 +52,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setUiFromIni();
 
+    QTimer::singleShot(1000,this, SLOT(setupStart()));
+
 }
 
 
@@ -71,10 +73,9 @@ MainWindow::~MainWindow()
 
 }
 
-void MainWindow::showEvent( QShowEvent* event ) {
-    QMainWindow::showEvent( event );
+vo::t MainWindow::setupStart(){
 
-    qDebug() << "showEvent" ;
+    qDebug() << __func__ ;
 
     isAutoMode = true; //테스트용..! 삭제하세요!
 
@@ -113,7 +114,8 @@ vo::t MainWindow::setUiFromIni(){
 
 vo::t MainWindow::doAutoStart(){
 
-    on_btn_serialSearch_clicked();
+    QFuture<void> future = QtConcurrent::run([this](){ on_btn_serialSearch_clicked(); });
+
 
 }
 
