@@ -10,6 +10,7 @@
 #include <QFileDialog>
 #include <QListWidgetItem>
 #include <QDesktopServices>
+typedef QMap<int, int> mii;
 
 namespace rv2 {
 
@@ -399,7 +400,7 @@ public slots:
     void thsri_qai36(QList<int> _qai3, int _legNo);
     void legsToOrigin();
     void connectSixSrlNo(QList<int> _legsPortNo);
-    QList<int> findPorts(QList<int> _liPorts);
+    mii findPorts(QList<int> _liPorts);
     void onChangeEncMmfName(QString _nMmf);
 
 
