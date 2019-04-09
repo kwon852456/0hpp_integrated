@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>901</width>
-    <height>749</height>
+    <height>822</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
       <x>10</x>
       <y>10</y>
       <width>881</width>
-      <height>501</height>
+      <height>471</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -39,7 +39,7 @@
         <x>0</x>
         <y>10</y>
         <width>861</width>
-        <height>461</height>
+        <height>451</height>
        </rect>
       </property>
       <property name="currentIndex">
@@ -47,7 +47,7 @@
       </property>
       <widget class="QWidget" name="tab_9">
        <attribute name="title">
-        <string>&amp;Init</string>
+        <string>[&amp;1]Init</string>
        </attribute>
        <widget class="QGroupBox" name="groupBox_3">
         <property name="geometry">
@@ -108,9 +108,9 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>280</y>
+          <y>260</y>
           <width>611</width>
-          <height>121</height>
+          <height>141</height>
          </rect>
         </property>
         <property name="currentIndex">
@@ -464,7 +464,7 @@
       </widget>
       <widget class="QWidget" name="tab_10">
        <attribute name="title">
-        <string>&amp;Operate</string>
+        <string>[&amp;2]Operate</string>
        </attribute>
        <widget class="QGroupBox" name="groupBox_4">
         <property name="geometry">
@@ -608,7 +608,7 @@
       </widget>
       <widget class="QWidget" name="tab_13">
        <attribute name="title">
-        <string>EncoderMMF</string>
+        <string>[&amp;3]EncoderMMF</string>
        </attribute>
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
@@ -646,7 +646,7 @@
       </widget>
       <widget class="QWidget" name="tab_11">
        <attribute name="title">
-        <string>SwitchMMF</string>
+        <string>[&amp;4]SwitchMMF</string>
        </attribute>
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
@@ -854,7 +854,7 @@
       </widget>
       <widget class="QWidget" name="tab_12">
        <attribute name="title">
-        <string>BatteryMMF</string>
+        <string>[&amp;5]BatteryMMF</string>
        </attribute>
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
@@ -1399,7 +1399,7 @@
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>660</y>
+      <y>740</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -1412,7 +1412,7 @@
     <property name="geometry">
      <rect>
       <x>420</x>
-      <y>660</y>
+      <y>740</y>
       <width>241</width>
       <height>23</height>
      </rect>
@@ -1425,7 +1425,7 @@
     <property name="geometry">
      <rect>
       <x>770</x>
-      <y>660</y>
+      <y>740</y>
       <width>121</width>
       <height>23</height>
      </rect>
@@ -1441,13 +1441,13 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>510</y>
+      <y>480</y>
       <width>881</width>
-      <height>141</height>
+      <height>251</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_4">
      <attribute name="title">
@@ -1459,7 +1459,7 @@
         <x>0</x>
         <y>0</y>
         <width>881</width>
-        <height>121</height>
+        <height>221</height>
        </rect>
       </property>
       <property name="title">
@@ -1471,7 +1471,7 @@
          <x>10</x>
          <y>10</y>
          <width>861</width>
-         <height>91</height>
+         <height>201</height>
         </rect>
        </property>
        <property name="verticalScrollBarPolicy">
@@ -1499,7 +1499,7 @@
         <x>10</x>
         <y>10</y>
         <width>861</width>
-        <height>101</height>
+        <height>211</height>
        </rect>
       </property>
       <property name="verticalScrollBarPolicy">

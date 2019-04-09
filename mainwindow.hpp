@@ -354,6 +354,7 @@ signals:
     void setHomeSet(QString _text);
     void saveHomeSet();
     void loadHomeset(QString _path);
+    void errorSetText(QString _text);
 
     void write_cmdToFirstLeg(char* _cmd);
     void write_reqToFirstLeg(char* _cmd);
