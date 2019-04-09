@@ -2584,7 +2584,10 @@ void MainWindow::on_btn_setLegsToZero_clicked()
 void MainWindow::on_btn_legCon_clicked()
 {
 
-    if( liPorts.size() < 7 ){ emit errorSetText("connectable ports number < 7 "); return; }
+    s::v vs = vs_s(qt::s_qs(ui->edit_serialPorts->text()) , ' ');
+
+    if( liPorts.size() < 7 ){ qDebug() << vs.size(); liPorts.clear(); for(z::t i(0) ; i < vs.size() ; ++i){ liPorts.push_back(i_s(vs[i]));  } }
+    if( liPorts.size() < 7 ){  emit errorSetText("connectable ports number < 7 "); return; }
 
     QList<int> srlNo;
     srlNo.swap(liPorts);
@@ -2667,6 +2670,12 @@ void MainWindow::on_btn_portLoad_clicked()
     setComboBox(ui->cb_leg6, qt::qs_s(vs[5]));
     setComboBox(ui->cb_enc2, qt::qs_s(vs[6]));
 
+    QString ports;
+    for(z::t i(0) ; i < 7 ; ++i){
+        ports += qt::qs_s(vs[i]) + " ";
+    }
+
+    ui->edit_serialPorts->setText(ports);
 
 }
 
