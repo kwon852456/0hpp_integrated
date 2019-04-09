@@ -1380,11 +1380,12 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                         break;
 
                     }
+                }else if( j == _liPorts.size() -1 ){
+                    emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
                 }
             }
 
 
-            emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
             break;
 
         case 1:
@@ -1411,11 +1412,12 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                         break;
 
                     }
+                }else if( j == _liPorts.size() -1 ){
+                    emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
                 }
 
             }
 
-            emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
 
             break;
 
@@ -1443,10 +1445,11 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                         break;
 
                     }
+                }else if( j == _liPorts.size() -1 ){
+                    emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
                 }
             }
 
-            emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
 
             break;
 
@@ -1476,10 +1479,11 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                         break;
 
                     }
+                }else if( j == _liPorts.size() -1 ){
+                    emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
                 }
             }
 
-            emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
 
             break;
 
@@ -1508,10 +1512,11 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                         break;
 
                     }
+                }else if( j == _liPorts.size() -1 ){
+                    emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
                 }
             }
 
-            emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
 
             break;
 
@@ -1540,11 +1545,11 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                         break;
 
                     }
+                }else if( j == _liPorts.size() -1 ){
+                    emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
                 }
 
             }
-
-            emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
 
             break;
 
@@ -1562,11 +1567,12 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
 
                     discon_srls();
                     break;
+                }else if( j == _liPorts.size() -1 ){
+                    emit errorSetText( " SecondBoard is NOT CONNECTED.....!!!" );
                 }
 
             }
 
-            emit errorSetText( " SecondBoard is NOT CONNECTED.....!!!" );
 
             discon_srls();
             break;
