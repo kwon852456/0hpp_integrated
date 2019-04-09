@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     qRegisterMetaType<QList<int>>("QList<int>");
+    qRegisterMetaType<QMap<int,int>>("QMap<int,int>");
 
     wThread       = new QThread();
     sendTimer     = new QTimer (this);
@@ -59,6 +60,8 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->cb_auto->setCheckState(Qt::CheckState::Checked);
 
     }
+
+
 
     QTimer::singleShot(1000, this, SLOT(setupStart()));
 
@@ -161,6 +164,7 @@ vo::t MainWindow::makeConnection(){
     connect(this,              &MainWindow::check_bat,            stl,     &Dll_usb_mmf01stl::check_bat          );
     connect(this,              &MainWindow::setBMmfName,          stl,     &Dll_usb_mmf01stl::setBMmfName        );
     connect(this,              &MainWindow::changeEncMmfName,     stl,     &Dll_usb_mmf01stl::onChangeEncMmfName );
+    connect(this,              &MainWindow::findPorts,            stl,     &Dll_usb_mmf01stl::findPorts          );
 
 
 
@@ -172,6 +176,7 @@ vo::t MainWindow::makeConnection(){
     connect(stl,               &Dll_usb_mmf01stl::showSval,       this,    &MainWindow::onShowSval         );
     connect(stl,               &Dll_usb_mmf01stl::updateBvalue,   this,    &MainWindow::onUpdateBvalue     );
     connect(stl,               &Dll_usb_mmf01stl::errorSetText,   this,    &MainWindow::errorSetText       );
+    connect(stl,               &Dll_usb_mmf01stl::MlegPorts_srls, this,    &MainWindow::setPortsNo         );
 
 
     connect(srl_fileTimer,     &QTimer::timeout,                  this,    &MainWindow::fileTimerTimeOut   );
@@ -258,6 +263,10 @@ vo::t MainWindow::onErrorSetText(qt::s::t _text){
 
     ui->edit_error->append(_text);
 
+    statusBar()->showMessage(_text,10000);
+
+
+
 }
 
 
@@ -310,7 +319,6 @@ pai6::p pai6_msg(vo::p _message){
         switch (head.y0){
             case byt::aai6:
 
-//                pai6_yHdr(pai6, yHdr);
                   pai6_headRaw(pai6,yRaw,head);
                 return pai6;
 
@@ -1326,7 +1334,7 @@ bool Dll_usb_mmf01stl::ping_secondEnc(){
 
 }
 
-QMap<int,int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
+vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
     qDebug() << __func__;
 
     QList<int> liLegs;
@@ -1339,7 +1347,6 @@ QMap<int,int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
     QList<int> liPorts_;
     i::T legNumber = 6;
     i::T otherSerialPortNo = 1;
-
 
     for(z::t i(0) ; i < legNumber + otherSerialPortNo ; ++i){
 
@@ -1357,7 +1364,9 @@ QMap<int,int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
 
                 i::T res = i_srl(11);
 
-                if( res != 99999 && res != 99998 && res != 99997  ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1   ; liPorts_.append(_liPorts[j]);
+                if( res != 99999 && res != 99998 && res != 99997  ){
+
+                    qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1   ; liPorts_.append(_liPorts[j]);
                     _liPorts.removeAt(j); liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
 
                     break;
@@ -1372,7 +1381,6 @@ QMap<int,int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
 
                     }
                 }
-
             }
 
 
@@ -1404,6 +1412,7 @@ QMap<int,int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
 
                     }
                 }
+
             }
 
             emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
@@ -1532,6 +1541,7 @@ QMap<int,int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
 
                     }
                 }
+
             }
 
             emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
@@ -1572,7 +1582,8 @@ QMap<int,int> Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
 
     }
 
-    return MlegPort;
+    emit MlegPorts_srls(MlegPort);
+
 }
 
 
@@ -2728,11 +2739,9 @@ void MainWindow::on_btn_serialSearch_clicked()
 
     for(z::t i(0) ; i < 50 ; ++i){
 
-        srl->setPortName    ("COM" +  qt::s_i(i));
+        srl->setPortName("COM" +  qt::s_i(i));
 
-        if(!srl->open       (QIODevice  ::ReadWrite)){
-
-
+        if(!srl->open(QIODevice::ReadWrite)){
         }else{
 
             qDebug() << "Serial opened" << endl;
@@ -2741,7 +2750,6 @@ void MainWindow::on_btn_serialSearch_clicked()
         }
 
         srl->close();
-
     }
 
     for(i::T port : liPorts){
@@ -2763,13 +2771,22 @@ void MainWindow::on_btn_serialSearch_clicked()
 
 
 
-    QMetaObject::invokeMethod(stl,"findPorts", Qt::BlockingQueuedConnection,
-                              Q_RETURN_ARG(mii, mLegPort),
-                              Q_ARG(QList<int>,liPorts));
+    emit findPorts(liPorts);
+
+//    QMetaObject::invokeMethod(stl,"findPorts", Qt::BlockingQueuedConnection,
+//                              Q_RETURN_ARG(mii, mLegPort),
+//                              Q_ARG(QList<int>, liPorts));
 
 
+
+}
+
+vo::t MainWindow::setPortsNo(QMap<int,int> mLegPort){
+    qDebug() << __func__;
 
     QList<int> sortedPortLi = mLegPort.values();
+
+
     qDebug() << "sortedPortLi : " << mLegPort.values() << endl;
 
     qDebug() << "mLegPort.size() : " << mLegPort.size();
@@ -2778,15 +2795,15 @@ void MainWindow::on_btn_serialSearch_clicked()
 
 
 
-    for(z::t i(0) ; i < mLegPort.size() ; ++i){
-        emit errorSetText( "conected legs  : " + qs_li(mLegPort.keys()   ) );
-        emit errorSetText( "conected ports : " + qs_li(mLegPort.values() ) );
-    }///왜 안뜨는지 확인할것
+    emit errorSetText( "conected legs  : " + qs_li(mLegPort.keys()   ) );
+    emit errorSetText( "conected ports : " + qs_li(mLegPort.values() ) );
 
 
     ////////////////포트 자동 잡기 끝 ////////////////////////
 
-    if(sortedPortLi.size() > 6){ qDebug() << "size of sortedPortLi : " << sortedPortLi.size();
+    if(sortedPortLi.size() > 6){
+
+        qDebug() << "size of sortedPortLi : " << sortedPortLi.size();
 
         ui->edit_serialPorts->setText( qs_li(sortedPortLi) );
 
@@ -2802,12 +2819,14 @@ void MainWindow::on_btn_serialSearch_clicked()
         emit errorSetText("connectable ports number : "+ qt::s_i(sortedPortLi.size()) +" ,  sorted Port No : " + qs_li(sortedPortLi));
 
         ui->edit_serialPorts->setText(   qs_li(liPorts)  );
+
     }
 
 
     emit write_log("sorted Port No : " + qs_li(sortedPortLi));
 
 }
+
 
 void MainWindow::on_btn_logClear_clicked()
 {

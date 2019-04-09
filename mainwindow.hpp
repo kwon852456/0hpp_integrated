@@ -125,6 +125,7 @@ signals:
     void check_bat();
     void setBMmfName(QString _text);
     void changeEncMmfName(QString _nMmf);
+    void findPorts(QList<int> _liports);
 
 private slots:
 
@@ -260,6 +261,8 @@ private slots:
 
     void onUpdateBvalue(QString _bVal);
 
+    void setPortsNo(QMap<int,int> _MlegNo);
+
 private:
     Ui::MainWindow *ui;
 };
@@ -390,6 +393,8 @@ signals:
     void setBMmfName(QString _text);
     void showSval(QString _sVal);
     void updateBvalue(QString _bVal);
+    void MlegPorts_srls(QMap<int, int>);
+
 
 
 public slots:
@@ -401,7 +406,7 @@ public slots:
     void thsri_qai36(QList<int> _qai3, int _legNo);
     void legsToOrigin();
     void connectSixSrlNo(QList<int> _legsPortNo);
-    mii findPorts(QList<int> _liPorts);
+    void findPorts(QList<int> _liPorts);
     void onChangeEncMmfName(QString _nMmf);
 
 
