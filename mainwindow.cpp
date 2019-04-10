@@ -12,7 +12,7 @@ QElapsedTimer timer;
 
 
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
@@ -168,15 +168,16 @@ vo::t MainWindow::makeConnection(){
 
 
 
-    connect(stl,               &Dll_usb_mmf01stl::showOffset,     this,    &MainWindow::onShowOffset       );
-    connect(stl,               &Dll_usb_mmf01stl::log,            this,    &MainWindow::write_log          );
-    connect(stl,               &Dll_usb_mmf01stl::thsri_qai36End, this,    &MainWindow::thsri_qai36End     );
-    connect(stl,               &Dll_usb_mmf01stl::timeTaken,      this,    &MainWindow::timeTaken          );
-    connect(stl,               &Dll_usb_mmf01stl::setHomeSet,     this,    &MainWindow::setHomeSet         );
-    connect(stl,               &Dll_usb_mmf01stl::showSval,       this,    &MainWindow::onShowSval         );
-    connect(stl,               &Dll_usb_mmf01stl::updateBvalue,   this,    &MainWindow::onUpdateBvalue     );
-    connect(stl,               &Dll_usb_mmf01stl::errorSetText,   this,    &MainWindow::errorSetText       );
-    connect(stl,               &Dll_usb_mmf01stl::MlegPorts_srls, this,    &MainWindow::setPortsNo         );
+    connect(stl,               &Dll_usb_mmf01stl::showOffset,             this,    &MainWindow::onShowOffset       );
+    connect(stl,               &Dll_usb_mmf01stl::log,                    this,    &MainWindow::write_log          );
+    connect(stl,               &Dll_usb_mmf01stl::thsri_qai36End,         this,    &MainWindow::thsri_qai36End     );
+    connect(stl,               &Dll_usb_mmf01stl::timeTaken,              this,    &MainWindow::timeTaken          );
+    connect(stl,               &Dll_usb_mmf01stl::setHomeSet,             this,    &MainWindow::setHomeSet         );
+    connect(stl,               &Dll_usb_mmf01stl::showSval,               this,    &MainWindow::onShowSval         );
+    connect(stl,               &Dll_usb_mmf01stl::updateBvalue,           this,    &MainWindow::onUpdateBvalue     );
+    connect(stl,               &Dll_usb_mmf01stl::errorSetText,           this,    &MainWindow::errorSetText       );
+    connect(stl,               &Dll_usb_mmf01stl::MlegPorts_srls,         this,    &MainWindow::setPortsNo         );
+    connect(stl,               &Dll_usb_mmf01stl::brokenCheckSumDetected, this,    &MainWindow::updateBrokenCheck  );
 
 
     connect(srl_fileTimer,     &QTimer::timeout,                  this,    &MainWindow::fileTimerTimeOut   );
@@ -195,6 +196,34 @@ vo::t MainWindow::log(qt::s::t _text){
 vo::t MainWindow::onEdit_log_setText(qt::s::T _text){
     ui->Edit_log->append(_text);
 };
+
+vo::t MainWindow::updateBrokenCheck(QList<int> _liBrokenChecksum){
+
+    qDebug() << __func__;
+
+    int preLeg1 = qt::i_s(ui->edit_checkLeg1->text());
+    int preLeg2 = qt::i_s(ui->edit_checkLeg2->text());
+    int preLeg3 = qt::i_s(ui->edit_checkLeg3->text());
+    int preLeg4 = qt::i_s(ui->edit_checkLeg4->text());
+    int preLeg5 = qt::i_s(ui->edit_checkLeg5->text());
+    int preLeg6 = qt::i_s(ui->edit_checkLeg6->text());
+
+    preLeg1 += _liBrokenChecksum[0];
+    preLeg2 += _liBrokenChecksum[1];
+    preLeg3 += _liBrokenChecksum[2];
+    preLeg4 += _liBrokenChecksum[3];
+    preLeg5 += _liBrokenChecksum[4];
+    preLeg6 += _liBrokenChecksum[5];
+
+
+    ui->edit_checkLeg1->setText(qt::s_i(preLeg1));
+    ui->edit_checkLeg2->setText(qt::s_i(preLeg2));
+    ui->edit_checkLeg3->setText(qt::s_i(preLeg3));
+    ui->edit_checkLeg4->setText(qt::s_i(preLeg4));
+    ui->edit_checkLeg5->setText(qt::s_i(preLeg5));
+    ui->edit_checkLeg6->setText(qt::s_i(preLeg6));
+
+}
 
 b::t MainWindow::init_tbrs(){
 
@@ -247,7 +276,7 @@ vo::t MainWindow::fileTimerTimeOut(){
 
     if(stl->isFinished){
 
-        if(ui->lv_commands->currentRow() != -1  && ui->lv_commands->currentRow() <= idxSizeCommands ){
+        if(ui->lv_commands->currentRow() != -1  && ui->lv_commands->currentRow() <= idxSizeCommands){
 
             pai6::p command = mCommands.find(ui->lv_commands->currentRow()).value();
             thsrl_pai6(command);
@@ -264,8 +293,6 @@ vo::t MainWindow::onErrorSetText(qt::s::t _text){
     ui->edit_error->append(_text);
 
     statusBar()->showMessage(_text,10000);
-
-
 
 }
 
@@ -1045,6 +1072,22 @@ vo::t Dll_usb_mmf01stl::onMmfClicked(){
 
             for(z::t i(0) ; i < 5 ; ++i){ qDebug() << "BROKEN CHECK SUM HAS BEEN DETECTED WRTING PAI3 TO MMF PAUSED.....!"; }
             emit log("BROKEN CHECK SUM HAS BEEN DETECTED WRTING PAI3 TO MMF PAUSED.....!");
+
+            QList<int> brokenCheckSum = {0, 0, 0, 0, 0, 0};
+
+            for(z::t i(0) ; i < 6 ; ++i){
+                for(z::t j(0) ; j < 3 ; ++j){
+                    if(encVal[i][j] == 99999) {
+                        brokenCheckSum[i]++;
+                    }
+                }
+
+            }
+
+            emit brokenCheckSumDetected(brokenCheckSum);
+
+
+
         }
     });
 }

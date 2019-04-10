@@ -263,6 +263,8 @@ private slots:
 
     void setPortsNo(QMap<int,int> _MlegNo);
 
+    void updateBrokenCheck(QList<int> _liBrokenCheck);
+
 private:
     Ui::MainWindow *ui;
 };
@@ -394,6 +396,7 @@ signals:
     void showSval(QString _sVal);
     void updateBvalue(QString _bVal);
     void MlegPorts_srls(QMap<int, int>);
+    void brokenCheckSumDetected(QList<int> _librokenCheck);
 
 
 
