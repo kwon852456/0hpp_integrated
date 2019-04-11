@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_6">
      <attribute name="title">
@@ -109,7 +109,7 @@
          <rect>
           <x>10</x>
           <y>250</y>
-          <width>611</width>
+          <width>571</width>
           <height>161</height>
          </rect>
         </property>
@@ -447,6 +447,188 @@
         <property name="text">
          <string>Auto</string>
         </property>
+       </widget>
+       <widget class="QWidget" name="layoutWidget_8">
+        <property name="geometry">
+         <rect>
+          <x>590</x>
+          <y>100</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_19">
+         <item>
+          <widget class="QLabel" name="label_31">
+           <property name="text">
+            <string>Leg 3 :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="edit_conLeg3">
+           <property name="text">
+            <string> NOT CONNECTED..!</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="layoutWidget_9">
+        <property name="geometry">
+         <rect>
+          <x>590</x>
+          <y>140</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_20">
+         <item>
+          <widget class="QLabel" name="label_32">
+           <property name="text">
+            <string>Leg 4 :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="edit_conLeg4">
+           <property name="text">
+            <string> NOT CONNECTED..!</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="layoutWidget_10">
+        <property name="geometry">
+         <rect>
+          <x>590</x>
+          <y>180</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_21">
+         <item>
+          <widget class="QLabel" name="label_33">
+           <property name="text">
+            <string>Leg 5 :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="edit_conLeg5">
+           <property name="text">
+            <string> NOT CONNECTED..!</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="layoutWidget_11">
+        <property name="geometry">
+         <rect>
+          <x>590</x>
+          <y>20</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_22">
+         <item>
+          <widget class="QLabel" name="label_34">
+           <property name="text">
+            <string>Leg 1 :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="edit_conLeg1">
+           <property name="text">
+            <string> NOT CONNECTED..!</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="layoutWidget_12">
+        <property name="geometry">
+         <rect>
+          <x>590</x>
+          <y>220</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_23">
+         <item>
+          <widget class="QLabel" name="label_35">
+           <property name="text">
+            <string>Leg 6 :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="edit_conLeg6">
+           <property name="text">
+            <string> NOT CONNECTED..!</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>590</x>
+          <y>60</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_18">
+         <item>
+          <widget class="QLabel" name="label_30">
+           <property name="text">
+            <string>Leg 2 :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="edit_conLeg2">
+           <property name="text">
+            <string> NOT CONNECTED..!</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>590</x>
+          <y>260</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_24">
+         <item>
+          <widget class="QLabel" name="label_36">
+           <property name="text">
+            <string>CBoard :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="edit_conCBoard">
+           <property name="text">
+            <string>NOT CONNECTED..!</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </widget>
       <widget class="QWidget" name="tab_10">

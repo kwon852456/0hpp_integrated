@@ -265,6 +265,22 @@ private slots:
 
     void updateBrokenCheck(QList<int> _liBrokenCheck);
 
+    void leg1Status(QString _text);
+
+    void leg2Status(QString _text);
+
+    void leg3Status(QString _text);
+
+    void leg4Status(QString _text);
+
+    void leg5Status(QString _text);
+
+    void leg6Status(QString _text);
+
+    void BStatus(QString _text);
+
+
+
 private:
     Ui::MainWindow *ui;
 };
@@ -398,6 +414,15 @@ signals:
     void MlegPorts_srls(QMap<int, int>);
     void brokenCheckSumDetected(QList<int> _librokenCheck);
 
+
+
+    void leg1Status(QString _text);
+    void leg2Status(QString _text);
+    void leg3Status(QString _text);
+    void leg4Status(QString _text);
+    void leg5Status(QString _text);
+    void leg6Status(QString _text);
+    void BStatus   (QString _text);
 
 
 public slots:
