@@ -1413,8 +1413,9 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                 if( res != 99999 && res != 99998 && res != 99997  ){
 
                     qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1   ; liPorts_.append(_liPorts[j]);
-                    _liPorts.removeAt(j); liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
+                    liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
                     emit leg1Status("Connected To Serial No : " + qt::qs_s(s_i(_liPorts[j])));
+                    _liPorts.removeAt(j);
 
                     break;
 
@@ -1422,15 +1423,18 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                     i::T res = i_srl(11);
 
                     if( res != 99999 && res != 99998 && res != 99997  ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1   ; liPorts_.append(_liPorts[j]);
-                        _liPorts.removeAt(j); liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
+                        liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
                         emit leg1Status("Connected To Serial No : " + qt::qs_s(s_i(_liPorts[j])));
+                        _liPorts.removeAt(j);
 
                         break;
 
                     }
                 }else if( j == _liPorts.size() -1 ){
+
                     emit errorSetText( " Leg : " + qt::qs_s(s_i(i + 1)) + " is NOT CONNECTED.....!!!" );
                     emit leg1Status("IS NOT CONNECTED..!!");
+
                 }
             }
 
@@ -1449,17 +1453,19 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                 i::T res = i_srl(21);
 
                 if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
-                    _liPorts.removeAt(j); liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
+                    liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
                     emit leg2Status("Connected To Serial No : " + qt::qs_s(s_i(_liPorts[j])));
 
+                    _liPorts.removeAt(j);
                     break;
                 }else if(res == 99999){
                     i::T res = i_srl(21);
 
                     if( res != 99999 && res != 99998 && res != 99997  ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1   ; liPorts_.append(_liPorts[j]);
-                        _liPorts.removeAt(j); liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
+                        liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
 
                         emit leg2Status("Connected To Serial No : " + qt::qs_s(s_i(_liPorts[j])));
+                        _liPorts.removeAt(j);
                         break;
 
                     }
@@ -1487,18 +1493,20 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                 i::T res = i_srl(31);
 
                 if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
-                    _liPorts.removeAt(j); liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
+                    liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
 
                     emit leg3Status("Connected To Serial No : " + qt::qs_s(s_i(_liPorts[j])));
+                    _liPorts.removeAt(j);
                     break;
 
                 }else if(res == 99999){
                     i::T res = i_srl(31);
 
                     if( res != 99999 && res != 99998 && res != 99997  ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1   ; liPorts_.append(_liPorts[j]);
-                        _liPorts.removeAt(j); liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
+                        liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
 
                         emit leg3Status("Connected To Serial No : " + qt::qs_s(s_i(_liPorts[j])));
+                        _liPorts.removeAt(j);
                         break;
 
                     }
@@ -1527,17 +1535,20 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                 i::T res = i_srl(41);
 
                 if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
-                    _liPorts.removeAt(j); liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
+                    liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
 
                     emit leg4Status("Connected To Serial No : " + qt::qs_s(s_i(_liPorts[j])));
+                    _liPorts.removeAt(j);
                     break;
 
                 }else if(res == 99999){
                     i::T res = i_srl(41);
 
                     if( res != 99999 && res != 99998 && res != 99997  ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1   ; liPorts_.append(_liPorts[j]);
-                        _liPorts.removeAt(j); liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
+                        liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
+
                         emit leg4Status("Connected To Serial No : " + qt::qs_s(s_i(_liPorts[j])));
+                        _liPorts.removeAt(j);
                         break;
 
                     }
@@ -1565,17 +1576,19 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                 i::T res = i_srl(51);
 
                 if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
-                    _liPorts.removeAt(j); liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
+                    liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
 
                     emit leg5Status("Connected To Serial No : " + qt::qs_s(s_i(_liPorts[j])));
+                    _liPorts.removeAt(j);
                     break;
                 }else if(res == 99999){
                     i::T res = i_srl(51);
 
                     if( res != 99999 && res != 99998 && res != 99997  ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1   ; liPorts_.append(_liPorts[j]);
-                        _liPorts.removeAt(j); liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
+                        liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
 
                         emit leg5Status("Connected To Serial No : " + qt::qs_s(s_i(_liPorts[j])));
+                        _liPorts.removeAt(j);
                         break;
 
                     }
@@ -1602,18 +1615,20 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                 i::T res = i_srl(61);
 
                 if( res != 99999 && res != 99998 && res != 99997 ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1 ; liPorts_.append(_liPorts[j]);
-                    _liPorts.removeAt(j); liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
+                    liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
 
                     emit leg6Status("Connected To Serial No : " + qt::qs_s(s_i(_liPorts[j])));
+                    _liPorts.removeAt(j);
                     break;
 
                 }else if(res == 99999){
                     i::T res = i_srl(61);
 
                     if( res != 99999 && res != 99998 && res != 99997  ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To Leg : " << i + 1   ; liPorts_.append(_liPorts[j]);
-                        _liPorts.removeAt(j); liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
+                        liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Leg : " + qt::qs_s(s_i(i + 1)));
 
                         emit leg6Status("Connected To Serial No : " + qt::qs_s(s_i(_liPorts[j])));
+                        _liPorts.removeAt(j);
                         break;
 
                     }
@@ -1636,12 +1651,12 @@ vo::t Dll_usb_mmf01stl::findPorts(QList<int> _liPorts){
                 Sleep(2000);
 
                 if( ping_secondEnc() ){ qDebug() << "Serial Number : " << _liPorts[j] << " Connected To SecondBoard "; liPorts_.append(_liPorts[j]);
-                    _liPorts.removeAt(j); liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Second board : ");
+                    liLegs.append(i + 1); emit errorSetText("Serial Number : " + qt::qs_s(s_i(_liPorts[j])) + " Connected To Second board : ");
 
                     discon_srls();
 
                     emit BStatus("Connected To Serial No : " + qt::qs_s(s_i(_liPorts[j])));
-
+                    _liPorts.removeAt(j);
                     break;
                 }else if( j == _liPorts.size() -1 ){
 
@@ -2850,9 +2865,6 @@ void MainWindow::on_btn_serialSearch_clicked()
 
 
     QMap<int, int> mLegPort;
-
-
-
     emit findPorts(liPorts);
 
 }
@@ -2951,7 +2963,6 @@ void MainWindow::on_edit_serialPorts_returnPressed()
         emit errorSetText( "serial port names < 6 " );
 
     }
-
 }
 
 void MainWindow::on_pushButton_2_clicked()
